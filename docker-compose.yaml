@@ -1,0 +1,18 @@
+version: "3.8"
+services:
+  dj-gui-api:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./:/src
+    env_file:
+      - .env
+    networks:
+      - dj-gui-api
+    working_dir: /src/
+    command: "python3 ./dj_gui_api_server/DJGUIAPIServer.py"
+
+networks:
+  dj-gui-api:
+    name: dj-gui-api
