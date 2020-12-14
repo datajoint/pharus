@@ -10,6 +10,6 @@ class DJConnector():
         # Attempt to connect return true if successful, false is failed
         try:
             dj.conn(reset=True)
-            return True
-        except:
-            return False
+            return dict(result=True)
+        except Exception as e:
+            return dict(result=False, error=e)
