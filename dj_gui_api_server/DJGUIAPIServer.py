@@ -17,12 +17,13 @@ def login():
         return dict(error='Invalid json body')
 
     # Try to login in with the database connection info, if true then create jwt key
-    if DJConnector.attempt_login(request.json['databaseAddress'], request.json['username'], request.json['password']):
+    attempt_connection_result = DJConnector.attempt_login(request.json['databaseAddress'], request.json['username'], request.json['password'])
+    if attempt_connection_result['result']:
         # Generate JWT key and send it back
         encoded_jwt = jwt.encode(request.json, os.environ['PRIVATE_KEY'].encode(), algorithm='RS256')
         return dict(jwt=encoded_jwt.decode())
     else:
-        return dict(error='Invalid Credentials')
+        return dict(error=str(attempt_connection_result['error']))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
