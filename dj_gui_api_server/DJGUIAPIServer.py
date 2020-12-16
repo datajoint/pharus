@@ -21,7 +21,9 @@ def protected_route(function):
             jwt_payload = jwt.decode(request.headers.get('Authorization')[7:], os.environ['PUBLIC_KEY'], algorithm='RS256')
             return function(jwt_payload)
         except Exception as e:
-            return dict(error=str(e))
+            return str(e), 401
+
+    wrapper.__name__ = function.__name__
     return wrapper
 
 """
@@ -58,26 +60,51 @@ def login():
         return dict(error=str(attempt_connection_result['error']))
 
 """
-# API route for fetching schema
+API route for fetching schema
 
 Parameters:
-    (html:POST:body): json with keys {}
+    header: (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
 
 Returns:
-    dict(schemas=<schemas>): If sucessfuly send back a list of schemas names
+    dict(schemaNames=<schemas>): If sucessfuly send back a list of schemas names
     or
     dict(error=<error_message>): With error message of why it failed
 """
 @app.route('/api/list_schemas', methods=['GET'])
 @protected_route
 def list_schemas(jwt_payload):
-    print(jwt_payload, flush=True)
     # Get all the schemas
-    result = DJConnector.list_schemas(jwt_payload['databaseAddress'], jwt_payload['username'], jwt_payload['password'])
-    if result['result']:
-        return dict(schemas=result['schemas'])
-    else:
-        return dict(error=result['error'])
+    try:
+        schemas_name = DJConnector.list_schemas(jwt_payload)
+        return dict(schemaNames=schemas_name)
+    except Exception as e:
+        return str(e), 500
+
+"""
+API route for listing all tables under a given schema name
+
+Parameters:
+    header: (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
+    body: (html:POST:JSON): {"schemaName": <schema_name>}
+
+Returns:
+    dict(
+        manualTables=[<tables_names>], 
+        lookupTables=[<tables_names>], 
+        computeTables=[<tables_name>], 
+        partTables=[<parent_table.part_table_name>]
+        ): If successful then send back a list of tables names
+    or
+    dict(error=<error_message>): With error message of why it failed
+"""
+@app.route('/api/list_tables', methods=['POST'])
+@protected_route
+def list_tables(jwt_payload):
+    try:
+        tables_dict_list = DJConnector.list_tables(jwt_payload, request.json["schemaName"])
+        return dict(tableTypeAndNames = tables_dict_list)
+    except Exception as e:
+        return str(e), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
