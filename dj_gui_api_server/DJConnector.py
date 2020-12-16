@@ -21,8 +21,7 @@ class DJConnector():
         
         # Attempt to connect return true if successful, false is failed
         try:
-            dj.conn()
-            dj.conn.connection.close()
+            dj.conn(reset=True)
             return dict(result=True)
         except Exception as e:
             return dict(result=False, error=e)
