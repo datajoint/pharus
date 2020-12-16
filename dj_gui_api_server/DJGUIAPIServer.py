@@ -66,7 +66,7 @@ Parameters:
     header: (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
 
 Returns:
-    dict(schemas_name=<schemas>): If sucessfuly send back a list of schemas names
+    dict(schemaNames=<schemas>): If sucessfuly send back a list of schemas names
     or
     dict(error=<error_message>): With error message of why it failed
 """
@@ -76,7 +76,7 @@ def list_schemas(jwt_payload):
     # Get all the schemas
     try:
         schemas_name = DJConnector.list_schemas(jwt_payload)
-        return dict(schemas_name=schemas_name)
+        return dict(schemaNames=schemas_name)
     except Exception as e:
         return str(e), 500
 
