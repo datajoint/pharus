@@ -21,7 +21,8 @@ class DJConnector():
         
         # Attempt to connect return true if successful, false is failed
         try:
-            dj.conn(reset=True)
+            dj.conn()
+            dj.conn.connection.close()
             return dict(result=True)
         except Exception as e:
             return dict(result=False, error=e)
@@ -30,23 +31,86 @@ class DJConnector():
     List all schemas under the database
 
     Parameters:
-        database_address (string): Address of database
-        username (string): Username of user
-        password (string): Password of user
+        jwt_payload (dict): dictionary containing databaseAddress, username and password strings
 
     Returns:
-        dict(result=True, schemas=(list(str))): If successful
-        dict(result=False, error=<error-message>): If failed
+        list<strings>: List of schemas names
     """
     @staticmethod
-    def list_schemas(database_address, username, password):
-        dj.config['database.host'] = database_address
-        dj.config['database.user'] = username
-        dj.config['database.password'] = password
+    def list_schemas(jwt_payload):
+        DJConnector.set_datajoint_config(jwt_payload)
 
         # Attempt to connect return true if successful, false is failed
-        try:
-            schemas = dj.list_schemas()
-            return dict(result=True, schemas=schemas)
-        except Exception as e:
-            return dict(result=False, error=e)
+        schemas = dj.list_schemas()
+        dj.conn.connection.close()
+        return schemas
+
+    """
+    List all tables and their type give a schema
+
+    Parameters:
+        jwt_payload (dict): dictionary containing databaseAddress, username and password strings
+
+    Returns:
+        dict(manual_tables=[<table_names>], 
+            lookup_tables=[<table_names>], 
+            computed_tables=[<computed_tables>], 
+            part_tables=[<table_names>]
+            ): dict containg a key for a each table type and it corressponding table names
+    """
+    @staticmethod
+    def list_tables(jwt_payload, schema_name):
+        DJConnector.set_datajoint_config(jwt_payload)
+        
+        # Get list of tables names\
+        tables_name = dj.schema(schema_name).list_tables()
+
+        # Dict to store list of table name for each type
+        tables_dict_list = dict(manual_tables=[], lookup_tables=[], computed_tables=[], part_tables=[])
+
+        # Loop through each table name to figure out what type it is and add them to tables_dict_list
+        for table_name in tables_name:
+            table_type = dj.diagram._get_tier('`' + schema_name + '`.`' + table_name + '`').__name__
+            
+            if table_type == 'Manual':
+                tables_dict_list['manual_tables'].append(dj.utils.to_camel_case(table_name))
+            elif table_type == 'Lookup':
+                tables_dict_list['lookup_tables'].append(dj.utils.to_camel_case(table_name))
+            elif table_type == 'Computed':
+                tables_dict_list['computed_tables'].append(dj.utils.to_camel_case(table_name))
+            elif table_type == 'Part':
+                table_name_parts = '__array_response__electrode_response'.split('__')
+                tables_dict_list['part_tables'].append(DJConnector.snake_to_camel_case(table_name_parts[1]) + '.' + DJConnector.snake_to_camel_case(table_name_parts[2]))
+            else:
+                print(table_name + ' is of unknown table type')
+                
+        dj.conn.connection.close()
+        return tables_dict_list
+        
+    """
+    Method to set credentials for database
+    
+    Parameters:
+        jwt_payload (dict): dictionary containing databaseAddress, username and password strings
+
+    Returns:
+        None
+    """
+    @staticmethod
+    def set_datajoint_config(jwt_payload):
+        dj.config['database.host'] = jwt_payload['databaseAddress']
+        dj.config['database.user'] = jwt_payload['username']
+        dj.config['database.password'] = jwt_payload['password']
+    
+    """
+    Helper method for converting snake to camel case
+
+    Parameters:
+        string (string): string in snake format to convert to camel case
+
+    Returns:
+        string: string formated in CamelCase notation
+    """
+    @staticmethod
+    def snake_to_camel_case(string):
+        return ''.join(string_component.title() for string_component in string.split('_'))
