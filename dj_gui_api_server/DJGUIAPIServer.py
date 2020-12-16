@@ -78,7 +78,7 @@ def list_schemas(jwt_payload):
         schemas_name = DJConnector.list_schemas(jwt_payload)
         return dict(schemas_name=schemas_name)
     except Exception as e:
-        return str(e), 400
+        return str(e), 500
 
 """
 API route for listing all tables under a given schema name
@@ -104,7 +104,7 @@ def list_tables(jwt_payload):
         tables_dict_list = DJConnector.list_tables(jwt_payload, request.json["schemaName"])
         return dict(tableTypeAndNames = tables_dict_list)
     except Exception as e:
-        return str(e), 400
+        return str(e), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
