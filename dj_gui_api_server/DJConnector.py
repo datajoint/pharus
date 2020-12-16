@@ -41,7 +41,6 @@ class DJConnector():
 
         # Attempt to connect return true if successful, false is failed
         schemas = dj.list_schemas()
-        dj.conn.connection.close()
         return schemas
 
     """
@@ -82,8 +81,7 @@ class DJConnector():
                 tables_dict_list['part_tables'].append(DJConnector.snake_to_camel_case(table_name_parts[1]) + '.' + DJConnector.snake_to_camel_case(table_name_parts[2]))
             else:
                 print(table_name + ' is of unknown table type')
-                
-        dj.conn.connection.close()
+
         return tables_dict_list
         
     """
@@ -101,6 +99,7 @@ class DJConnector():
         dj.config['database.user'] = jwt_payload['username']
         dj.config['database.password'] = jwt_payload['password']
     
+        dj.conn(reset=True)
     """
     Helper method for converting snake to camel case
 
