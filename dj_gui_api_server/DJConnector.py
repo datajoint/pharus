@@ -77,7 +77,7 @@ class DJConnector():
             elif table_type == 'Computed':
                 tables_dict_list['computed_tables'].append(dj.utils.to_camel_case(table_name))
             elif table_type == 'Part':
-                table_name_parts = '__array_response__electrode_response'.split('__')
+                table_name_parts = table_name.split('__')
                 tables_dict_list['part_tables'].append(DJConnector.snake_to_camel_case(table_name_parts[1]) + '.' + DJConnector.snake_to_camel_case(table_name_parts[2]))
             else:
                 print(table_name + ' is of unknown table type')
