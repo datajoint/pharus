@@ -30,7 +30,7 @@ class DJConnector():
     List all schemas under the database
 
     Parameters:
-        jwt_payload (dict): dictionary containing databaseAddress, username and password strings
+        jwt_payload (dict): Dictionary containing databaseAddress, username and password strings
 
     Returns:
         list<strings>: List of schemas names
@@ -47,7 +47,8 @@ class DJConnector():
     List all tables and their type give a schema
 
     Parameters:
-        jwt_payload (dict): dictionary containing databaseAddress, username and password strings
+        jwt_payload (dict): Dictionary containing databaseAddress, username and password strings
+        schema_name (str): Name of schema to list all tables from
 
     Returns:
         dict(manual_tables=[<table_names>], 
@@ -83,6 +84,24 @@ class DJConnector():
                 print(table_name + ' is of unknown table type')
 
         return tables_dict_list
+
+    """
+    Get all tuples from table
+    
+    Parameters:
+        jwt_payload (dict): Dictionary containing databaseAddress, username and password strings
+        schema_name (string): Schema name where to find the table under
+        table_name (string): Table name under the given schema, must be in camel case
+
+    Returns:
+        (tuples)
+    """
+    @staticmethod
+    def fetch_tuples(jwt_payload, schema_name, table_name):
+        DJConnector.set_datajoint_config(jwt_payload)
+        
+        schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
+        return getattr(schema_virtual_module, table_name).fetch(as_dict=True)
         
     """
     Method to set credentials for database
@@ -104,10 +123,10 @@ class DJConnector():
     Helper method for converting snake to camel case
 
     Parameters:
-        string (string): string in snake format to convert to camel case
+        string (string): String in snake format to convert to camel case
 
     Returns:
-        string: string formated in CamelCase notation
+        string: String formated in CamelCase notation
     """
     @staticmethod
     def snake_to_camel_case(string):
