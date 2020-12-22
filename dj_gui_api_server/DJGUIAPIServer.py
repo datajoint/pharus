@@ -127,5 +127,25 @@ def fetch_tuples(jwt_payload):
     except Exception as e:
         return str(e), 500
 
+"""
+Route to fetch all tuples for a given table
+
+Parameters:
+    header: (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
+    body: (html:POST:JSON): {"schemaName": <schema_name>, "tableName": <table_name>} (NOTE: Table name must be in CamalCase)
+
+Returns:
+    dict(tuples=[tuples_as_dicts])
+    or
+    dict(error=<error_message>): With error message of why it failed
+"""
+@app.route('/api/get_table_attributes', methods=['POST'])
+@protected_route
+def get_table_attributes(jwt_payload):
+    try:
+        return DJConnector.get_table_attributes(jwt_payload, request.json["schemaName"], request.json["tableName"])
+    except Exception as e:
+        return str(e), 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

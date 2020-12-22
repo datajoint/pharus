@@ -102,6 +102,24 @@ class DJConnector():
         
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
         return getattr(schema_virtual_module, table_name).fetch(as_dict=True)
+
+    """
+    Method to get primary and secondary attributes of a table
+
+    Parameters:
+        jwt_payload (dict): Dictionary containing databaseAddress, username and password strings
+        schema_name (string): Schema name where to find the table under
+        table_name (string): Table name under the given schema, must be in camel case
+
+    Returns:
+        dict(primary_keys=[<primary_key_names>], secondary_attributes=[<secondary_key_names])
+    """
+    @staticmethod
+    def get_table_attributes(jwt_payload, schema_name, table_name):
+        DJConnector.set_datajoint_config(jwt_payload)
+
+        schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
+        return dict(primary_keys=getattr(schema_virtual_module, table_name).heading.primary_key, secondary_attributes=getattr(schema_virtual_module, table_name).heading.secondary_attributes)
         
     """
     Method to set credentials for database
@@ -119,6 +137,7 @@ class DJConnector():
         dj.config['database.password'] = jwt_payload['password']
     
         dj.conn(reset=True)
+
     """
     Helper method for converting snake to camel case
 
