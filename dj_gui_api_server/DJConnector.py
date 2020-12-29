@@ -159,6 +159,43 @@ class DJConnector():
         getattr(schema_virtual_module, table_name).insert1(tuple_to_insert)
 
     """
+    Delete a specific tuple based on the restriction given (Can only delete 1 at a time)
+
+    Parameters:
+        jwt_payload (dict): Dictionary containing databaseAddress, username and password strings
+        schema_name (string): Schema name where to find the table under
+        table_name (string): Table name under the given schema, must be in camel case
+        tuple_to_restrict_by (dict): tuple to restrict the table by to delete
+    
+    Returns:
+        None: (Assuming it was valid, otherwise it will raise an error)
+    """
+    @staticmethod
+    def delete_tuple(jwt_payload, schema_name, table_name, tuple_to_restrict_by):
+        DJConnector.set_datajoint_config(jwt_payload)
+
+        schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
+        # Get all the table attributes and create a set
+        table_attributes = set(getattr(schema_virtual_module, table_name).heading.primary_key + getattr(schema_virtual_module, table_name).heading.secondary_attributes)
+
+        # Check to see if the restriction has at least one matching attribute, if not raise an error
+        if len(table_attributes & tuple_to_restrict_by.keys()) == 0:
+            raise Exception('Restriction is invalid: None of the attributes match')
+
+        # Compute restriction 
+        tuple_to_delete = getattr(schema_virtual_module, table_name) & tuple_to_restrict_by
+
+        # Check if there is only 1 tuple to delete otherwise raise error
+        
+        if len(tuple_to_delete) > 1:
+            raise Exception('Cannot delete more than 1 tuple at a time. Please update the restriction accordingly')
+        elif len(tuple_to_delete) == 0:
+            raise Exception('Nothing to delete')
+
+        # All check pass thus proceed to delete
+        tuple_to_delete.delete_quick()
+        
+    """
     Method to set credentials for database
     
     Parameters:
@@ -175,7 +212,6 @@ class DJConnector():
     
         dj.conn(reset=True)
 
-    
     """
     Helper method for converting snake to camel case
 

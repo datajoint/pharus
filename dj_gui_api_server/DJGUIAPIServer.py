@@ -174,7 +174,7 @@ Route to insert tuple
 Parameter:
     Parameters:
     header: (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
-    body: (html:POST:JSON): {"schemaName": <schema_name>, "tableName": <table_name>, "tuple", "tuple": <tuple_to_insert>} (NOTE: Table name must be in CamalCase)
+    body: (html:POST:JSON): {"schemaName": <schema_name>, "tableName": <table_name>, "tuple": <tuple_to_insert>} (NOTE: Table name must be in CamalCase)
 
 Returns:
     string: "Insert Successful" if the tuple was insert sucessfully
@@ -188,6 +188,29 @@ def insert_tuple(jwt_payload):
         # Attempt to insert
         DJConnector.insert_tuple(jwt_payload, request.json["schemaName"], request.json["tableName"], request.json["tuple"])
         return "Insert Successful"
+    except Exception as e:
+        return str(e), 500
+
+"""
+Route to delete a specific tuple
+
+Parameter:
+    Parameters:
+    header: (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
+    body: (html:POST:JSON): {"schemaName": <schema_name>, "tableName": <table_name>, "restrictionTuple": <tuple_to_restrict_table_by>} (NOTE: Table name must be in CamalCase)
+
+Returns:
+    string: "Delete Successful" if the tuple was deleted sucessfully
+    or
+    string: With error message of why it failed, 500 error
+"""
+@app.route('/api/delete_tuple', methods=['POST'])
+@protected_route
+def delete_tuple(jwt_payload):
+    try:
+        # Attempt to delete tuple
+        DJConnector.delete_tuple(jwt_payload, request.json["schemaName"], request.json["tableName"], request.json["restrictionTuple"])
+        return "Delete Sucessful"
     except Exception as e:
         return str(e), 500
 
