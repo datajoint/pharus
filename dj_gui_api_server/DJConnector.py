@@ -140,6 +140,25 @@ class DJConnector():
         return getattr(schema_virtual_module, table_name).describe()
 
     """
+    Insert tuple table
+
+    Parameters:
+        jwt_payload (dict): Dictionary containing databaseAddress, username and password strings
+        schema_name (string): Schema name where to find the table under
+        table_name (string): Table name under the given schema, must be in camel case
+        tuple (dict): tuple to be inserted
+
+    Return:
+        bool: true if input is sucessful
+    """
+    @staticmethod
+    def insert_tuple(jwt_payload, schema_name, table_name, tuple_to_insert):
+        DJConnector.set_datajoint_config(jwt_payload)
+        
+        schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
+        return getattr(schema_virtual_module, table_name).insert1(tuple_to_insert)
+
+    """
     Method to set credentials for database
     
     Parameters:
