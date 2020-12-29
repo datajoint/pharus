@@ -94,7 +94,7 @@ class DJConnector():
         table_name (string): Table name under the given schema, must be in camel case
 
     Returns:
-        (tuples)
+        list<tuples_as_dicts>: a list of tuples in dict form
     """
     @staticmethod
     def fetch_tuples(jwt_payload, schema_name, table_name):
@@ -122,6 +122,24 @@ class DJConnector():
         return dict(primary_keys=getattr(schema_virtual_module, table_name).heading.primary_key, secondary_attributes=getattr(schema_virtual_module, table_name).heading.secondary_attributes)
         
     """
+    Get the table definition
+
+    Parameters:
+        jwt_payload (dict): Dictionary containing databaseAddress, username and password strings
+        schema_name (string): Schema name where to find the table under
+        table_name (string): Table name under the given schema, must be in camel case
+
+    Returns:
+        string: definition of the table
+    """
+    @staticmethod
+    def get_table_definition(jwt_payload, schema_name, table_name):
+        DJConnector.set_datajoint_config(jwt_payload)
+        
+        schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
+        return getattr(schema_virtual_module, table_name).describe()
+
+    """
     Method to set credentials for database
     
     Parameters:
@@ -138,6 +156,7 @@ class DJConnector():
     
         dj.conn(reset=True)
 
+    
     """
     Helper method for converting snake to camel case
 

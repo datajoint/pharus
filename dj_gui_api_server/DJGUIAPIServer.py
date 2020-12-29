@@ -114,7 +114,7 @@ Parameters:
     body: (html:POST:JSON): {"schemaName": <schema_name>, "tableName": <table_name>} (NOTE: Table name must be in CamalCase)
 
 Returns:
-    dict(tuples=[tuples_as_dicts])
+    dict(table_definition=table_definition): table_definition will be in string format
     or
     dict(error=<error_message>): With error message of why it failed
 """
@@ -144,6 +144,17 @@ Returns:
 def get_table_attributes(jwt_payload):
     try:
         return DJConnector.get_table_attributes(jwt_payload, request.json["schemaName"], request.json["tableName"])
+    string: The table definition
+    or
+    dict(error=<error_message>): With error message of why it failed
+
+"""
+@app.route('/api/get_table_definition', methods=['POST'])
+@protected_route
+def get_table_definition(jwt_payload):
+    try:
+        table_definition = DJConnector.get_table_definition(jwt_payload, request.json["schemaName"], request.json["tableName"])
+        return table_definition
     except Exception as e:
         return str(e), 500
 
