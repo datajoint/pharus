@@ -158,6 +158,15 @@ Parameters:
     body: (html:POST:JSON): {"schemaName": <schema_name>, "tableName": <table_name>} (NOTE: Table name must be in CamalCase)
 
 Returns:
+    dict(tuples=[tuples_as_dicts])
+    or
+    dict(error=<error_message>): With error message of why it failed
+"""
+@app.route('/api/get_table_attributes', methods=['POST'])
+@protected_route
+def get_table_attributes(jwt_payload):
+    try:
+        return DJConnector.get_table_attributes(jwt_payload, request.json["schemaName"], request.json["tableName"])
     string: The table definition
     or
     string: With error message of why it failed, 500 error
