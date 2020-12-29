@@ -175,7 +175,6 @@ class DJConnector():
     
         dj.conn(reset=True)
 
-    
     """
     Helper method for converting snake to camel case
 
