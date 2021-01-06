@@ -33,15 +33,14 @@ class DJConnector():
         jwt_payload (dict): Dictionary containing databaseAddress, username and password strings
 
     Returns:
-        list<strings>: List of schemas names
+        list<strings>: List of schemas names in alphabetical order excluding information_schema
     """
     @staticmethod
     def list_schemas(jwt_payload):
         DJConnector.set_datajoint_config(jwt_payload)
 
         # Attempt to connect return true if successful, false is failed
-        schemas = dj.list_schemas()
-        return schemas
+        return [row[0] for row in dj.conn().query('SELECT SCHEMA_NAME FROM information_schema.schemata WHERE SCHEMA_NAME != "information_schema" ORDER BY SCHEMA_NAME')]
 
     """
     List all tables and their type give a schema
