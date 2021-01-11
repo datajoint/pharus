@@ -114,7 +114,7 @@ Parameters:
     body: (html:POST:JSON): {"schemaName": <schema_name>, "tableName": <table_name>} (NOTE: Table name must be in CamalCase)
 
 Returns:
-    dict(table_definition=table_definition): table_definition will be in string format
+    dict(tuples=tuples): Tuples will be represented as a list
     or
     string: With error message of why it failed, 500 error
 """
@@ -156,7 +156,7 @@ Parameters:
     body: (html:POST:JSON): {"schemaName": <schema_name>, "tableName": <table_name>} (NOTE: Table name must be in CamalCase)
 
 Returns:
-    dict(primary_keys=[<primary_key_names>], secondary_attributes=[<secondary_key_names])
+    dict(primary_attributes=[tuple(attribute_name, type, nullable, default, autoincrement)], secondary_attributes=[tuple(attribute_name, type, nullable, default, autoincrement)])
     or
     string: With error message of why it failed, 500 error
 """

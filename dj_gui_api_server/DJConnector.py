@@ -33,15 +33,14 @@ class DJConnector():
         jwt_payload (dict): Dictionary containing databaseAddress, username and password strings
 
     Returns:
-        list<strings>: List of schemas names
+        list<strings>: List of schemas names in alphabetical order excluding information_schema
     """
     @staticmethod
     def list_schemas(jwt_payload):
         DJConnector.set_datajoint_config(jwt_payload)
 
         # Attempt to connect return true if successful, false is failed
-        schemas = dj.list_schemas()
-        return schemas
+        return [row[0] for row in dj.conn().query('SELECT SCHEMA_NAME FROM information_schema.schemata WHERE SCHEMA_NAME != "information_schema" ORDER BY SCHEMA_NAME')]
 
     """
     List all tables and their type give a schema
@@ -94,14 +93,14 @@ class DJConnector():
         table_name (string): Table name under the given schema, must be in camel case
 
     Returns:
-        list<tuples_as_dicts>: a list of tuples in dict form
+        list<tuples_rows>: a list of tuples in dict form
     """
     @staticmethod
     def fetch_tuples(jwt_payload, schema_name, table_name):
         DJConnector.set_datajoint_config(jwt_payload)
         
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
-        return getattr(schema_virtual_module, table_name).fetch(as_dict=True)
+        return getattr(schema_virtual_module, table_name).fetch().tolist()
 
     """
     Method to get primary and secondary attributes of a table
@@ -112,14 +111,33 @@ class DJConnector():
         table_name (string): Table name under the given schema, must be in camel case
 
     Returns:
-        dict(primary_keys=[<primary_key_names>], secondary_attributes=[<secondary_key_names])
+        dict(primary_attributes=[[attribute_name, type, nullable, default, autoincrement]], secondary_attributes=[[attribute_name, type, nullable, default, autoincrement]])
     """
     @staticmethod
     def get_table_attributes(jwt_payload, schema_name, table_name):
         DJConnector.set_datajoint_config(jwt_payload)
 
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
-        return dict(primary_keys=getattr(schema_virtual_module, table_name).heading.primary_key, secondary_attributes=getattr(schema_virtual_module, table_name).heading.secondary_attributes)
+        table_attributes = dict(primary_attributes=[], secondary_attributes=[])
+        for attribute_name, attribute_info in getattr(schema_virtual_module, table_name).heading.attributes.items():
+            if attribute_info.in_key:
+                table_attributes['primary_attributes'].append((
+                    attribute_name, 
+                    attribute_info.type,
+                    attribute_info.nullable,
+                    attribute_info.default,
+                    attribute_info.autoincrement
+                    ))
+            else:
+                table_attributes['secondary_attributes'].append((
+                    attribute_name, 
+                    attribute_info.type,
+                    attribute_info.nullable,
+                    attribute_info.default,
+                    attribute_info.autoincrement
+                    ))
+                    
+        return table_attributes
         
     """
     Get the table definition
@@ -186,7 +204,6 @@ class DJConnector():
         tuple_to_delete = getattr(schema_virtual_module, table_name) & tuple_to_restrict_by
 
         # Check if there is only 1 tuple to delete otherwise raise error
-        
         if len(tuple_to_delete) > 1:
             raise Exception('Cannot delete more than 1 tuple at a time. Please update the restriction accordingly')
         elif len(tuple_to_delete) == 0:
