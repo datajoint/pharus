@@ -222,7 +222,7 @@ def delete_tuple(jwt_payload):
 if __name__ == '__main__':
     # Check if PRIVATE_KEY and PUBIC_KEY is set, if not generate them.
     # NOTE: For web deployment, please set the these enviorment variable to be the same between the instance
-    if os.environ.get('PRIVATE_KEY') == None or os.get('PUBLIC_KEY') == None:
+    if os.environ.get('PRIVATE_KEY') == None or os.environ.get('PUBLIC_KEY') == None:
         key = rsa.generate_private_key(
         backend=crypto_default_backend(),
         public_exponent=65537,
