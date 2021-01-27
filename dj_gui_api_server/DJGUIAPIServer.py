@@ -150,7 +150,7 @@ Returns:
 def get_table_definition(jwt_payload):
     try:
         table_definition = DJConnector.get_table_definition(jwt_payload, request.json["schemaName"], request.json["tableName"])
-        return table_definition
+        return dict(definition = table_definition)
     except Exception as e:
         return str(e), 500
 
