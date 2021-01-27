@@ -53,6 +53,7 @@ class DJConnector():
         dict(manual_tables=[<table_names>], 
             lookup_tables=[<table_names>], 
             computed_tables=[<computed_tables>], 
+            imported_tables=[<imported_tables>],
             part_tables=[<table_names>]
             ): dict containg a key for a each table type and it corressponding table names
     """
@@ -64,18 +65,20 @@ class DJConnector():
         tables_name = dj.schema(schema_name).list_tables()
 
         # Dict to store list of table name for each type
-        tables_dict_list = dict(manual_tables=[], lookup_tables=[], computed_tables=[], part_tables=[])
+        tables_dict_list = dict(manual_tables=[], lookup_tables=[], computed_tables=[], imported_tables=[], part_tables=[])
 
         # Loop through each table name to figure out what type it is and add them to tables_dict_list
         for table_name in tables_name:
             table_type = dj.diagram._get_tier('`' + schema_name + '`.`' + table_name + '`').__name__
-            
+            print(table_name, table_type, flush=True)
             if table_type == 'Manual':
                 tables_dict_list['manual_tables'].append(dj.utils.to_camel_case(table_name))
             elif table_type == 'Lookup':
                 tables_dict_list['lookup_tables'].append(dj.utils.to_camel_case(table_name))
             elif table_type == 'Computed':
                 tables_dict_list['computed_tables'].append(dj.utils.to_camel_case(table_name))
+            elif table_type == 'Imported':
+                tables_dict_list['imported_tables'].append(dj.utils.to_camel_case(table_name))
             elif table_type == 'Part':
                 table_name_parts = table_name.split('__')
                 tables_dict_list['part_tables'].append(DJConnector.snake_to_camel_case(table_name_parts[-2]) + '.' + DJConnector.snake_to_camel_case(table_name_parts[-1]))
