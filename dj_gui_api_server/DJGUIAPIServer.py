@@ -98,7 +98,7 @@ Returns:
         lookup_tables=[<tables_names>], 
         compute_tables=[<tables_name>],
         imported_tables=[<imported_tables>],
-        partTables=[<parent_table.part_table_name>]
+        part_tables=[<parent_table.part_table_name>]
         ): If successful then send back a list of tables names
     or
     string: With error message of why it failed, 500 error
