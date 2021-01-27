@@ -94,9 +94,9 @@ Parameters:
 
 Returns:
     dict(
-        manualTables=[<tables_names>], 
-        lookupTables=[<tables_names>], 
-        computeTables=[<tables_name>],
+        manual_tables=[<tables_names>], 
+        lookup_tables=[<tables_names>], 
+        compute_tables=[<tables_name>],
         imported_tables=[<imported_tables>],
         partTables=[<parent_table.part_table_name>]
         ): If successful then send back a list of tables names
