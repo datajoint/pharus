@@ -1,19 +1,26 @@
+# PROD: docker-compose up --build -d
+# DEV: docker-compose up
 version: "2.4"
 services:
   dj-gui-api:
-    build: .
-    ports:
-      - "5000:5000"
-    volumes:
-      - ./:/src
+    build:
+      context: .
+      args:
+        - PY_VER=3.8
+        - DISTRO=alpine
+    image: dj-gui-api
     environment:
       - PRIVATE_KEY
       - PUBLIC_KEY
       - FLASK_ENV=development # enables logging to console from Flask
     networks:
       - dj-gui-api
-    working_dir: /src/
-    command: "python3 ./dj_gui_api_server/DJGUIAPIServer.py"
+    # volumes:
+    #   - ./dj_gui_api_server:/opt/conda/lib/python3.8/site-packages/dj_gui_api_server
+    ports:
+      - "5000:5000"
+    working_dir: /main
+    command: djgui_api
 
 networks:
   dj-gui-api:

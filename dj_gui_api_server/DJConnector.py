@@ -1,24 +1,28 @@
+"""Library for interfaces into DataJoint pipelines."""
 import datajoint as dj
+
 
 class DJConnector():
     """
-    Attempt to authenticate against database with given username and address
-
-    Parameters:
-        database_address (string): Address of database
-        username (string): Username of user
-        password (string): Password of user
-
-    Returns:
-        dict(result=True): If successful
-        dict(result=False, error=<error-message>): If failed
+    Primary connector that communicates with a DataJoint database server.
     """
     @staticmethod
-    def attempt_login(database_address, username, password):
+    def attempt_login(database_address: str, username: str, password: str):
+        """
+        Attempts to authenticate against database with given username and address
+        :param database_address: Address of database
+        :type database_address: str
+        :param username: Username of user
+        :type username: str
+        :param password: Password of user
+        :type password: str
+        :return: Dictionary with keys: result(True|False), and error (if applicable)
+        :rtype: dict
+        """
         dj.config['database.host'] = database_address
         dj.config['database.user'] = username
         dj.config['database.password'] = password
-        
+
         # Attempt to connect return true if successful, false is failed
         try:
             dj.conn(reset=True)
@@ -26,18 +30,16 @@ class DJConnector():
         except Exception as e:
             return dict(result=False, error=e)
 
-    """
-    List all schemas under the database
-
-    Parameters:
-        jwt_payload (dict): Dictionary containing databaseAddress, username and password
-            strings
-
-    Returns:
-        list<strings>: List of schemas names in alphabetical order excluding information_schema
-    """
     @staticmethod
-    def list_schemas(jwt_payload):
+    def list_schemas(jwt_payload: dict):
+        """
+        List all schemas under the database
+        :param jwt_payload: Dictionary containing databaseAddress, username and password
+            strings
+        :type jwt_payload: dict
+        :return: List of schemas names in alphabetical order excluding information_schema
+        :rtype: list
+        """
         DJConnector.set_datajoint_config(jwt_payload)
 
         # Attempt to connect return true if successful, false is failed
@@ -47,26 +49,20 @@ class DJConnector():
         ORDER BY SCHEMA_NAME
         """)]
 
-    """
-    List all tables and their type give a schema
-
-    Parameters:
-        jwt_payload (dict): Dictionary containing databaseAddress, username and password
-            strings
-        schema_name (str): Name of schema to list all tables from
-
-    Returns:
-        dict(manual_tables=[<table_names>], 
-            lookup_tables=[<table_names>], 
-            computed_tables=[<computed_tables>], 
-            imported_tables=[<imported_tables>],
-            part_tables=[<table_names>]
-            ): dict containg a key for a each table type and it corressponding table names
-    """
     @staticmethod
-    def list_tables(jwt_payload, schema_name):
+    def list_tables(jwt_payload: dict, schema_name: str):
+        """
+        List all tables and their type give a schema
+        :param jwt_payload: Dictionary containing databaseAddress, username and password
+            strings
+        :type jwt_payload: dict
+        :param schema_name: Name of schema to list all tables from
+        :type schema_name: str
+        :return: Contains a key for a each table type and it corressponding table names
+        :rtype: dict
+        """
         DJConnector.set_datajoint_config(jwt_payload)
-        
+
         # Get list of tables names\
         tables_name = dj.schema(schema_name).list_tables()
 
@@ -74,7 +70,8 @@ class DJConnector():
         tables_dict_list = dict(manual_tables=[], lookup_tables=[], computed_tables=[],
                                 imported_tables=[], part_tables=[])
 
-        # Loop through each table name to figure out what type it is and add them to tables_dict_list
+        # Loop through each table name to figure out what type it is and add them to
+        # tables_dict_list
         for table_name in tables_name:
             table_type = dj.diagram._get_tier(
                 '`' + schema_name + '`.`' + table_name + '`').__name__
@@ -97,40 +94,40 @@ class DJConnector():
 
         return tables_dict_list
 
-    """
-    Get all tuples from table
-    
-    Parameters:
-        jwt_payload (dict): Dictionary containing databaseAddress, username and password
-            strings
-        schema_name (string): Schema name where to find the table under
-        table_name (string): Table name under the given schema, must be in camel case
-
-    Returns:
-        list<tuples_rows>: a list of tuples in dict form
-    """
     @staticmethod
-    def fetch_tuples(jwt_payload, schema_name, table_name):
+    def fetch_tuples(jwt_payload: dict, schema_name: str, table_name: str):
+        """
+        Get records as tuples from table
+        :param jwt_payload: Dictionary containing databaseAddress, username and password
+            strings
+        :type jwt_payload: dict
+        :param schema_name: Name of schema to list all tables from
+        :type schema_name: str
+        :param table_name: Table name under the given schema; must be in camel case
+        :type table_name: str
+        :return: List of tuples in dict form
+        :rtype: list
+        """
         DJConnector.set_datajoint_config(jwt_payload)
-        
+
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
         return getattr(schema_virtual_module, table_name).fetch().tolist()
 
-    """
-    Method to get primary and secondary attributes of a table
-
-    Parameters:
-        jwt_payload (dict): Dictionary containing databaseAddress, username and password
-            strings
-        schema_name (string): Schema name where to find the table under
-        table_name (string): Table name under the given schema, must be in camel case
-
-    Returns:
-        dict(primary_attributes=[[attribute_name, type, nullable, default, autoincrement]],
-             secondary_attributes=[[attribute_name, type, nullable, default, autoincrement]])
-    """
     @staticmethod
-    def get_table_attributes(jwt_payload, schema_name, table_name):
+    def get_table_attributes(jwt_payload: dict, schema_name: str, table_name: str):
+        """
+        Method to get primary and secondary attributes of a table
+        :param jwt_payload: Dictionary containing databaseAddress, username and password
+            strings
+        :type jwt_payload: dict
+        :param schema_name: Name of schema to list all tables from
+        :type schema_name: str
+        :param table_name: Table name under the given schema; must be in camel case
+        :type table_name: str
+        :return: Dict of primary, secondary attributes and with metadata: attribute_name,
+            type, nullable, default, autoincrement.
+        :rtype: dict
+        """
         DJConnector.set_datajoint_config(jwt_payload)
 
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
@@ -139,7 +136,7 @@ class DJConnector():
                                                       table_name).heading.attributes.items():
             if attribute_info.in_key:
                 table_attributes['primary_attributes'].append((
-                    attribute_name, 
+                    attribute_name,
                     attribute_info.type,
                     attribute_info.nullable,
                     attribute_info.default,
@@ -147,89 +144,89 @@ class DJConnector():
                     ))
             else:
                 table_attributes['secondary_attributes'].append((
-                    attribute_name, 
+                    attribute_name,
                     attribute_info.type,
                     attribute_info.nullable,
                     attribute_info.default,
                     attribute_info.autoincrement
                     ))
-                    
+
         return table_attributes
-        
-    """
-    Get the table definition
 
-    Parameters:
-        jwt_payload (dict): Dictionary containing databaseAddress, username and password
-            strings
-        schema_name (string): Schema name where to find the table under
-        table_name (string): Table name under the given schema, must be in camel case
-
-    Returns:
-        string: definition of the table
-    """
     @staticmethod
-    def get_table_definition(jwt_payload, schema_name, table_name):
+    def get_table_definition(jwt_payload: dict, schema_name: str, table_name: str):
+        """
+        Get the table definition
+        :param jwt_payload: Dictionary containing databaseAddress, username and password
+            strings
+        :type jwt_payload: dict
+        :param schema_name: Name of schema to list all tables from
+        :type schema_name: str
+        :param table_name: Table name under the given schema; must be in camel case
+        :type table_name: str
+        :return: definition of the table
+        :rtype: str
+        """
         DJConnector.set_datajoint_config(jwt_payload)
-        
+
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
         return getattr(schema_virtual_module, table_name).describe()
 
-    """
-    Insert tuple table
-
-    Parameters:
-        jwt_payload (dict): Dictionary containing databaseAddress, username and password
-            strings
-        schema_name (string): Schema name where to find the table under
-        table_name (string): Table name under the given schema, must be in camel case
-        tuple (dict): tuple to be inserted
-
-    Returns:
-        None
-    """
     @staticmethod
-    def insert_tuple(jwt_payload, schema_name, table_name, tuple_to_insert):
+    def insert_tuple(jwt_payload: dict, schema_name: str, table_name: str,
+                     tuple_to_insert: dict):
+        """
+        Insert record as tuple into table
+        :param jwt_payload: Dictionary containing databaseAddress, username and password
+            strings
+        :type jwt_payload: dict
+        :param schema_name: Name of schema to list all tables from
+        :type schema_name: str
+        :param table_name: Table name under the given schema; must be in camel case
+        :type table_name: str
+        :param tuple_to_insert: Record to be inserted
+        :type tuple_to_insert: dict
+        """
         DJConnector.set_datajoint_config(jwt_payload)
-        
+
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
         getattr(schema_virtual_module, table_name).insert1(tuple_to_insert)
 
-    """
-    Update tuple table
-
-    Parameters:
-        jwt_payload (dict): Dictionary containing databaseAddress, username and password
-            strings
-        schema_name (string): Schema name where to find the table under
-        table_name (string): Table name under the given schema, must be in camel case
-        tuple (dict): tuple to be updated
-
-    Returns:
-        None
-    """
     @staticmethod
-    def update_tuple(jwt_payload, schema_name, table_name, tuple_to_insert):
+    def update_tuple(jwt_payload: dict, schema_name: str, table_name: str,
+                     tuple_to_update: dict):
+        """
+        Update record as tuple into table
+        :param jwt_payload: Dictionary containing databaseAddress, username and password
+            strings
+        :type jwt_payload: dict
+        :param schema_name: Name of schema to list all tables from
+        :type schema_name: str
+        :param table_name: Table name under the given schema; must be in camel case
+        :type table_name: str
+        :param tuple_to_update: Record to be updated
+        :type tuple_to_update: dict
+        """
         DJConnector.set_datajoint_config(jwt_payload)
-        
+
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
-        getattr(schema_virtual_module, table_name).update1(tuple_to_insert)
+        getattr(schema_virtual_module, table_name).update1(tuple_to_update)
 
-    """
-    Delete a specific tuple based on the restriction given (Can only delete 1 at a time)
-
-    Parameters:
-        jwt_payload (dict): Dictionary containing databaseAddress, username and password
-            strings
-        schema_name (string): Schema name where to find the table under
-        table_name (string): Table name under the given schema, must be in camel case
-        tuple_to_restrict_by (dict): tuple to restrict the table by to delete
-
-    Returns:
-        None: (Assuming it was valid, otherwise it will raise an error)
-    """
     @staticmethod
-    def delete_tuple(jwt_payload, schema_name, table_name, tuple_to_restrict_by):
+    def delete_tuple(jwt_payload: dict, schema_name: str, table_name: str,
+                     tuple_to_restrict_by: dict):
+        """
+        Delete a specific record based on the restriction given (Can only delete 1 at a time)
+        :param jwt_payload: Dictionary containing databaseAddress, username and password
+            strings
+        :type jwt_payload: dict
+        :param schema_name: Name of schema to list all tables from
+        :type schema_name: str
+        :param table_name: Table name under the given schema; must be in camel case
+        :type table_name: str
+        :param tuple_to_restrict_by: Record to restrict the table by to delete
+        :type tuple_to_restrict_by: dict
+        """
         DJConnector.set_datajoint_config(jwt_payload)
 
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
@@ -244,7 +241,7 @@ class DJConnector():
         if len(table_attributes & tuple_to_restrict_by.keys()) == 0:
             raise Exception('Restriction is invalid: None of the attributes match')
 
-        # Compute restriction 
+        # Compute restriction
         tuple_to_delete = getattr(schema_virtual_module, table_name) & tuple_to_restrict_by
 
         # Check if there is only 1 tuple to delete otherwise raise error
@@ -256,34 +253,28 @@ class DJConnector():
 
         # All check pass thus proceed to delete
         tuple_to_delete.delete_quick()
-        
-    """
-    Method to set credentials for database
-    
-    Parameters:
-        jwt_payload (dict): dictionary containing databaseAddress, username and password
-            strings
 
-    Returns:
-        None
-    """
     @staticmethod
-    def set_datajoint_config(jwt_payload):
+    def set_datajoint_config(jwt_payload: dict):
+        """
+        Method to set credentials for database
+        :param jwt_payload: Dictionary containing databaseAddress, username and password
+            strings
+        :type jwt_payload: dict
+        """
         dj.config['database.host'] = jwt_payload['databaseAddress']
         dj.config['database.user'] = jwt_payload['username']
         dj.config['database.password'] = jwt_payload['password']
-    
+
         dj.conn(reset=True)
 
-    """
-    Helper method for converting snake to camel case
-
-    Parameters:
-        string (string): String in snake format to convert to camel case
-
-    Returns:
-        string: String formated in CamelCase notation
-    """
     @staticmethod
-    def snake_to_camel_case(string):
+    def snake_to_camel_case(string: str):
+        """
+        Helper method for converting snake to camel case
+        :param string: String in snake format to convert to camel case
+        :type string: str
+        :return: String formated in CamelCase notation
+        :rtype: str
+        """
         return ''.join(string_component.title() for string_component in string.split('_'))

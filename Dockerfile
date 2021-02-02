@@ -1,6 +1,11 @@
-FROM python:3.9.0-slim-buster
-RUN apt update && apt install git -y
-RUN pip3 install \
-        flask datajoint==0.13.dev2 pyjwt pyjwt[crypto]
-
-WORKDIR /src
+ARG PY_VER
+ARG DISTRO
+FROM datajoint/djbase:py${PY_VER}-${DISTRO}
+COPY --chown=dja:anaconda ./README.md ./requirements.txt ./setup.py \
+    /main/
+COPY --chown=dja:anaconda ./dj_gui_api_server /main/dj_gui_api_server
+RUN \
+    cd /main && \
+    pip install . && \
+    rm -R /main/*
+CMD ["djgui_api"]
