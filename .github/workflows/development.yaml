@@ -53,11 +53,12 @@ jobs:
       DOCKER_CLIENT_TIMEOUT: "120"
       COMPOSE_HTTP_TIMEOUT: "120"
     steps:
+      - uses: actions/checkout@v2
       - name: Fetch image artifact
         uses: actions/download-artifact@v2
         with:
           name: ${{format('{0}-py{1}-{2}','djgui_api', matrix.py_ver, matrix.distro)}}
-      - name: Verify image
+      - name: Run primary tests
         run: |
           docker load < "djgui_api-py${PY_VER}-${DISTRO}.tar.gz"
           export DJGUI_API_VERSION=$(cat dj_gui_api_server/version.py | tail -1 | \
