@@ -1,6 +1,6 @@
 # DJ-GUI-API Backend
 
-Built on top of flask
+Built on top of `Flask`, `datajoint`, and `pyjwt`.
 
 Requirements:
 - Docker
