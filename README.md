@@ -1,6 +1,6 @@
 # DJ-GUI-API Backend
 
-Built on top of `Flask`, `datajoint`, and `pyjwt`.
+Built on top of `flask`, `datajoint`, and `pyjwt`.
 
 Requirements:
 - Docker
@@ -11,7 +11,7 @@ Requirements:
 - Copy `local-docker-compose.yaml` to `docker-compose.yaml`. This file is untracked so feel free to modify as necessary.
 - Check the first comment which will provide best instruction on how to start the service.
 
-NOTE: The docker-compose file creates a docker network call dj-gui-api which is meant to connect to front end to this back end via reverse proxy for developemnt. Final deployment will be using K8 or electron with some production server for flask
+NOTE: The docker-compose file creates a docker network called `dj-gui-api` which is meant to connect the front end to the back end via reverse proxy for development. Final deployment will be using K8S or electron with some production server for flask.
 
 ## Run Tests
 
