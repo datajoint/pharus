@@ -2,7 +2,7 @@
 # DEV: docker-compose -f local-docker-compose.yaml up
 version: "2.4"
 services:
-  app:
+  dj-gui-api:
     build:
       context: .
       args:
