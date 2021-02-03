@@ -25,8 +25,9 @@ jobs:
           export DJGUI_API_VERSION=$(cat dj_gui_api_server/version.py | tail -1 | \
             awk -F\' '{print $2}')
           docker-compose -f LNX-docker-compose.yaml build
-          IMAGE=$(docker images --filter "reference=datajoint/*" --format "{{.Repository}}")
-          TAG=$(docker images --filter "reference=datajoint/*" --format "{{.Tag}}")
+          IMAGE=$(docker images --filter "reference=datajoint/djgui*" \
+            --format "{{.Repository}}")
+          TAG=$(docker images --filter "reference=datajoint/djgui*" --format "{{.Tag}}")
           docker save "${IMAGE}:${TAG}" | gzip > "djgui_api-py${PY_VER}-${DISTRO}.tar.gz"
       - name: Add image artifact
         uses: actions/upload-artifact@v2
