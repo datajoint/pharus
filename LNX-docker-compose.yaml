@@ -1,4 +1,4 @@
-# docker-compose -f LNX-docker-compose.yaml up --build --exit-code-from app
+# DJGUI_API_VERSION=$(cat dj_gui_api_server/version.py | tail -1 | awk -F\' '{print $2}') docker-compose -f LNX-docker-compose.yaml up --build --exit-code-from app
 version: "2.4"
 x-net: &net
   networks:
@@ -14,10 +14,10 @@ services:
     build:
       context: .
       args:
-        - PY_VER=3.8
-        - DISTRO=alpine
-        - IMAGE=djtest
-    image: dj-gui-api
+        - PY_VER
+        - DISTRO
+        - IMAGE
+    image: datajoint/djgui-api:v${DJGUI_API_VERSION}
     environment:
       - PRIVATE_KEY
       - PUBLIC_KEY
@@ -25,6 +25,7 @@ services:
       - TEST_DB_SERVER=db
       - TEST_DB_USER=root
       - TEST_DB_PASS=simple
+      - PYTHONDONTWRITEBYTECODE=1
     volumes:
       - .:/main
       - ./test_requirements.txt:/tmp/pip_requirements.txt
