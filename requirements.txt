@@ -1,0 +1,3 @@
+flask
+datajoint==0.13.dev2
+pyjwt[crypto]

@@ -1,6 +1,9 @@
+"""Exposed DJGUI REST API."""
 import os
 import sys
-from DJConnector import DJConnector
+from .DJConnector import DJConnector
+from . import __version__ as version
+from typing import Callable
 
 # Crypto libaries
 from cryptography.hazmat.primitives import serialization as crypto_serialization
@@ -11,16 +14,15 @@ from flask import Flask, request
 import jwt
 app = Flask(__name__)
 
-"""
-Protected route function decrator
 
-Parameters:
-    function: function to decreate, typically routes
-
-Returns:
-    Return function output if jwt authecation is successful, otherwise return error message
-"""
-def protected_route(function):
+def protected_route(function: Callable):
+    """
+    Protected route function decorator which authenticates requests
+    :param function: Function to decorate, typically routes
+    :type function: :class:`typing.Callable`
+    :return: Function output if jwt authecation is successful, otherwise return error message
+    :rtype: class:`typing.Callable`
+    """
     def wrapper():
         try:
             jwt_payload = jwt.decode(request.headers.get('Authorization').split()[1],
@@ -32,27 +34,26 @@ def protected_route(function):
     wrapper.__name__ = function.__name__
     return wrapper
 
-"""
-Route to check if the server is alive or not
-"""
-@app.route('/api')
-def hello_world():
-    return 'Hello, World!'
 
-"""
-# Login route which uses datajoint login
+@app.route('/api/version')
+def api_version():
+    """
+    Route to check if the server is alive or not
+    :return: API version
+    :rtype: str
+    """
+    return version
 
-Parameters:
-    (html:POST:body): json with keys
-        {databaseAddress: string, username: string, password: string}
 
-Returns:
-    dict(jwt=<JWT_TOKEN>): If sucessfully authenticated against the database
-    or
-    string: With error message of why it failed, 500 error
-"""
 @app.route('/api/login', methods=['POST'])
 def login():
+    """
+    Login route which uses DataJoint database server login. Expects:
+        (html:POST:body): json with keys
+            {databaseAddress: string, username: string, password: string}
+    :return: Function output if jwt authecation is successful, otherwise return error message
+    :rtype: dict
+    """
     # Check if request.json has the correct fields
     if not request.json.keys() >= {'databaseAddress', 'username', 'password'}:
         return dict(error='Invalid json body')
@@ -68,20 +69,19 @@ def login():
     else:
         return dict(error=str(attempt_connection_result['error']))
 
-"""
-API route for fetching schema
 
-Parameters:
-    header: (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
-
-Returns:
-    dict(schemaNames=<schemas>): If sucessfuly send back a list of schemas names
-    or
-    string: With error message of why it failed, 500 error
-"""
 @app.route('/api/list_schemas', methods=['GET'])
 @protected_route
-def list_schemas(jwt_payload):
+def list_schemas(jwt_payload: dict):
+    """
+    API route for fetching schema. Expects:
+        (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
+    :param jwt_payload: Dictionary containing databaseAddress, username and password
+        strings.
+    :type jwt_payload: dict
+    :return: If sucessfuly sends back a list of schemas names otherwise returns error
+    :rtype: dict
+    """
     # Get all the schemas
     try:
         schemas_name = DJConnector.list_schemas(jwt_payload)
@@ -89,73 +89,64 @@ def list_schemas(jwt_payload):
     except Exception as e:
         return str(e), 500
 
-"""
-API route for listing all tables under a given schema name
 
-Parameters:
-    header: (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
-    body: (html:POST:JSON): {"schemaName": <schema_name>}
-
-Returns:
-    dict(
-        manual_tables=[<tables_names>], 
-        lookup_tables=[<tables_names>], 
-        compute_tables=[<tables_name>],
-        imported_tables=[<imported_tables>],
-        part_tables=[<parent_table.part_table_name>]
-        ): If successful then send back a list of tables names
-    or
-    string: With error message of why it failed, 500 error
-"""
 @app.route('/api/list_tables', methods=['POST'])
 @protected_route
-def list_tables(jwt_payload):
+def list_tables(jwt_payload: dict):
+    """
+    API route for listing all tables under a given schema name. Expects:
+        (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
+        (html:POST:JSON): {"schemaName": <schema_name>}
+    :param jwt_payload: Dictionary containing databaseAddress, username and password
+        strings.
+    :type jwt_payload: dict
+    :return: If successful then sends back a list of tables names otherwise returns error
+    :rtype: dict
+    """
     try:
         tables_dict_list = DJConnector.list_tables(jwt_payload, request.json["schemaName"])
-        return dict(tableTypeAndNames = tables_dict_list)
+        return dict(tableTypeAndNames=tables_dict_list)
     except Exception as e:
         return str(e), 500
 
-"""
-Route to fetch all tuples for a given table
 
-Parameters:
-    header: (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
-    body: (html:POST:JSON): {"schemaName": <schema_name>, "tableName": <table_name>}
-        (NOTE: Table name must be in CamalCase)
-
-Returns:
-    dict(tuples=tuples): Tuples will be represented as a list
-    or
-    string: With error message of why it failed, 500 error
-"""
 @app.route('/api/fetch_tuples', methods=['POST'])
 @protected_route
-def fetch_tuples(jwt_payload):
+def fetch_tuples(jwt_payload: dict):
+    """
+    Route to fetch all records for a given table. Expects:
+        (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
+        (html:POST:JSON): {"schemaName": <schema_name>, "tableName": <table_name>}
+            NOTE: Table name must be in CamalCase
+    :param jwt_payload: Dictionary containing databaseAddress, username and password
+        strings.
+    :type jwt_payload: dict
+    :return: If successful then sends back records as list otherwise returns error
+    :rtype: dict
+    """
     try:
         table_tuples = DJConnector.fetch_tuples(jwt_payload,
                                                 request.json["schemaName"],
                                                 request.json["tableName"])
-        return dict(tuples = table_tuples)
+        return dict(tuples=table_tuples)
     except Exception as e:
         return str(e), 500
 
-"""
-Route to get table definition
 
-Parameters:
-    header: (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
-    body: (html:POST:JSON): {"schemaName": <schema_name>, "tableName": <table_name>}
-        (NOTE: Table name must be in CamalCase)
-
-Returns:
-    dict(tuples=[tuples_as_dicts])
-    or
-    string: With error message of why it failed, 500 error
-"""
 @app.route('/api/get_table_definition', methods=['POST'])
 @protected_route
-def get_table_definition(jwt_payload):
+def get_table_definition(jwt_payload: dict):
+    """
+    Route to get table definition. Expects:
+        (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
+        (html:POST:JSON): {"schemaName": <schema_name>, "tableName": <table_name>}
+            NOTE: Table name must be in CamalCase
+    :param jwt_payload: Dictionary containing databaseAddress, username and password
+        strings.
+    :type jwt_payload: dict
+    :return: If successful then sends back definition for table otherwise returns error
+    :rtype: str
+    """
     try:
         table_definition = DJConnector.get_table_definition(jwt_payload,
                                                             request.json["schemaName"],
@@ -164,23 +155,21 @@ def get_table_definition(jwt_payload):
     except Exception as e:
         return str(e), 500
 
-"""
-Route to get table attibutes
 
-Parameters:
-    header: (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
-    body: (html:POST:JSON): {"schemaName": <schema_name>, "tableName": <table_name>}
-        (NOTE: Table name must be in CamalCase)
-
-Returns:
-    dict(primary_attributes=[tuple(attribute_name, type, nullable, default, autoincrement)],
-         secondary_attributes=[tuple(attribute_name, type, nullable, default, autoincrement)])
-    or
-    string: With error message of why it failed, 500 error
-"""
 @app.route('/api/get_table_attributes', methods=['POST'])
 @protected_route
-def get_table_attributes(jwt_payload):
+def get_table_attributes(jwt_payload: dict):
+    """
+    Route to get table attibutes. Expects:
+        (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
+        (html:POST:JSON): {"schemaName": <schema_name>, "tableName": <table_name>}
+            NOTE: Table name must be in CamalCase
+    :param jwt_payload: Dictionary containing databaseAddress, username and password
+        strings.
+    :type jwt_payload: dict
+    :return: If successful then sends back dict of table attributes otherwise returns error
+    :rtype: dict
+    """
     try:
         return DJConnector.get_table_attributes(jwt_payload,
                                                 request.json["schemaName"],
@@ -188,24 +177,22 @@ def get_table_attributes(jwt_payload):
     except Exception as e:
         return str(e), 500
 
-"""
-Route to insert tuple
 
-Parameter:
-    Parameters:
-    header: (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
-    body: (html:POST:JSON):
-        {"schemaName": <schema_name>, "tableName": <table_name>, "tuple": <tuple_to_insert>}
-        (NOTE: Table name must be in CamalCase)
-
-Returns:
-    string: "Insert Successful" if the tuple was insert sucessfully
-    or
-    string: With error message of why it failed, 500 error
-"""
 @app.route('/api/insert_tuple', methods=['POST'])
 @protected_route
-def insert_tuple(jwt_payload):
+def insert_tuple(jwt_payload: dict):
+    """
+    Route to insert record. Expects:
+        (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
+        (html:POST:JSON): {"schemaName": <schema_name>, "tableName": <table_name>,
+                           "tuple": <tuple_to_insert>}
+            NOTE: Table name must be in CamalCase
+    :param jwt_payload: Dictionary containing databaseAddress, username and password
+        strings.
+    :type jwt_payload: dict
+    :return: If successful then returns "Insert Successful" otherwise returns error
+    :rtype: dict
+    """
     try:
         # Attempt to insert
         DJConnector.insert_tuple(jwt_payload,
@@ -216,24 +203,22 @@ def insert_tuple(jwt_payload):
     except Exception as e:
         return str(e), 500
 
-"""
-Route to update tuple
 
-Parameter:
-    Parameters:
-    header: (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
-    body: (html:POST:JSON):
-        {"schemaName": <schema_name>, "tableName": <table_name>, "tuple": <tuple_to_insert>}
-        (NOTE: Table name must be in CamelCase)
-
-Returns:
-    string: "Update Successful" if the tuple was updated sucessfully
-    or
-    string: With error message of why it failed, 500 error
-"""
 @app.route('/api/update_tuple', methods=['POST'])
 @protected_route
-def update_tuple(jwt_payload):
+def update_tuple(jwt_payload: dict):
+    """
+    Route to update record. Expects:
+        (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
+        (html:POST:JSON): {"schemaName": <schema_name>, "tableName": <table_name>,
+                           "tuple": <tuple_to_insert>}
+            NOTE: Table name must be in CamalCase
+    :param jwt_payload: Dictionary containing databaseAddress, username and password
+        strings.
+    :type jwt_payload: dict
+    :return: If successful then returns "Update Successful" otherwise returns error
+    :rtype: dict
+    """
     try:
         # Attempt to insert
         DJConnector.update_tuple(jwt_payload,
@@ -244,25 +229,22 @@ def update_tuple(jwt_payload):
     except Exception as e:
         return str(e), 500
 
-"""
-Route to delete a specific tuple
 
-Parameter:
-    Parameters:
-    header: (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
-    body: (html:POST:JSON):
-        {"schemaName": <schema_name>, "tableName": <table_name>,
-         "restrictionTuple": <tuple_to_restrict_table_by>}
-        (NOTE: Table name must be in CamalCase)
-
-Returns:
-    string: "Delete Successful" if the tuple was deleted sucessfully
-    or
-    string: With error message of why it failed, 500 error
-"""
 @app.route('/api/delete_tuple', methods=['POST'])
 @protected_route
-def delete_tuple(jwt_payload):
+def delete_tuple(jwt_payload: dict):
+    """
+    Route to delete a specific record. Expects:
+        (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
+        (html:POST:JSON): {"schemaName": <schema_name>, "tableName": <table_name>,
+                           "restrictionTuple": <tuple_to_restrict_table_by>}
+            NOTE: Table name must be in CamalCase
+    :param jwt_payload: Dictionary containing databaseAddress, username and password
+        strings.
+    :type jwt_payload: dict
+    :return: If successful then returns "Delete Successful" otherwise returns error
+    :rtype: dict
+    """
     try:
         # Attempt to delete tuple
         DJConnector.delete_tuple(jwt_payload,
@@ -273,16 +255,18 @@ def delete_tuple(jwt_payload):
     except Exception as e:
         return str(e), 500
 
-if __name__ == '__main__':
+
+def run():
+    """
+    Starts API server.
+    """
     # Check if PRIVATE_KEY and PUBIC_KEY is set, if not generate them.
     # NOTE: For web deployment, please set the these enviorment variable to be the same between
     # the instance
-    if os.environ.get('PRIVATE_KEY') == None or os.environ.get('PUBLIC_KEY') == None:
-        key = rsa.generate_private_key(
-        backend=crypto_default_backend(),
-        public_exponent=65537,
-        key_size=2048
-        )
+    if os.environ.get('PRIVATE_KEY') is None or os.environ.get('PUBLIC_KEY') is None:
+        key = rsa.generate_private_key(backend=crypto_default_backend(),
+                                       public_exponent=65537,
+                                       key_size=2048)
         os.environ['PRIVATE_KEY'] = key.private_bytes(
             crypto_serialization.Encoding.PEM,
             crypto_serialization.PrivateFormat.PKCS8,
@@ -293,3 +277,7 @@ if __name__ == '__main__':
         ).decode()
 
     app.run(host='0.0.0.0', port=5000)
+
+
+if __name__ == '__main__':
+    run()
