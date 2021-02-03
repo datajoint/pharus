@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Compile image
         run: |
-          DJGUI_API_VERSION=$(cat dj_gui_api_server/version.py | tail -1 | \
+          export DJGUI_API_VERSION=$(cat dj_gui_api_server/version.py | tail -1 | \
             awk -F\' '{print $2}')
           docker-compose -f LNX-docker-compose.yaml build
           IMAGE=$(docker images --filter "reference=datajoint/*" --format "{{.Repository}}")
@@ -59,7 +59,7 @@ jobs:
       - name: Verify image
         run: |
           docker load < "djgui_api-py${PY_VER}-${DISTRO}.tar.gz"
-          DJGUI_API_VERSION=$(cat dj_gui_api_server/version.py | tail -1 | \
+          export DJGUI_API_VERSION=$(cat dj_gui_api_server/version.py | tail -1 | \
             awk -F\' '{print $2}')
           docker-compose -f LNX-docker-compose.yaml up --build --exit-code-from app
   # publish:
