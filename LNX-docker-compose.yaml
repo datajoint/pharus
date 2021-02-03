@@ -1,0 +1,50 @@
+# docker-compose -f LNX-docker-compose.yaml up --build --exit-code-from app
+version: "2.4"
+x-net: &net
+  networks:
+      - dj-gui-api
+services:
+  db:
+    <<: *net
+    image: datajoint/mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=simple
+  app:
+    <<: *net
+    build:
+      context: .
+      args:
+        - PY_VER=3.8
+        - DISTRO=alpine
+        - IMAGE=djtest
+    image: dj-gui-api
+    environment:
+      - PRIVATE_KEY
+      - PUBLIC_KEY
+      - FLASK_ENV=development # enables logging to console from Flask
+      - TEST_DB_SERVER=db
+      - TEST_DB_USER=root
+      - TEST_DB_PASS=simple
+    volumes:
+      - .:/main
+      - ./test_requirements.txt:/tmp/pip_requirements.txt
+    user: ${HOST_UID}:anaconda
+    working_dir: /main
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+        echo "------ SYNTAX TESTS ------"
+        flake8 dj_gui_api_server --count --select=E9,F63,F7,F82 --show-source --statistics
+        echo "------ UNIT TESTS ------"
+        pytest -s --cov-report term-missing \
+          --cov=dj_gui_api_server /main/tests
+        echo "------ STYLE TESTS ------"
+        flake8 dj_gui_api_server --count --max-complexity=10 --max-line-length=95 --statistics
+    depends_on:
+      db:
+        condition: service_healthy
+networks:
+  dj-gui-api:
+    name: dj-gui-api

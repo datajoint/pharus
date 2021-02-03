@@ -1,6 +1,5 @@
 """Exposed DJGUI REST API."""
 import os
-import sys
 from .DJConnector import DJConnector
 from . import __version__ as version
 from typing import Callable
@@ -12,7 +11,23 @@ from cryptography.hazmat.backends import default_backend as crypto_default_backe
 
 from flask import Flask, request
 import jwt
+
 app = Flask(__name__)
+# Check if PRIVATE_KEY and PUBIC_KEY is set, if not generate them.
+# NOTE: For web deployment, please set the these enviorment variable to be the same between
+# the instance
+if os.environ.get('PRIVATE_KEY') is None or os.environ.get('PUBLIC_KEY') is None:
+    key = rsa.generate_private_key(backend=crypto_default_backend(),
+                                   public_exponent=65537,
+                                   key_size=2048)
+    os.environ['PRIVATE_KEY'] = key.private_bytes(
+        crypto_serialization.Encoding.PEM,
+        crypto_serialization.PrivateFormat.PKCS8,
+        crypto_serialization.NoEncryption()).decode()
+    os.environ['PUBLIC_KEY'] = key.public_key().public_bytes(
+        crypto_serialization.Encoding.OpenSSH,
+        crypto_serialization.PublicFormat.OpenSSH
+    ).decode()
 
 
 def protected_route(function: Callable):
@@ -260,22 +275,6 @@ def run():
     """
     Starts API server.
     """
-    # Check if PRIVATE_KEY and PUBIC_KEY is set, if not generate them.
-    # NOTE: For web deployment, please set the these enviorment variable to be the same between
-    # the instance
-    if os.environ.get('PRIVATE_KEY') is None or os.environ.get('PUBLIC_KEY') is None:
-        key = rsa.generate_private_key(backend=crypto_default_backend(),
-                                       public_exponent=65537,
-                                       key_size=2048)
-        os.environ['PRIVATE_KEY'] = key.private_bytes(
-            crypto_serialization.Encoding.PEM,
-            crypto_serialization.PrivateFormat.PKCS8,
-            crypto_serialization.NoEncryption()).decode()
-        os.environ['PUBLIC_KEY'] = key.public_key().public_bytes(
-            crypto_serialization.Encoding.OpenSSH,
-            crypto_serialization.PublicFormat.OpenSSH
-        ).decode()
-
     app.run(host='0.0.0.0', port=5000)
 
 
