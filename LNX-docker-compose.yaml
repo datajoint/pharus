@@ -25,7 +25,6 @@ services:
       - TEST_DB_SERVER=db
       - TEST_DB_USER=root
       - TEST_DB_PASS=simple
-      - PYTHONDONTWRITEBYTECODE=1
     volumes:
       - .:/main
       - ./test_requirements.txt:/tmp/pip_requirements.txt

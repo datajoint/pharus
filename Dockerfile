@@ -4,7 +4,7 @@ ARG IMAGE
 FROM datajoint/${IMAGE}:py${PY_VER}-${DISTRO}
 COPY --chown=dja:anaconda ./README.md ./requirements.txt ./setup.py \
     /main/
-COPY --chown=dja:anaconda ./dj_gui_api_server /main/dj_gui_api_server
+COPY --chown=dja:anaconda ./dj_gui_api_server/*.py /main/dj_gui_api_server/
 RUN \
     cd /main && \
     pip install . && \
