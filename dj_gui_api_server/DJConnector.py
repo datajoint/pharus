@@ -136,12 +136,12 @@ class DJConnector():
                         tuple_buffer.append(tuple_without_blob[attribute_name].timestamp())
                     else:
                         # Normal attribute, just return value with .item to deal with numpy types, unless it is a string
-                        if type(tuple_without_blob[attribute_name]) != str \
-                            or type(tuple_without_blob[attribute_name]) != bool \
-                            or type(tuple_without_blob[attribute_name]) != 'enum':
-                            tuple_buffer.append(tuple_without_blob[attribute_name].item())
-                        else:
+                        if type(tuple_without_blob[attribute_name]) == str \
+                            or type(tuple_without_blob[attribute_name]) == bool \
+                            or type(tuple_without_blob[attribute_name]) == 'enum':
                             tuple_buffer.append(tuple_without_blob[attribute_name])
+                        else:
+                            tuple_buffer.append(tuple_without_blob[attribute_name].item())
                 else:
                     # Attribute is blob type thus fill it in string instead
                     tuple_buffer.append('=BLOB=')
