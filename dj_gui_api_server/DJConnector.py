@@ -118,13 +118,12 @@ class DJConnector():
         # Get the table object refernece
         table = getattr(schema_virtual_module, table_name)
         
-        attributes_info_list_dict = table.heading.attributes.items()
         tuples_without_blobs = table.fetch(*table.heading.non_blobs, as_dict=True)
 
         tuples = []
         for tuple_without_blob in tuples_without_blobs:
             tuple_buffer = []
-            for attribute_name, attribute_info in attributes_info_list_dict:
+            for attribute_name, attribute_info in table.heading.attributes.items():
                 if not attribute_info.is_blob:
                     # Check if it matches any of the time based attributes
                     if attribute_info.type == 'date':
@@ -133,14 +132,12 @@ class DJConnector():
                     elif attribute_info.type == 'time':
                         # Time attirbute, return total seconds
                         tuple_buffer.append(tuple_without_blob[attribute_name].total_seconds())
-                    elif attribute_info.type == 'datetime' or attribute_info.type == 'timestamp':
+                    elif attribute_info.type in ('datetime', 'timestamp'):
                         # Datetime, use timestamp to covert to epoch time
                         tuple_buffer.append(tuple_without_blob[attribute_name].timestamp())
                     else:
                         # Normal attribute, just return value with .item to deal with numpy types, unless it is a string
-                        if type(tuple_without_blob[attribute_name]) == str \
-                            or type(tuple_without_blob[attribute_name]) == bool \
-                            or type(tuple_without_blob[attribute_name]) == 'enum':
+                        if isinstance(tuple_without_blob[attribute_name], (str, bool)):
                             tuple_buffer.append(tuple_without_blob[attribute_name])
                         else:
                             tuple_buffer.append(tuple_without_blob[attribute_name].item())
