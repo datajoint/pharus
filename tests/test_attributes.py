@@ -214,8 +214,8 @@ def test_date(token, client, Date):
     validate(
         table=Date,
         inserted_value=date(2021, 1, 31),
-        expected_type=str,
-        expected_value='Sun, 31 Jan 2021 00:00:00 GMT',
+        expected_type=Number,
+        expected_value=1612051200,
         client=client,
         token=token,
     )
@@ -225,8 +225,8 @@ def test_datetime(token, client, Datetime):
     validate(
         table=Datetime,
         inserted_value=datetime(2021, 1, 28, 14, 20, 58),
-        expected_type=str,
-        expected_value='Thu, 28 Jan 2021 14:20:58 GMT',
+        expected_type=Number,
+        expected_value=1611843658,
         client=client,
         token=token,
     )
@@ -236,44 +236,44 @@ def test_timestamp(token, client, Timestamp):
     validate(
         table=Timestamp,
         inserted_value=datetime(2021, 1, 27, 21, 2, 31, 123),
-        expected_type=str,
-        expected_value='Wed, 27 Jan 2021 21:02:31 GMT',
+        expected_type=Number,
+        expected_value=1611781351,
         client=client,
         token=token,
     )
 
 
-# def test_time(token, client, Time):
-#     validate(
-#         table=Time,
-#         inserted_value=time(21, 1, 32),
-#         expected_type=str,
-#         expected_value='21:01:32',
-#         client=client,
-#         token=token,
-#     )
+def test_time(token, client, Time):
+    validate(
+        table=Time,
+        inserted_value=time(21, 1, 32),
+        expected_type=Number,
+        expected_value=75692.,
+        client=client,
+        token=token,
+    )
 
 
-# def test_blob(token, client, Blob):
-#     validate(
-#         table=Blob,
-#         inserted_value=[1, 2, 3],
-#         expected_type=str,
-#         expected_value='=BLOB=',
-#         client=client,
-#         token=token,
-#     )
+def test_blob(token, client, Blob):
+    validate(
+        table=Blob,
+        inserted_value=[1, 2, 3],
+        expected_type=str,
+        expected_value='=BLOB=',
+        client=client,
+        token=token,
+    )
 
 
-# def test_longblob(token, client, Longblob):
-#     validate(
-#         table=Longblob,
-#         inserted_value=[4, 5, 6],
-#         expected_type=str,
-#         expected_value='=BLOB=',
-#         client=client,
-#         token=token,
-#     )
+def test_longblob(token, client, Longblob):
+    validate(
+        table=Longblob,
+        inserted_value=[4, 5, 6],
+        expected_type=str,
+        expected_value='=BLOB=',
+        client=client,
+        token=token,
+    )
 
 
 def test_uuid(token, client, Uuid):
