@@ -76,6 +76,29 @@ def Decimal(schema):
     yield Decimal
     Decimal.drop()
 
+@pytest.fixture
+def String(schema):
+    @schema
+    class String(dj.Manual):
+        definition = """
+        id: int
+        ---
+        string_attribute: varchar(32)
+        """
+    yield String
+    String.drop()
+
+@pytest.fixture
+def Bool(schema):
+    @schema
+    class Bool(dj.Manual):
+        definition = """
+        id: int
+        ---
+        bool_attribute: bool
+        """
+    yield Bool
+    Bool.drop()
 
 @pytest.fixture
 def Date(schema):
@@ -199,16 +222,35 @@ def test_float(token, client, Float):
     )
 
 
-# def test_decimal(token, client, Decimal):
-#     validate(
-#         table=Decimal,
-#         inserted_value=6.123,
-#         expected_type=Number,
-#         expected_value=6.123,
-#         client=client,
-#         token=token,
-#     )
+def test_decimal(token, client, Decimal):
+    validate(
+        table=Decimal,
+        inserted_value=6.123,
+        expected_type=str,
+        expected_value='6.12',
+        client=client,
+        token=token,
+    )
 
+def test_string(token, client, String):
+    validate(
+        table=String,
+        inserted_value='hi',
+        expected_type=str,
+        expected_value='hi',
+        client=client,
+        token=token,
+    )
+
+def test_bool(token, client, Bool):
+    validate(
+        table=Bool,
+        inserted_value=True,
+        expected_type=Number,
+        expected_value=1,
+        client=client,
+        token=token,
+    )
 
 def test_date(token, client, Date):
     validate(
