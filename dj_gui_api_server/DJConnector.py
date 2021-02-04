@@ -135,8 +135,13 @@ class DJConnector():
                         # Datetime, use timestamp to covert to epoch time
                         tuple_buffer.append(tuple_without_blob[attribute_name].timestamp())
                     else:
-                        # Normal attribute, just return value with .item to deal with numpy types
-                        tuple_buffer.append(tuple_without_blob[attribute_name].item())
+                        # Normal attribute, just return value with .item to deal with numpy types, unless it is a string
+                        if type(tuple_without_blob[attribute_name]) != str \
+                            or type(tuple_without_blob[attribute_name]) != bool \
+                            or type(tuple_without_blob[attribute_name]) != 'enum':
+                            tuple_buffer.append(tuple_without_blob[attribute_name].item())
+                        else:
+                            tuple_buffer.append(tuple_without_blob[attribute_name])
                 else:
                     # Attribute is blob type thus fill it in string instead
                     tuple_buffer.append('=BLOB=')
