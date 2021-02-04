@@ -1,6 +1,11 @@
 """Library for interfaces into DataJoint pipelines."""
 import datajoint as dj
+from datajoint.declare import TYPE_PATTERN
+import datetime
+import numpy as np
+from decimal import Decimal
 
+DAY = 24 * 60 * 60
 
 class DJConnector():
     """
@@ -111,7 +116,49 @@ class DJConnector():
         DJConnector.set_datajoint_config(jwt_payload)
 
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
-        return getattr(schema_virtual_module, table_name).fetch().tolist()
+
+        # Get the table object refernece
+        table = getattr(schema_virtual_module, table_name)
+        
+        # Fetch tuples without blobs as dict to be used to create a 
+        #   list of tuples for returning
+        tuples_without_blobs = table.fetch(*table.heading.non_blobs, as_dict=True)
+
+        # Buffer list to be return
+        tuples = []
+
+        # Looped through each tuple and deal with TEMPORAL types and replacing 
+        #   blobs with ==BLOB== for json encoding
+        for tuple_without_blob in tuples_without_blobs:
+            tuple_buffer = []
+            for attribute_name, attribute_info in table.heading.attributes.items():
+                if not attribute_info.is_blob:
+                    if tuple_without_blob[attribute_name] == None:
+                        # If it is none then just append None
+                        tuple_buffer.append(None)
+                    elif attribute_info.type == 'date':
+                        # Date attribute type covert to epoch time
+                        tuple_buffer.append((tuple_without_blob[attribute_name] - datetime.date(1970, 1, 1)).days * DAY)
+                    elif attribute_info.type == 'time':
+                        # Time attirbute, return total seconds
+                        tuple_buffer.append(tuple_without_blob[attribute_name].total_seconds())
+                    elif attribute_info.type in ('datetime', 'timestamp'):
+                        # Datetime or timestamp, use timestamp to covert to epoch time
+                        tuple_buffer.append(tuple_without_blob[attribute_name].timestamp())
+                    elif attribute_info.type[0:7] == 'decimal':
+                        # Covert decimal to string
+                        tuple_buffer.append(str(tuple_without_blob[attribute_name]))
+                    else:
+                        # Normal attribute, just return value with .item to deal with numpy types
+                        if type(tuple_without_blob[attribute_name]).__module__ == np.__name__:
+                            tuple_buffer.append(tuple_without_blob[attribute_name].item())
+                        else:
+                            tuple_buffer.append(tuple_without_blob[attribute_name])
+                else:
+                    # Attribute is blob type thus fill it in string instead
+                    tuple_buffer.append('=BLOB=')
+            tuples.append(tuple_buffer)
+        return tuples
 
     @staticmethod
     def get_table_attributes(jwt_payload: dict, schema_name: str, table_name: str):
