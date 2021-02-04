@@ -1,11 +1,17 @@
 """Library for interfaces into DataJoint pipelines."""
 import datajoint as dj
+import datetime
+import numpy as np
+
+DAY = 24 * 60 * 60
+DEFAULT_FETCH_LIMIT = 1000  # Stop gap measure to deal with super large tables
 
 
 class DJConnector():
     """
     Primary connector that communicates with a DataJoint database server.
     """
+
     @staticmethod
     def attempt_login(database_address: str, username: str, password: str):
         """
@@ -111,7 +117,57 @@ class DJConnector():
         DJConnector.set_datajoint_config(jwt_payload)
 
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
-        return getattr(schema_virtual_module, table_name).fetch().tolist()
+
+        # Get the table object refernece
+        table = getattr(schema_virtual_module, table_name)
+
+        # Fetch tuples without blobs as dict to be used to create a
+        #   list of tuples for returning
+        non_blobs_rows = table.fetch(*table.heading.non_blobs, as_dict=True,
+                                     limit=DEFAULT_FETCH_LIMIT)
+
+        # Buffer list to be return
+        rows = []
+
+        # Looped through each tuple and deal with TEMPORAL types and replacing
+        #   blobs with ==BLOB== for json encoding
+        for non_blobs_row in non_blobs_rows:
+            # Buffer object to store the attributes
+            row = []
+            # Loop through each attributes, append to the tuple_to_return with specific
+            #   modification based on data type
+            for attribute_name, attribute_info in table.heading.attributes.items():
+                if not attribute_info.is_blob:
+                    if non_blobs_row[attribute_name] is None:
+                        # If it is none then just append None
+                        row.append(None)
+                    elif attribute_info.type == 'date':
+                        # Date attribute type covert to epoch time
+                        row.append((non_blobs_row[attribute_name] -
+                                    datetime.date(1970, 1, 1)).days * DAY)
+                    elif attribute_info.type == 'time':
+                        # Time attirbute, return total seconds
+                        row.append(non_blobs_row[attribute_name].total_seconds())
+                    elif attribute_info.type in ('datetime', 'timestamp'):
+                        # Datetime or timestamp, use timestamp to covert to epoch time
+                        row.append(non_blobs_row[attribute_name].timestamp())
+                    elif attribute_info.type[0:7] == 'decimal':
+                        # Covert decimal to string
+                        row.append(str(non_blobs_row[attribute_name]))
+                    else:
+                        # Normal attribute, just return value with .item to deal with numpy
+                        #   types
+                        if isinstance(non_blobs_row[attribute_name], np.generic):
+                            row.append(np.asscalar(non_blobs_row[attribute_name]))
+                        else:
+                            row.append(non_blobs_row[attribute_name])
+                else:
+                    # Attribute is blob type thus fill it in string instead
+                    row.append('=BLOB=')
+
+            # Add the row list to tuples
+            rows.append(row)
+        return rows
 
     @staticmethod
     def get_table_attributes(jwt_payload: dict, schema_name: str, table_name: str):
