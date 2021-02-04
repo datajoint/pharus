@@ -118,22 +118,26 @@ class DJConnector():
         # Get the table object refernece
         table = getattr(schema_virtual_module, table_name)
         
+        # Fetch tuples without blobs as dict to be used to create a list of tuples for returnning
         tuples_without_blobs = table.fetch(*table.heading.non_blobs, as_dict=True)
 
+        # Buffer list to be return
         tuples = []
+
+        # Looped through each tuple and deal with TEMPORAL types and replaceing blobs with ==BLOB== for json encoding
         for tuple_without_blob in tuples_without_blobs:
             tuple_buffer = []
             for attribute_name, attribute_info in table.heading.attributes.items():
                 if not attribute_info.is_blob:
                     # Check if it matches any of the time based attributes
                     if attribute_info.type == 'date':
-                        # Date attribute type, covert to YYYY-MM-DD format
+                        # Date attribute type covert to epoch time
                         tuple_buffer.append((tuple_without_blob[attribute_name] - datetime.date(1970, 1, 1)).days * DAY)
                     elif attribute_info.type == 'time':
                         # Time attirbute, return total seconds
                         tuple_buffer.append(tuple_without_blob[attribute_name].total_seconds())
                     elif attribute_info.type in ('datetime', 'timestamp'):
-                        # Datetime, use timestamp to covert to epoch time
+                        # Datetime or timestamp, use timestamp to covert to epoch time
                         tuple_buffer.append(tuple_without_blob[attribute_name].timestamp())
                     else:
                         # Normal attribute, just return value with .item to deal with numpy types, unless it is a string
