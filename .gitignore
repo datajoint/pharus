@@ -1,3 +1,5 @@
 .env
 *__pycache__
 .vscode
+docker-compose.y*ml
+.coverage
