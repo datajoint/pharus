@@ -3,6 +3,7 @@ import datajoint as dj
 from datajoint.declare import TYPE_PATTERN
 import datetime
 import numpy as np
+from decimal import Decimal
 
 DAY = 24 * 60 * 60
 
@@ -119,13 +120,15 @@ class DJConnector():
         # Get the table object refernece
         table = getattr(schema_virtual_module, table_name)
         
-        # Fetch tuples without blobs as dict to be used to create a list of tuples for returnning
+        # Fetch tuples without blobs as dict to be used to create a 
+        #   list of tuples for returning
         tuples_without_blobs = table.fetch(*table.heading.non_blobs, as_dict=True)
 
         # Buffer list to be return
         tuples = []
 
-        # Looped through each tuple and deal with TEMPORAL types and replaceing blobs with ==BLOB== for json encoding
+        # Looped through each tuple and deal with TEMPORAL types and replacing 
+        #   blobs with ==BLOB== for json encoding
         for tuple_without_blob in tuples_without_blobs:
             tuple_buffer = []
             for attribute_name, attribute_info in table.heading.attributes.items():
@@ -142,6 +145,9 @@ class DJConnector():
                     elif attribute_info.type in ('datetime', 'timestamp'):
                         # Datetime or timestamp, use timestamp to covert to epoch time
                         tuple_buffer.append(tuple_without_blob[attribute_name].timestamp())
+                    elif attribute_info.type[0:7] == 'decimal':
+                        # Covert decimal to string
+                        tuple_buffer.append(str(tuple_without_blob[attribute_name]))
                     else:
                         # Normal attribute, just return value with .item to deal with numpy types
                         if type(tuple_without_blob[attribute_name]).__module__ == np.__name__:
