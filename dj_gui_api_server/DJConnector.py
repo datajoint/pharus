@@ -2,8 +2,9 @@
 import datajoint as dj
 from datajoint.declare import TYPE_PATTERN
 import datetime
+import numpy as np
 
-DAY = 24*60*60
+DAY = 24 * 60 * 60
 
 class DJConnector():
     """
@@ -127,10 +128,12 @@ class DJConnector():
         # Looped through each tuple and deal with TEMPORAL types and replaceing blobs with ==BLOB== for json encoding
         for tuple_without_blob in tuples_without_blobs:
             tuple_buffer = []
-            for attribute_name, attribute_info in table.heading.attributes.items():
+            for attribute_name, attribute_info in table.heading.attributes.items()
                 if not attribute_info.is_blob:
-                    # Check if it matches any of the time based attributes
-                    if attribute_info.type == 'date':
+                    if tuple_without_blob[attribute_name] == None:
+                        # If it is none then just append None
+                        tuple_buffer.append(None)
+                    elif attribute_info.type == 'date':
                         # Date attribute type covert to epoch time
                         tuple_buffer.append((tuple_without_blob[attribute_name] - datetime.date(1970, 1, 1)).days * DAY)
                     elif attribute_info.type == 'time':
@@ -140,11 +143,11 @@ class DJConnector():
                         # Datetime or timestamp, use timestamp to covert to epoch time
                         tuple_buffer.append(tuple_without_blob[attribute_name].timestamp())
                     else:
-                        # Normal attribute, just return value with .item to deal with numpy types, unless it is a string
-                        if isinstance(tuple_without_blob[attribute_name], (str, bool)):
-                            tuple_buffer.append(tuple_without_blob[attribute_name])
-                        else:
+                        # Normal attribute, just return value with .item to deal with numpy types
+                        if type(tuple_without_blob[attribute_name]).__module__ == np.__name__:
                             tuple_buffer.append(tuple_without_blob[attribute_name].item())
+                        else:
+                            tuple_buffer.append(tuple_without_blob[attribute_name])
                 else:
                     # Attribute is blob type thus fill it in string instead
                     tuple_buffer.append('=BLOB=')
