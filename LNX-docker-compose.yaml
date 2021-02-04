@@ -38,7 +38,7 @@ services:
         echo "------ SYNTAX TESTS ------"
         flake8 dj_gui_api_server --count --select=E9,F63,F7,F82 --show-source --statistics
         echo "------ UNIT TESTS ------"
-        pytest -s --cov-report term-missing \
+        pytest -sv --cov-report term-missing \
           --cov=dj_gui_api_server /main/tests
         echo "------ STYLE TESTS ------"
         flake8 dj_gui_api_server --count --max-complexity=10 --max-line-length=95 --statistics
