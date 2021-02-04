@@ -1,7 +1,9 @@
 """Library for interfaces into DataJoint pipelines."""
 import datajoint as dj
 from datajoint.declare import TYPE_PATTERN
+import datetime
 
+DAY = 24*60*60
 
 class DJConnector():
     """
@@ -127,7 +129,7 @@ class DJConnector():
                     # Check if it matches any of the time based attributes
                     if attribute_info.type == 'date':
                         # Date attribute type, covert to YYYY-MM-DD format
-                        tuple_buffer.append(tuple_without_blob[attribute_name].strftime('%Y-%m-%d'))
+                        tuple_buffer.append((tuple_without_blob[attribute_name] - datetime.date(1970, 1, 1)).days * DAY)
                     elif attribute_info.type == 'time':
                         # Time attirbute, return total seconds
                         tuple_buffer.append(tuple_without_blob[attribute_name].total_seconds())
