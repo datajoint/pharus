@@ -128,7 +128,7 @@ class DJConnector():
         # Looped through each tuple and deal with TEMPORAL types and replaceing blobs with ==BLOB== for json encoding
         for tuple_without_blob in tuples_without_blobs:
             tuple_buffer = []
-            for attribute_name, attribute_info in table.heading.attributes.items()
+            for attribute_name, attribute_info in table.heading.attributes.items():
                 if not attribute_info.is_blob:
                     if tuple_without_blob[attribute_name] == None:
                         # If it is none then just append None
