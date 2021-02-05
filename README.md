@@ -13,15 +13,15 @@ Serves as the REST API backend for DJGUI project complimented by [React frontend
 Built on top of `flask`, `datajoint`, and `pyjwt`.
 
 Requirements:
-- Docker
-- Docker Compose
+- [Docker](https://docs.docker.com/get-docker/  )
+- [Docker Compose](https://docs.docker.com/compose/install/)
 
 ## Run Locally
 
 - Copy `local-docker-compose.yaml` to `docker-compose.yaml`. This file is untracked so feel free to modify as necessary.
 - Check the first comment which will provide best instruction on how to start the service.
 
-NOTE: The docker-compose file creates a docker network called `dj-gui-api` which is meant to connect the front end to the back end via reverse proxy for development. Final deployment will be using K8S or electron with some production server for flask.
+NOTE: The docker-compose file creates a docker network called `dj-gui-api` which is meant to connect the frontend to the backend via reverse proxy for development. Running or installation options currently being considered are [Docker Compose](https://docs.docker.com/compose/install/) and [Electron](https://www.electronjs.org/). Deployment options currently being considered are [Docker Compose](https://docs.docker.com/compose/install/) and [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
 
 ## Run Tests
 
@@ -31,6 +31,7 @@ HOST_UID=1000 # Unix UID associated with non-root login
 PY_VER=3.8    # Python version: 3.6|3.7|3.8
 IMAGE=djtest  # Image type:     djbase|djtest|djlab|djlabhub
 DISTRO=alpine # Distribution:   alpine|debian
+AS_SCRIPT=
 ```
 - Navigate to `LNX-docker-compose.yaml` and check first comment which will provide best instruction on how to start the service. Yes, the command is a bit long...
 
