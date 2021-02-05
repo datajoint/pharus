@@ -1,4 +1,4 @@
-<figcaption align="middle"><p style="font-size: 50px">👷‍♀️ <b>Under Construction</b> 👷</p></figcaption>
+<figcaption style="text-align:center; font-size: 50px"><p>👷‍♀️ <b>Under Construction</b> 👷</p></figcaption>
 <img src="./under_contruction.png" align="middle"/>
 
 
