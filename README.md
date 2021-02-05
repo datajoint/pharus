@@ -1,5 +1,10 @@
-<figcaption style="text-align:center; font-size: 50px"><p>👷‍♀️ <b>Under Construction</b> 👷</p></figcaption>
-<img src="./under_contruction.png" align="middle"/>
+<p align="center">
+ <img src="under_contruction.png" alt="train_perf_fig" height="640" width="960"/>
+    <br>
+    <em>Figure 1 training process of NN.</em>
+</p>
+<!-- <figcaption style="text-align:center; font-size: 50px"><p>👷‍♀️ <b>Under Construction</b> 👷</p></figcaption>
+<img src="./under_contruction.png" align="middle"/> -->
 
 
 # DJ-GUI-API Backend
