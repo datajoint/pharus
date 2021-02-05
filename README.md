@@ -21,7 +21,7 @@ Requirements:
 - Copy `local-docker-compose.yaml` to `docker-compose.yaml`. This file is untracked so feel free to modify as necessary.
 - Check the first comment which will provide best instruction on how to start the service.
 
-NOTE: The docker-compose file creates a docker network called `dj-gui-api` which is meant to connect the frontend to the backend via reverse proxy for development. Running or installation options currently being considered are [Docker Compose](https://docs.docker.com/compose/install/) and [Electron](https://www.electronjs.org/). Deployment options currently being considered are [Docker Compose](https://docs.docker.com/compose/install/) and [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
+> :warning: The docker-compose file creates a docker network called `dj-gui-api` which is meant to connect the frontend to the backend via reverse proxy for development. Running or installation options currently being considered are [Docker Compose](https://docs.docker.com/compose/install/) and [Electron](https://www.electronjs.org/). Deployment options currently being considered are [Docker Compose](https://docs.docker.com/compose/install/) and [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
 
 ## Run Tests
 
