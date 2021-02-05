@@ -25,6 +25,7 @@ services:
       - TEST_DB_SERVER=db
       - TEST_DB_USER=root
       - TEST_DB_PASS=simple
+      - AS_SCRIPT
     volumes:
       - .:/main
       - ./test_requirements.txt:/tmp/pip_requirements.txt
@@ -34,13 +35,20 @@ services:
       - sh
       - -c
       - |
-        set -e
-        echo "------ SYNTAX TESTS ------"
-        flake8 dj_gui_api_server --count --select=E9,F63,F7,F82 --show-source --statistics
-        echo "------ UNIT TESTS ------"
-        pytest -sv --cov-report term-missing --cov=dj_gui_api_server /main/tests
-        echo "------ STYLE TESTS ------"
-        flake8 dj_gui_api_server --count --max-complexity=10 --max-line-length=95 --statistics
+        if [ ! -z "$${AS_SCRIPT}" ]; then
+          set -e
+          echo "------ SYNTAX TESTS ------"
+          flake8 dj_gui_api_server --count --select=E9,F63,F7,F82 --show-source --statistics
+          echo "------ UNIT TESTS ------"
+          pytest -sv --cov-report term-missing --cov=dj_gui_api_server /main/tests
+          echo "------ STYLE TESTS ------"
+          flake8 dj_gui_api_server --count --max-complexity=10 --max-line-length=95 \
+            --statistics
+        else
+          echo "=== Running ==="
+          echo "Please see 'LNX-docker-compose.yaml' for detail on running tests."
+          tail -f /dev/null
+        fi
     depends_on:
       db:
         condition: service_healthy

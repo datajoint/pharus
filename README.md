@@ -1,3 +1,9 @@
+<div style="text-align:center">
+    <img src="./under_contruction.png" alt="general-arch"/>
+    <figcaption><p style="font-size: 20px">👷‍♀️ <b>Under Construction</b> 👷</p></figcaption>
+</div>
+
+
 # DJ-GUI-API Backend
 
 Built on top of `flask`, `datajoint`, and `pyjwt`.
@@ -23,3 +29,8 @@ IMAGE=djtest  # Image type:     djbase|djtest|djlab|djlabhub
 DISTRO=alpine # Distribution:   alpine|debian
 ```
 - Navigate to `LNX-docker-compose.yaml` and check first comment which will provide best instruction on how to start the service. Yes, the command is a bit long...
+
+## References
+
+- Under construction image credits:
+  - https://www.pngfind.com/mpng/ooiim_under-construction-tape-png-under-construction-transparent-png/
