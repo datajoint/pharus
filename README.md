@@ -1,7 +1,5 @@
-<div style="text-align:center">
-    <figcaption><p style="text-align:center; font-size: 30px">👷‍♀️ <b>Under Construction</b> 👷</p></figcaption>
-    <img src="./under_contruction.png" alt="general-arch"/>
-</div>
+<figcaption align="middle"><p style="font-size: 50px">👷‍♀️ <b>Under Construction</b> 👷</p></figcaption>
+<img src="./under_contruction.png" align="middle"/>
 
 
 # DJ-GUI-API Backend
