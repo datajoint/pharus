@@ -1,6 +1,6 @@
 <div style="text-align:center">
+    <figcaption><p style="text-align:center; font-size: 30px">👷‍♀️ <b>Under Construction</b> 👷</p></figcaption>
     <img src="./under_contruction.png" alt="general-arch"/>
-    <figcaption><p style="font-size: 20px">👷‍♀️ <b>Under Construction</b> 👷</p></figcaption>
 </div>
 
 
