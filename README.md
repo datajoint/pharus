@@ -5,6 +5,8 @@
 </p>
 </div>
 
+> :warning: **If you are using mobile browser**: Be very careful here!
+
 # DJ-GUI-API Backend
 
 Built on top of `flask`, `datajoint`, and `pyjwt`.
