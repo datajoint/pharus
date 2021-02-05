@@ -18,6 +18,7 @@ jobs:
       HOST_UID: "1001"
       DOCKER_CLIENT_TIMEOUT: "120"
       COMPOSE_HTTP_TIMEOUT: "120"
+      AS_SCRIPT: "TRUE"
     steps:
       - uses: actions/checkout@v2
       - name: Compile image
@@ -52,6 +53,7 @@ jobs:
       HOST_UID: "1001"
       DOCKER_CLIENT_TIMEOUT: "120"
       COMPOSE_HTTP_TIMEOUT: "120"
+      AS_SCRIPT: "TRUE"
     steps:
       - uses: actions/checkout@v2
       - name: Fetch image artifact
