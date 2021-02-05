@@ -9,6 +9,7 @@
 
 # DJ-GUI-API Backend
 
+Serves as the REST API backend for DJGUI project complimented by [React frontend](https://github.com/vathes/DJ-GUI-React).
 Built on top of `flask`, `datajoint`, and `pyjwt`.
 
 Requirements:
@@ -35,5 +36,7 @@ DISTRO=alpine # Distribution:   alpine|debian
 
 ## References
 
+- DJGUI Frontend:
+  - https://github.com/vathes/DJ-GUI-React
 - Under construction image credits:
   - https://www.pngfind.com/mpng/ooiim_under-construction-tape-png-under-construction-transparent-png/
