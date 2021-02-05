@@ -1,6 +1,6 @@
 <div
 <p align="center">
-  <em>👷‍♀️ Under Construction 👷</em>
+  <em style="font-size: 50px">👷‍♀️ <b>Under Construction</b> 👷</em>
   <img src="under_contruction.png" alt="construction_fig"/>  
 </p>
 </div>
