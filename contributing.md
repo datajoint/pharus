@@ -71,7 +71,7 @@ Please file is under the issue tracker associated with the open-source software.
 
 Please file it under the issue tracker associated with the open-source software.
 
-### I am curious why the maintainers choose to **__________**? i.e. questions that are 'opinianated' in nature with answers that some might disagree.
+### I am curious why the maintainers choose to **__________**? i.e. questions that are 'opinionated' in nature with answers that some might disagree.
 
   Please join the community on the [DataJoint Slack](https://join.slack.com/t/datajoint/shared_invite/enQtMjkwNjQxMjI5MDk0LTQ3ZjFiZmNmNGVkYWFkYjgwYjdhNTBlZTBmMWEyZDc2NzZlYTBjOTNmYzYwOWRmOGFmN2MyYzU0OWQ0MWZiYTE) and ask on the most relevant channel. There, you may engage directly with the maintainers for proper discourse.
 
