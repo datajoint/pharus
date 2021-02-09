@@ -371,15 +371,15 @@ def test_part_table(token, client, ParentPart):
     REST_value = client.post('/api/fetch_tuples',
                             headers=dict(Authorization=f'Bearer {token}'),
                             json=dict(schemaName='add_types',
-                                        tableName=ParentPart['ProcessScanData'].__name__)).json['tuples'][0]
-
+                                      tableName=ParentPart['ProcessScanData'].__name__)).json['tuples'][0]
+    
     assert REST_value == [0, 5]
 
     # Test Child
     REST_value = client.post('/api/fetch_tuples',
                             headers=dict(Authorization=f'Bearer {token}'),
                             json=dict(schemaName='add_types',
-                                        tableName=ParentPart['ProcessScanData'].__name__ + '.' + 
-                                        ParentPart['ProcessScanData'].ProcessScanDataPart.__name__)).json['tuples'][0]
+                                      tableName=ParentPart['ProcessScanData'].__name__ + '.' + 
+                                      ParentPart['ProcessScanData'].ProcessScanDataPart.__name__)).json['tuples'][0]
 
     assert REST_value == [0, 10]
