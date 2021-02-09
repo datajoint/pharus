@@ -190,7 +190,6 @@ def get_table_attributes(jwt_payload: dict):
                                                 request.json["schemaName"],
                                                 request.json["tableName"])
     except Exception as e:
-        print(e, flush=True)
         return str(e), 500
 
 

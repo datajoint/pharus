@@ -100,7 +100,7 @@ class DJConnector():
         return tables_dict_list
 
     @staticmethod
-    def fetch_tuples(jwt_payload: dict, schema_name: str, table_name: str):  # noqa: C90
+    def fetch_tuples(jwt_payload: dict, schema_name: str, table_name: str):
         """
         Get records as tuples from table
         :param jwt_payload: Dictionary containing databaseAddress, username and password
@@ -117,13 +117,8 @@ class DJConnector():
 
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
 
-        # Split the table name by '.' for dealing with part tables
-        table_name_parts = table_name.split('.')
-        if len(table_name_parts) == 2:
-            table = getattr(getattr(schema_virtual_module,
-                                    table_name_parts[0]), table_name_parts[1])
-        else:
-            table = getattr(schema_virtual_module, table_name_parts[0])
+        # Get table object from name
+        table = DJConnector.get_table_object(schema_virtual_module, table_name)
 
         # Fetch tuples without blobs as dict to be used to create a
         #   list of tuples for returning
@@ -192,13 +187,8 @@ class DJConnector():
 
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
 
-        # Split the table name by '.' for dealing with part tables
-        table_name_parts = table_name.split('.')
-        if len(table_name_parts) == 2:
-            table = getattr(getattr(schema_virtual_module,
-                                    table_name_parts[0]), table_name_parts[1])
-        else:
-            table = getattr(schema_virtual_module, table_name_parts[0])
+        # Get table object from name
+        table = DJConnector.get_table_object(schema_virtual_module, table_name)
 
         table_attributes = dict(primary_attributes=[], secondary_attributes=[])
         for attribute_name, attribute_info in table.heading.attributes.items():
@@ -321,6 +311,18 @@ class DJConnector():
 
         # All check pass thus proceed to delete
         tuple_to_delete.delete_quick()
+
+    @staticmethod
+    def get_table_object(schema_virtual_module, table_name: str):
+        # Split the table name by '.' for dealing with part tables
+        table_name_parts = table_name.split('.')
+        if len(table_name_parts) == 2:
+            table = getattr(getattr(schema_virtual_module,
+                                    table_name_parts[0]), table_name_parts[1])
+        else:
+            table = getattr(schema_virtual_module, table_name_parts[0])
+
+        return table
 
     @staticmethod
     def set_datajoint_config(jwt_payload: dict):
