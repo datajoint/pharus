@@ -190,6 +190,41 @@ def Uuid(schema):
     yield Uuid
     Uuid.drop()
 
+@pytest.fixture
+def ParentPart(schema):
+    @schema
+    class ScanData(dj.Manual):
+        definition = """
+        scan_id : int unsigned
+        ---
+        data: int unsigned
+        """
+        
+    @schema
+    class ProcessScanData(dj.Computed):
+        definition = """
+        -> ScanData # Forigen Key Reference
+        ---
+        processed_scan_data : int unsigned
+        """
+            
+        class ProcessScanDataPart(dj.Part):
+            definition = """
+            -> ProcessScanData
+            ---
+            processed_scan_data_part : int unsigned
+            """
+            
+            
+        def make(self, key):
+            scan_data_dict = (ScanData & key).fetch1()
+            self.insert1(dict(key, processed_scan_data=scan_data_dict['data']))
+            self.ProcessScanDataPart.insert1(
+                dict(key, processed_scan_data_part=scan_data_dict['data'] * 2))
+
+    yield dict(ScanData=ScanData, ProcessScanData=ProcessScanData)
+    ScanData.drop()
+
 
 def validate(table, inserted_value, expected_type, expected_value, client, token):
     table.insert([(1, inserted_value)])
@@ -327,3 +362,24 @@ def test_uuid(token, client, Uuid):
         client=client,
         token=token,
     )
+
+def test_part_table(token, client, ParentPart):
+    ParentPart['ScanData'].insert1(dict(scan_id=0, data=5))
+    ParentPart['ProcessScanData'].populate()
+    
+    # Test Parent
+    REST_value = client.post('/api/fetch_tuples',
+                            headers=dict(Authorization=f'Bearer {token}'),
+                            json=dict(schemaName='add_types',
+                                      tableName=ParentPart['ProcessScanData'].__name__)).json['tuples'][0]
+    
+    assert REST_value == [0, 5]
+
+    # Test Child
+    REST_value = client.post('/api/fetch_tuples',
+                            headers=dict(Authorization=f'Bearer {token}'),
+                            json=dict(schemaName='add_types',
+                                      tableName=ParentPart['ProcessScanData'].__name__ + '.' + 
+                                      ParentPart['ProcessScanData'].ProcessScanDataPart.__name__)).json['tuples'][0]
+
+    assert REST_value == [0, 10]

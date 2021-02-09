@@ -1,15 +1,15 @@
-# DJGUI_API_VERSION=$(cat dj_gui_api_server/version.py | tail -1 | awk -F\' '{print $2}') docker-compose -f LNX-docker-compose.yaml up --build --exit-code-from dj-gui-api
+# DJGUI_API_VERSION=$(cat dj_gui_api_server/version.py | tail -1 | awk -F\' '{print $2}') docker-compose -f LNX-docker-compose.yaml up --build --exit-code-from dj-gui-api-test
 version: "2.4"
 x-net: &net
   networks:
-      - dj-gui-api
+      - dj-gui-api-test
 services:
   db:
     <<: *net
     image: datajoint/mysql:5.7
     environment:
       - MYSQL_ROOT_PASSWORD=simple
-  dj-gui-api:
+  dj-gui-api-test:
     <<: *net
     build:
       context: .
@@ -53,5 +53,5 @@ services:
       db:
         condition: service_healthy
 networks:
-  dj-gui-api:
-    name: dj-gui-api
+  dj-gui-api-test:
+    name: dj-gui-api-test
