@@ -59,7 +59,7 @@ jobs:
       - name: Fetch image artifact
         uses: actions/download-artifact@v2
         with:
-          name: ${{format('{0}-py{1}-{2}','djgui_api-test', matrix.py_ver, matrix.distro)}}
+          name: ${{format('{0}-py{1}-{2}','djgui_api', matrix.py_ver, matrix.distro)}}
       - name: Run primary tests
         run: |
           docker load < "djgui_api-py${PY_VER}-${DISTRO}.tar.gz"
