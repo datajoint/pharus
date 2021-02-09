@@ -314,6 +314,13 @@ class DJConnector():
 
     @staticmethod
     def get_table_object(schema_virtual_module, table_name: str):
+        """
+        Helper method for getting the table object based on the table_name provided
+        :param schema_virtual_module: dj.VirtualModule for accesing the schema
+        :type schema_virtual_module: dj.VirtualModule
+        :param table_name: name of the table, for part it should be parent.part
+        :type table_name: str
+        """
         # Split the table name by '.' for dealing with part tables
         table_name_parts = table_name.split('.')
         if len(table_name_parts) == 2:
