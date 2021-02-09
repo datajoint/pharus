@@ -95,7 +95,7 @@ class DJConnector():
                     table_name_parts[-2]) + '.' + DJConnector.snake_to_camel_case(
                         table_name_parts[-1]))
             else:
-                print(table_name + ' is of unknown table type', flush=True)
+                raise Exception(table_name + ' is of unknown table type')
 
         return tables_dict_list
 
