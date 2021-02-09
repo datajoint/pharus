@@ -222,7 +222,7 @@ def ParentPart(schema):
             self.ProcessScanDataPart.insert1(
                 dict(key, processed_scan_data_part=scan_data_dict['data'] * 2))
 
-    yield ScanData, ProcessScanData
+    yield dict(ScanData=ScanData, ProcessScanData=ProcessScanData)
     ScanData.drop()
 
 
@@ -364,14 +364,14 @@ def test_uuid(token, client, Uuid):
     )
 
 def test_part_table(token, client, ParentPart):
-    ParentPart[0].insert1(dict(scan_id=0, data=5))
-    ParentPart[1].populate()
+    ParentPart['ScanData'].insert1(dict(scan_id=0, data=5))
+    ParentPart['ProcessScanData'].populate()
     
     # Test Parent
     REST_value = client.post('/api/fetch_tuples',
                             headers=dict(Authorization=f'Bearer {token}'),
                             json=dict(schemaName='add_types',
-                                        tableName=ParentPart[1].__name__)).json['tuples'][0]
+                                        tableName=ParentPart['ProcessScanData'].__name__)).json['tuples'][0]
 
     assert REST_value == [0, 5]
 
@@ -379,7 +379,7 @@ def test_part_table(token, client, ParentPart):
     REST_value = client.post('/api/fetch_tuples',
                             headers=dict(Authorization=f'Bearer {token}'),
                             json=dict(schemaName='add_types',
-                                        tableName=ParentPart[1].__name__ + '.' + 
-                                        ParentPart[1].ProcessScanDataPart.__name__)).json['tuples'][0]
+                                        tableName=ParentPart['ProcessScanData'].__name__ + '.' + 
+                                        ParentPart['ProcessScanData'].ProcessScanDataPart.__name__)).json['tuples'][0]
 
     assert REST_value == [0, 10]
