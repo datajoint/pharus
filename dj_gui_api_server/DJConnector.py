@@ -2,6 +2,8 @@
 import datajoint as dj
 import datetime
 import numpy as np
+from .dj_connector_exceptions import InvalidDeleteRequest, InvalidRestriction, \
+    UnsupportedTableType
 
 DAY = 24 * 60 * 60
 DEFAULT_FETCH_LIMIT = 1000  # Stop gap measure to deal with super large tables
@@ -30,11 +32,8 @@ class DJConnector():
         dj.config['database.password'] = password
 
         # Attempt to connect return true if successful, false is failed
-        try:
-            dj.conn(reset=True)
-            return dict(result=True)
-        except Exception as e:
-            return dict(result=False, error=e)
+        dj.conn(reset=True)
+        return dict(result=True)
 
     @staticmethod
     def list_schemas(jwt_payload: dict):
@@ -95,7 +94,7 @@ class DJConnector():
                     table_name_parts[-2]) + '.' + DJConnector.snake_to_camel_case(
                         table_name_parts[-1]))
             else:
-                raise Exception(table_name + ' is of unknown table type')
+                raise UnsupportedTableType(table_name + ' is of unknown table type')
 
         return tables_dict_list
 
@@ -297,17 +296,17 @@ class DJConnector():
         # Check to see if the restriction has at least one matching attribute, if not raise an
         # error
         if len(table_attributes & tuple_to_restrict_by.keys()) == 0:
-            raise Exception('Restriction is invalid: None of the attributes match')
+            raise InvalidRestriction('Restriction is invalid: None of the attributes match')
 
         # Compute restriction
         tuple_to_delete = getattr(schema_virtual_module, table_name) & tuple_to_restrict_by
 
         # Check if there is only 1 tuple to delete otherwise raise error
         if len(tuple_to_delete) > 1:
-            raise Exception("""Cannot delete more than 1 tuple at a time.
+            raise InvalidDeleteRequest("""Cannot delete more than 1 tuple at a time.
                             Please update the restriction accordingly""")
         elif len(tuple_to_delete) == 0:
-            raise Exception('Nothing to delete')
+            raise InvalidDeleteRequest('Nothing to delete')
 
         # All check pass thus proceed to delete
         tuple_to_delete.delete_quick()
@@ -324,8 +323,8 @@ class DJConnector():
         # Split the table name by '.' for dealing with part tables
         table_name_parts = table_name.split('.')
         if len(table_name_parts) == 2:
-            return getattr(getattr(schema_virtual_module,
-                                    table_name_parts[0]), table_name_parts[1])
+            return getattr(getattr(schema_virtual_module, table_name_parts[0]),
+                           table_name_parts[1])
         else:
             return getattr(schema_virtual_module, table_name_parts[0])
 
