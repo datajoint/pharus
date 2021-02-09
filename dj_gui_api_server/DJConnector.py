@@ -317,12 +317,10 @@ class DJConnector():
         # Split the table name by '.' for dealing with part tables
         table_name_parts = table_name.split('.')
         if len(table_name_parts) == 2:
-            table = getattr(getattr(schema_virtual_module,
+            return getattr(getattr(schema_virtual_module,
                                     table_name_parts[0]), table_name_parts[1])
         else:
-            table = getattr(schema_virtual_module, table_name_parts[0])
-
-        return table
+            return getattr(schema_virtual_module, table_name_parts[0])
 
     @staticmethod
     def set_datajoint_config(jwt_payload: dict):
