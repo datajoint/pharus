@@ -81,7 +81,6 @@ class DJConnector():
         for table_name in tables_name:
             table_type = dj.diagram._get_tier(
                 '`' + schema_name + '`.`' + table_name + '`').__name__
-            print(table_name, table_type, flush=True)
             if table_type == 'Manual':
                 tables_dict_list['manual_tables'].append(dj.utils.to_camel_case(table_name))
             elif table_type == 'Lookup':
@@ -96,12 +95,12 @@ class DJConnector():
                     table_name_parts[-2]) + '.' + DJConnector.snake_to_camel_case(
                         table_name_parts[-1]))
             else:
-                print(table_name + ' is of unknown table type')
+                print(table_name + ' is of unknown table type', flush=True)
 
         return tables_dict_list
 
     @staticmethod
-    def fetch_tuples(jwt_payload: dict, schema_name: str, table_name: str):
+    def fetch_tuples(jwt_payload: dict, schema_name: str, table_name: str):  # noqa: C90
         """
         Get records as tuples from table
         :param jwt_payload: Dictionary containing databaseAddress, username and password
@@ -118,8 +117,13 @@ class DJConnector():
 
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
 
-        # Get the table object refernece
-        table = getattr(schema_virtual_module, table_name)
+        # Split the table name by '.' for dealing with part tables
+        table_name_parts = table_name.split('.')
+        if len(table_name_parts) == 2:
+            table = getattr(getattr(schema_virtual_module,
+                                    table_name_parts[0]), table_name_parts[1])
+        else:
+            table = getattr(schema_virtual_module, table_name_parts[0])
 
         # Fetch tuples without blobs as dict to be used to create a
         #   list of tuples for returning
@@ -187,9 +191,17 @@ class DJConnector():
         DJConnector.set_datajoint_config(jwt_payload)
 
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
+
+        # Split the table name by '.' for dealing with part tables
+        table_name_parts = table_name.split('.')
+        if len(table_name_parts) == 2:
+            table = getattr(getattr(schema_virtual_module,
+                                    table_name_parts[0]), table_name_parts[1])
+        else:
+            table = getattr(schema_virtual_module, table_name_parts[0])
+
         table_attributes = dict(primary_attributes=[], secondary_attributes=[])
-        for attribute_name, attribute_info in getattr(schema_virtual_module,
-                                                      table_name).heading.attributes.items():
+        for attribute_name, attribute_info in table.heading.attributes.items():
             if attribute_info.in_key:
                 table_attributes['primary_attributes'].append((
                     attribute_name,
