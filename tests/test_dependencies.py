@@ -96,7 +96,13 @@ def test_dependencies_underprivileged(underprivileged_token, client):
         f"""/api/record/dependency?schema_name={
             schema_name}&table_name={table_name}&restriction={restriction}""",
         headers=dict(Authorization=f'Bearer {underprivileged_token}')).json['dependencies']
+    REST_records = client.post('/api/fetch_tuples',
+                               headers=dict(Authorization=f'Bearer {underprivileged_token}'),
+                               json=dict(schemaName=schema_name,
+                                         tableName=table_name)).json['tuples']
     # print(REST_dependencies)
+    # print(REST_records)
+    assert len(REST_records) == 2
     assert len(REST_dependencies) == 4
     table_a = [el for el in REST_dependencies
                if el['schema'] == 'deps' and 'table_a' in el['table']][0]
@@ -120,7 +126,13 @@ def test_dependencies_admin(token, client, connection):
         f"""/api/record/dependency?schema_name={
             schema_name}&table_name={table_name}&restriction={restriction}""",
         headers=dict(Authorization=f'Bearer {token}')).json['dependencies']
+    REST_records = client.post('/api/fetch_tuples',
+                               headers=dict(Authorization=f'Bearer {token}'),
+                               json=dict(schemaName=schema_name,
+                                         tableName=table_name)).json['tuples']
     # print(REST_dependencies)
+    # print(REST_records)
+    assert len(REST_records) == 2
     assert len(REST_dependencies) == 4
     table_a = [el for el in REST_dependencies
                if el['schema'] == 'deps' and 'table_a' in el['table']][0]

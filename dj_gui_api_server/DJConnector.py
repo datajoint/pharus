@@ -281,11 +281,12 @@ class DJConnector():
         # Start transaction, try to delete, catch first occurrence, rollback
         virtual_module.schema.connection.start_transaction()
         try:
-            (table & primary_restriction).delete(transaction=False)
+            (table & primary_restriction).delete(safemode=False, transaction=False)
         except AccessError as errors:
             dependencies = dependencies + [dict(TABLE_INFO_REGEX.match(
                 errors.args[2]).groupdict(), accessible=False)]
-        virtual_module.schema.connection.cancel_transaction()
+        finally:
+            virtual_module.schema.connection.cancel_transaction()
         return dependencies
 
     @staticmethod
@@ -375,7 +376,6 @@ class DJConnector():
             strings
         :type jwt_payload: dict
         """
-        dj.config['safemode'] = False
         dj.config['database.host'] = jwt_payload['databaseAddress']
         dj.config['database.user'] = jwt_payload['username']
         dj.config['database.password'] = jwt_payload['password']
