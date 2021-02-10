@@ -7,6 +7,8 @@ import re
 
 DAY = 24 * 60 * 60
 DEFAULT_FETCH_LIMIT = 1000  # Stop gap measure to deal with super large tables
+TABLE_INFO_REGEX = re.compile(
+    r'.*?FROM\s+`(?P<schema>\w+)`.*?name\s*?=\s*?"(?P<table>.*?)".*?')
 
 
 class DJConnector():
@@ -281,8 +283,7 @@ class DJConnector():
         try:
             (table & primary_restriction).delete()
         except AccessError as errors:
-            dependencies = dependencies + [dict(re.compile(
-                r'.*?FROM\s+`(?P<schema>\w+)`.*?name\s*?=\s*?"(?P<table>.*?)".*?').match(
+            dependencies = dependencies + [dict(TABLE_INFO_REGEX.match(
                     errors.args[2]).groupdict(), accessible=False)]
         finally:
             virtual_module.schema.connection.cancel_transaction()
