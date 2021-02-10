@@ -2,6 +2,8 @@
 import datajoint as dj
 import datetime
 import numpy as np
+from datajoint.errors import AccessError
+import re
 
 DAY = 24 * 60 * 60
 DEFAULT_FETCH_LIMIT = 1000  # Stop gap measure to deal with super large tables
@@ -247,6 +249,44 @@ class DJConnector():
 
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
         getattr(schema_virtual_module, table_name).insert1(tuple_to_insert)
+
+    @staticmethod
+    def record_dependency(jwt_payload: dict, schema_name: str, table_name: str,
+                          primary_restriction: dict) -> list:
+        """
+        Return summary of dependencies associated with a restricted table
+        :param jwt_payload: Dictionary containing databaseAddress, username and password
+            strings
+        :type jwt_payload: dict
+        :param schema_name: Name of schema
+        :type schema_name: str
+        :param table_name: Table name under the given schema; must be in camel case
+        :type table_name: str
+        :param primary_restriction: Restriction to be applied to table
+        :type primary_restriction: dict
+        :return: Tables that are dependant on specific records. Includes accessibility and,
+            if accessible, how many rows are affected.
+        :rtype: list
+        """
+        DJConnector.set_datajoint_config(jwt_payload)
+        virtual_module = dj.VirtualModule(schema_name, schema_name)
+        table = getattr(virtual_module, table_name)
+        # Retrieve dependencies of related to retricted
+        dependencies = [dict(schema=descendant.database, table=descendant.table_name,
+                             accessible=True, count=len(descendant & primary_restriction))
+                        for descendant in table().descendants(as_objects=True)]
+        # Determine first issue regarding access
+        # Start transaction, try to delete, catch first occurrence, rollback
+        virtual_module.schema.connection.start_transaction()
+        try:
+            (table & primary_restriction).delete()
+        except AccessError as errors:
+            dependencies = dependencies + [dict(re.compile(
+                r'.*?FROM\s+`(?P<schema>\w+)`.*?name\s*?=\s*?"(?P<table>.*?)".*?').match(
+                    errors.args[2]).groupdict(), accessible=False)]
+        finally:
+            virtual_module.schema.connection.cancel_transaction()
+        return dependencies
 
     @staticmethod
     def update_tuple(jwt_payload: dict, schema_name: str, table_name: str,
