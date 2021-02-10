@@ -2,6 +2,7 @@
 import datajoint as dj
 import datetime
 import numpy as np
+from typing import Optional
 from .dj_connector_exceptions import InvalidDeleteRequest, InvalidRestriction, \
     UnsupportedTableType
 
@@ -99,7 +100,10 @@ class DJConnector():
         return tables_dict_list
 
     @staticmethod
-    def fetch_tuples(jwt_payload: dict, schema_name: str, table_name: str):
+    def fetch_tuples(jwt_payload: dict,
+                     schema_name: str,
+                     table_name: str,
+                     restrictions: Optional[dict] = None):
         """
         Get records as tuples from table
         :param jwt_payload: Dictionary containing databaseAddress, username and password
@@ -119,10 +123,23 @@ class DJConnector():
         # Get table object from name
         table = DJConnector.get_table_object(schema_virtual_module, table_name)
 
+        # Build the restriction string
+        restriction_string = ''
+        if restrictions is None:
+            for key, value in restrictions.items():
+                print(key, value, flush=True)
+                restriction_string += key + value + ' '
+
         # Fetch tuples without blobs as dict to be used to create a
         #   list of tuples for returning
-        non_blobs_rows = table.fetch(*table.heading.non_blobs, as_dict=True,
-                                     limit=DEFAULT_FETCH_LIMIT)
+        if restriction_string != '':
+            non_blobs_rows = (table & restriction_string).fetch(*table.heading.non_blobs,
+                                                                as_dict=True,
+                                                                limit=DEFAULT_FETCH_LIMIT)
+        else:
+            non_blobs_rows = table.fetch(*table.heading.non_blobs,
+                                         as_dict=True,
+                                         limit=DEFAULT_FETCH_LIMIT)
 
         # Buffer list to be return
         rows = []

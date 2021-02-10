@@ -139,10 +139,12 @@ def fetch_tuples(jwt_payload: dict):
     :return: If successful then sends back records as list otherwise returns error
     :rtype: dict
     """
+    
     try:
         table_tuples = DJConnector.fetch_tuples(jwt_payload,
                                                 request.json["schemaName"],
-                                                request.json["tableName"])
+                                                request.json["tableName"],
+                                                request.args)
         return dict(tuples=table_tuples)
     except Exception as e:
         return str(e), 500
