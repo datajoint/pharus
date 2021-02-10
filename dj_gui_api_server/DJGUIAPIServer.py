@@ -76,15 +76,15 @@ def login():
         return dict(error='Invalid json body')
 
     # Try to login in with the database connection info, if true then create jwt key
-    attempt_connection_result = DJConnector.attempt_login(request.json['databaseAddress'],
-                                                          request.json['username'],
-                                                          request.json['password'])
-    if attempt_connection_result['result']:
+    try:
+        DJConnector.attempt_login(request.json['databaseAddress'],
+                                  request.json['username'],
+                                  request.json['password'])
         # Generate JWT key and send it back
         encoded_jwt = jwt.encode(request.json, os.environ['PRIVATE_KEY'], algorithm='RS256')
         return dict(jwt=encoded_jwt)
-    else:
-        return dict(error=str(attempt_connection_result['error']))
+    except Exception as e:
+        return str(e), 500
 
 
 @app.route('/api/list_schemas', methods=['GET'])

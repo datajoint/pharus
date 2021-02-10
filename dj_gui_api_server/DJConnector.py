@@ -4,6 +4,8 @@ import datetime
 import numpy as np
 from datajoint.errors import AccessError
 import re
+from .errors import (InvalidDeleteRequest, InvalidRestriction,
+                                      UnsupportedTableType)
 
 DAY = 24 * 60 * 60
 DEFAULT_FETCH_LIMIT = 1000  # Stop gap measure to deal with super large tables
@@ -34,11 +36,8 @@ class DJConnector():
         dj.config['database.password'] = password
 
         # Attempt to connect return true if successful, false is failed
-        try:
-            dj.conn(reset=True)
-            return dict(result=True)
-        except Exception as e:
-            return dict(result=False, error=e)
+        dj.conn(reset=True)
+        return dict(result=True)
 
     @staticmethod
     def list_schemas(jwt_payload: dict):
@@ -85,7 +84,6 @@ class DJConnector():
         for table_name in tables_name:
             table_type = dj.diagram._get_tier(
                 '`' + schema_name + '`.`' + table_name + '`').__name__
-            print(table_name, table_type, flush=True)
             if table_type == 'Manual':
                 tables_dict_list['manual_tables'].append(dj.utils.to_camel_case(table_name))
             elif table_type == 'Lookup':
@@ -100,7 +98,7 @@ class DJConnector():
                     table_name_parts[-2]) + '.' + DJConnector.snake_to_camel_case(
                         table_name_parts[-1]))
             else:
-                print(table_name + ' is of unknown table type')
+                raise UnsupportedTableType(table_name + ' is of unknown table type')
 
         return tables_dict_list
 
@@ -122,8 +120,8 @@ class DJConnector():
 
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
 
-        # Get the table object refernece
-        table = getattr(schema_virtual_module, table_name)
+        # Get table object from name
+        table = DJConnector.get_table_object(schema_virtual_module, table_name)
 
         # Fetch tuples without blobs as dict to be used to create a
         #   list of tuples for returning
@@ -191,9 +189,12 @@ class DJConnector():
         DJConnector.set_datajoint_config(jwt_payload)
 
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
+
+        # Get table object from name
+        table = DJConnector.get_table_object(schema_virtual_module, table_name)
+
         table_attributes = dict(primary_attributes=[], secondary_attributes=[])
-        for attribute_name, attribute_info in getattr(schema_virtual_module,
-                                                      table_name).heading.attributes.items():
+        for attribute_name, attribute_info in table.heading.attributes.items():
             if attribute_info.in_key:
                 table_attributes['primary_attributes'].append((
                     attribute_name,
@@ -336,20 +337,37 @@ class DJConnector():
         # Check to see if the restriction has at least one matching attribute, if not raise an
         # error
         if len(table_attributes & tuple_to_restrict_by.keys()) == 0:
-            raise Exception('Restriction is invalid: None of the attributes match')
+            raise InvalidRestriction('Restriction is invalid: None of the attributes match')
 
         # Compute restriction
         tuple_to_delete = getattr(schema_virtual_module, table_name) & tuple_to_restrict_by
 
         # Check if there is only 1 tuple to delete otherwise raise error
         if len(tuple_to_delete) > 1:
-            raise Exception("""Cannot delete more than 1 tuple at a time.
+            raise InvalidDeleteRequest("""Cannot delete more than 1 tuple at a time.
                             Please update the restriction accordingly""")
         elif len(tuple_to_delete) == 0:
-            raise Exception('Nothing to delete')
+            raise InvalidDeleteRequest('Nothing to delete')
 
         # All check pass thus proceed to delete
         tuple_to_delete.delete_quick()
+
+    @staticmethod
+    def get_table_object(schema_virtual_module, table_name: str):
+        """
+        Helper method for getting the table object based on the table_name provided
+        :param schema_virtual_module: dj.VirtualModule for accesing the schema
+        :type schema_virtual_module: dj.VirtualModule
+        :param table_name: name of the table, for part it should be parent.part
+        :type table_name: str
+        """
+        # Split the table name by '.' for dealing with part tables
+        table_name_parts = table_name.split('.')
+        if len(table_name_parts) == 2:
+            return getattr(getattr(schema_virtual_module, table_name_parts[0]),
+                           table_name_parts[1])
+        else:
+            return getattr(schema_virtual_module, table_name_parts[0])
 
     @staticmethod
     def set_datajoint_config(jwt_payload: dict):
