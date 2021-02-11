@@ -2,6 +2,7 @@
 import datajoint as dj
 import datetime
 import numpy as np
+from functools import reduce
 from datajoint.errors import AccessError
 import re
 from .errors import InvalidDeleteRequest, InvalidRestriction, UnsupportedTableType
@@ -102,7 +103,9 @@ class DJConnector():
         return tables_dict_list
 
     @staticmethod
-    def fetch_tuples(jwt_payload: dict, schema_name: str, table_name: str):
+    def fetch_tuples(jwt_payload: dict, schema_name: str, table_name: str,
+                     restriction: list = [], limit: int = 1000, page: int = 1,
+                     order=['KEY ASC']) -> tuple:
         """
         Get records as tuples from table
         :param jwt_payload: Dictionary containing databaseAddress, username and password
@@ -112,9 +115,37 @@ class DJConnector():
         :type schema_name: str
         :param table_name: Table name under the given schema; must be in camel case
         :type table_name: str
-        :return: List of tuples in dict form
-        :rtype: list
+        :param restriction: Sequence of filter cards with attribute_name, operation, value
+            defined, defaults to []
+        :type restriction: list, optional
+        :param limit: Max number of records to return, defaults to 1000
+        :type limit: int, optional
+        :param page: Page number to return, defaults to 1
+        :type page: int, optional
+        :param order: Sequence to order records, defaults to ['KEY ASC'].
+            See :class:`datajoint.fetch.Fetch` for more info.
+        :type order: list, optional
+        :return: Records in dict form and the total number of records that can be paged
+        :rtype: tuple
         """
+        def filter_to_restriction(attribute_filter: dict) -> str:
+            if attribute_filter['operation'] in ('>', '<', '>=', '<='):
+                operation = attribute_filter['operation']
+            elif attribute_filter['value'] is None:
+                operation = (' IS ' if attribute_filter['operation'] == '='
+                             else ' IS NOT ')
+            else:
+                operation = attribute_filter['operation']
+
+            if (isinstance(attribute_filter['value'], str) and
+                    not attribute_filter['value'].isnumeric()):
+                value = f"'{attribute_filter['value']}'"
+            else:
+                value = ('NULL' if attribute_filter['value'] is None
+                         else attribute_filter['value'])
+
+            return f"{attribute_filter['attributeName']}{operation}{value}"
+
         DJConnector.set_datajoint_config(jwt_payload)
 
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
@@ -124,8 +155,10 @@ class DJConnector():
 
         # Fetch tuples without blobs as dict to be used to create a
         #   list of tuples for returning
-        non_blobs_rows = table.fetch(*table.heading.non_blobs, as_dict=True,
-                                     limit=DEFAULT_FETCH_LIMIT)
+        query = reduce(lambda q1, q2: q1 & q2, [table()] + [filter_to_restriction(f)
+                                                            for f in restriction])
+        non_blobs_rows = query.fetch(*table.heading.non_blobs, as_dict=True, limit=limit,
+                                     offset=(page-1)*limit, order_by=order)
 
         # Buffer list to be return
         rows = []
@@ -168,7 +201,7 @@ class DJConnector():
 
             # Add the row list to tuples
             rows.append(row)
-        return rows
+        return rows, len(query)
 
     @staticmethod
     def get_table_attributes(jwt_payload: dict, schema_name: str, table_name: str):

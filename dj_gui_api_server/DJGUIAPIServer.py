@@ -133,6 +133,8 @@ def fetch_tuples(jwt_payload: dict):
     """
     Route to fetch all records for a given table. Expects:
         (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
+        (html:query_params): {"limit": <limit>, "page": <page>, "order": <order>,
+                              "restriction": <Base64 encoded restriction as JSONArray>}
         (html:POST:JSON): {"schemaName": <schema_name>, "tableName": <table_name>}
             NOTE: Table name must be in CamalCase
     :param jwt_payload: Dictionary containing databaseAddress, username and password
@@ -142,10 +144,16 @@ def fetch_tuples(jwt_payload: dict):
     :rtype: dict
     """
     try:
-        table_tuples = DJConnector.fetch_tuples(jwt_payload,
-                                                request.json["schemaName"],
-                                                request.json["tableName"])
-        return dict(tuples=table_tuples)
+        table_tuples, total_count = DJConnector.fetch_tuples(
+            jwt_payload=jwt_payload,
+            schema_name=request.json["schemaName"],
+            table_name=request.json["tableName"],
+            **{k: (int(v) if k in ('limit', 'page')
+                   else (v.split(',') if k == 'order' else loads(
+                       b64decode(v.encode('utf-8')).decode('utf-8'))))
+               for k, v in request.args.items()},
+            )
+        return dict(tuples=table_tuples, total_count=total_count)
     except Exception as e:
         return str(e), 500
 
