@@ -147,9 +147,9 @@ class DJConnector():
 
         # Fetch tuples without blobs as dict to be used to create a
         #   list of tuples for returning
-        non_blobs_rows = resolve_expression(restriction, table).fetch(
-            *table.heading.non_blobs, as_dict=True, limit=limit, offset=(page-1)*limit,
-            order_by=order)
+        query = resolve_expression(restriction, table)
+        non_blobs_rows = query.fetch(*table.heading.non_blobs, as_dict=True, limit=limit,
+                                     offset=(page-1)*limit, order_by=order)
 
         # Buffer list to be return
         rows = []
@@ -192,7 +192,7 @@ class DJConnector():
 
             # Add the row list to tuples
             rows.append(row)
-        return rows
+        return rows, len(query)
 
     @staticmethod
     def get_table_attributes(jwt_payload: dict, schema_name: str, table_name: str):
