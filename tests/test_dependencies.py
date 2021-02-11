@@ -100,8 +100,6 @@ def test_dependencies_underprivileged(underprivileged_token, client):
                                headers=dict(Authorization=f'Bearer {underprivileged_token}'),
                                json=dict(schemaName=schema_name,
                                          tableName=table_name)).json['tuples']
-    # print(REST_dependencies)
-    # print(REST_records)
     assert len(REST_records) == 2
     assert len(REST_dependencies) == 4
     table_a = [el for el in REST_dependencies
@@ -130,8 +128,6 @@ def test_dependencies_admin(token, client, connection):
                                headers=dict(Authorization=f'Bearer {token}'),
                                json=dict(schemaName=schema_name,
                                          tableName=table_name)).json['tuples']
-    # print(REST_dependencies)
-    # print(REST_records)
     assert len(REST_records) == 2
     assert len(REST_dependencies) == 4
     table_a = [el for el in REST_dependencies
