@@ -6,7 +6,6 @@ from .dj_connector_exceptions import InvalidDeleteRequest, InvalidRestriction, \
     UnsupportedTableType
 
 DAY = 24 * 60 * 60
-DEFAULT_FETCH_LIMIT = 1000  # Stop gap measure to deal with super large tables
 
 
 class DJConnector():
@@ -99,7 +98,9 @@ class DJConnector():
         return tables_dict_list
 
     @staticmethod
-    def fetch_tuples(jwt_payload: dict, schema_name: str, table_name: str):
+    def fetch_tuples(jwt_payload: dict, schema_name: str, table_name: str,
+                     restriction: list = [], limit: int = 1000, page: int = 1,
+                     order=['KEY ASC']) -> list:
         """
         Get records as tuples from table
         :param jwt_payload: Dictionary containing databaseAddress, username and password
@@ -112,6 +113,31 @@ class DJConnector():
         :return: List of tuples in dict form
         :rtype: list
         """
+        def resolve_expression(all_restrictions, query):
+            if not all_restrictions:
+                return query
+            else:
+                current_restriction = all_restrictions[0]
+                if current_restriction['operation'] in ('>', '<', '>=', '<='):
+                    operation = current_restriction['operation']
+                elif current_restriction['value'] is None:
+                    operation = (' IS ' if current_restriction['operation'] == '='
+                                 else ' IS NOT ')
+                else:
+                    operation = current_restriction['operation']
+
+                if isinstance(current_restriction['value'], str):
+                    value = f"'{current_restriction['value']}'"
+                else:
+                    value = ('NULL' if current_restriction['value'] is None
+                             else current_restriction['value'])
+
+                current_restriction = f"""{current_restriction[
+                    'attributeName']}{operation}{value}"""
+                return (query & current_restriction if len(all_restrictions) == 1
+                        else resolve_expression(all_restrictions[1:],
+                                                query & current_restriction))
+
         DJConnector.set_datajoint_config(jwt_payload)
 
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
@@ -121,8 +147,9 @@ class DJConnector():
 
         # Fetch tuples without blobs as dict to be used to create a
         #   list of tuples for returning
-        non_blobs_rows = table.fetch(*table.heading.non_blobs, as_dict=True,
-                                     limit=DEFAULT_FETCH_LIMIT)
+        non_blobs_rows = resolve_expression(restriction, table).fetch(
+            *table.heading.non_blobs, as_dict=True, limit=limit, offset=(page-1)*limit,
+            order_by=order)
 
         # Buffer list to be return
         rows = []

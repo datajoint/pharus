@@ -11,6 +11,8 @@ from cryptography.hazmat.backends import default_backend as crypto_default_backe
 
 from flask import Flask, request
 import jwt
+from json import loads
+from base64 import b64decode
 
 app = Flask(__name__)
 # Check if PRIVATE_KEY and PUBIC_KEY is set, if not generate them.
@@ -140,9 +142,15 @@ def fetch_tuples(jwt_payload: dict):
     :rtype: dict
     """
     try:
-        table_tuples = DJConnector.fetch_tuples(jwt_payload,
-                                                request.json["schemaName"],
-                                                request.json["tableName"])
+        table_tuples = DJConnector.fetch_tuples(
+            jwt_payload=jwt_payload,
+            schema_name=request.json["schemaName"],
+            table_name=request.json["tableName"],
+            **{k: (int(v) if k in ('limit', 'page')
+                   else (v.split(',') if k == 'order' else loads(
+                       b64decode(v.encode('utf-8')).decode('utf-8'))))
+               for k, v in request.args.items()},
+            )
         return dict(tuples=table_tuples)
     except Exception as e:
         return str(e), 500

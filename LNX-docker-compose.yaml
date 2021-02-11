@@ -29,6 +29,7 @@ services:
     volumes:
       - .:/main
       - ./test_requirements.txt:/tmp/pip_requirements.txt
+      - ./dj_gui_api_server:/opt/conda/lib/python3.8/site-packages/dj_gui_api_server
     user: ${HOST_UID}:anaconda
     working_dir: /main
     command:
