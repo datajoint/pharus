@@ -239,7 +239,7 @@ def record_dependency(jwt_payload: dict) -> dict:
     # Get dependencies
     try:
         dependencies = DJConnector.record_dependency(
-            jwt_payload, request.args.get('schema_name'), request.args.get('table_name'),
+            jwt_payload, request.args.get('schemaName'), request.args.get('tableName'),
             loads(b64decode(request.args.get('restriction').encode('utf-8')).decode('utf-8')))
         return dict(dependencies=dependencies)
     except Exception as e:
