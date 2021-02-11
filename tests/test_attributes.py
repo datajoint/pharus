@@ -76,6 +76,7 @@ def Decimal(schema):
     yield Decimal
     Decimal.drop()
 
+
 @pytest.fixture
 def String(schema):
     @schema
@@ -88,6 +89,7 @@ def String(schema):
     yield String
     String.drop()
 
+
 @pytest.fixture
 def Bool(schema):
     @schema
@@ -99,6 +101,7 @@ def Bool(schema):
         """
     yield Bool
     Bool.drop()
+
 
 @pytest.fixture
 def Date(schema):
@@ -190,6 +193,7 @@ def Uuid(schema):
     yield Uuid
     Uuid.drop()
 
+
 @pytest.fixture
 def ParentPart(schema):
     @schema
@@ -199,7 +203,7 @@ def ParentPart(schema):
         ---
         data: int unsigned
         """
-        
+
     @schema
     class ProcessScanData(dj.Computed):
         definition = """
@@ -207,22 +211,21 @@ def ParentPart(schema):
         ---
         processed_scan_data : int unsigned
         """
-            
+
         class ProcessScanDataPart(dj.Part):
             definition = """
             -> ProcessScanData
             ---
             processed_scan_data_part : int unsigned
             """
-            
-            
+
         def make(self, key):
             scan_data_dict = (ScanData & key).fetch1()
             self.insert1(dict(key, processed_scan_data=scan_data_dict['data']))
             self.ProcessScanDataPart.insert1(
                 dict(key, processed_scan_data_part=scan_data_dict['data'] * 2))
 
-    yield dict(ScanData=ScanData, ProcessScanData=ProcessScanData)
+    yield ScanData, ProcessScanData
     ScanData.drop()
 
 
@@ -267,6 +270,7 @@ def test_decimal(token, client, Decimal):
         token=token,
     )
 
+
 def test_string(token, client, String):
     validate(
         table=String,
@@ -277,6 +281,7 @@ def test_string(token, client, String):
         token=token,
     )
 
+
 def test_bool(token, client, Bool):
     validate(
         table=Bool,
@@ -286,6 +291,7 @@ def test_bool(token, client, Bool):
         client=client,
         token=token,
     )
+
 
 def test_date(token, client, Date):
     validate(
@@ -363,23 +369,26 @@ def test_uuid(token, client, Uuid):
         token=token,
     )
 
+
 def test_part_table(token, client, ParentPart):
-    ParentPart['ScanData'].insert1(dict(scan_id=0, data=5))
-    ParentPart['ProcessScanData'].populate()
-    
+    ScanData, ProcessScanData = ParentPart
+    ScanData.insert1(dict(scan_id=0, data=5))
+    ProcessScanData.populate()
+
     # Test Parent
     REST_value = client.post('/api/fetch_tuples',
-                            headers=dict(Authorization=f'Bearer {token}'),
-                            json=dict(schemaName='add_types',
-                                      tableName=ParentPart['ProcessScanData'].__name__)).json['tuples'][0]
-    
+                             headers=dict(Authorization=f'Bearer {token}'),
+                             json=dict(schemaName='add_types',
+                                       tableName=ProcessScanData.__name__)).json['tuples'][0]
+
     assert REST_value == [0, 5]
 
     # Test Child
-    REST_value = client.post('/api/fetch_tuples',
-                            headers=dict(Authorization=f'Bearer {token}'),
-                            json=dict(schemaName='add_types',
-                                      tableName=ParentPart['ProcessScanData'].__name__ + '.' + 
-                                      ParentPart['ProcessScanData'].ProcessScanDataPart.__name__)).json['tuples'][0]
+    REST_value = client.post(
+        '/api/fetch_tuples',
+        headers=dict(Authorization=f'Bearer {token}'),
+        json=dict(schemaName='add_types',
+                  tableName=(ProcessScanData.__name__ + '.' +
+                             ProcessScanData.ProcessScanDataPart.__name__))).json['tuples'][0]
 
     assert REST_value == [0, 10]
