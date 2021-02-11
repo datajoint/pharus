@@ -229,6 +229,31 @@ def insert_tuple(jwt_payload: dict):
         return str(e), 500
 
 
+@app.route('/api/record/dependency', methods=['GET'])
+@protected_route
+def record_dependency(jwt_payload: dict) -> dict:
+    """
+    Route to insert record. Expects:
+        (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
+        (html:query_params): {"schemaName": <schema_name>, "tableName": <table_name>,
+                           "restriction": <b64 JSON restriction>}
+            NOTE: Table name must be in CamalCase
+    :param jwt_payload: Dictionary containing databaseAddress, username and password
+        strings.
+    :type jwt_payload: dict
+    :return: If sucessfuly sends back a list of dependencies otherwise returns error
+    :rtype: dict
+    """
+    # Get dependencies
+    try:
+        dependencies = DJConnector.record_dependency(
+            jwt_payload, request.args.get('schemaName'), request.args.get('tableName'),
+            loads(b64decode(request.args.get('restriction').encode('utf-8')).decode('utf-8')))
+        return dict(dependencies=dependencies)
+    except Exception as e:
+        return str(e), 500
+
+
 @app.route('/api/update_tuple', methods=['POST'])
 @protected_route
 def update_tuple(jwt_payload: dict):

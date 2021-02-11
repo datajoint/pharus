@@ -31,7 +31,7 @@ HOST_UID=1000 # Unix UID associated with non-root login
 PY_VER=3.8    # Python version: 3.6|3.7|3.8
 IMAGE=djtest  # Image type:     djbase|djtest|djlab|djlabhub
 DISTRO=alpine # Distribution:   alpine|debian
-AS_SCRIPT=
+AS_SCRIPT=    # If 'TRUE', will not keep container alive but run tests and exit
 ```
 - Navigate to `LNX-docker-compose.yaml` and check first comment which will provide best instruction on how to start the service. Yes, the command is a bit long...
 
