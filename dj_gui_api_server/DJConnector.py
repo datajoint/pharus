@@ -5,6 +5,7 @@ import datetime
 import numpy as np
 from .dj_connector_exceptions import InvalidDeleteRequest, InvalidRestriction, \
     UnsupportedTableType
+from functools import reduce
 
 DAY = 24 * 60 * 60
 
@@ -124,32 +125,23 @@ class DJConnector():
         :return: Records in dict form and the total number of records that can be paged
         :rtype: tuple
         """
-        def resolve_expression(all_restrictions: list,
-                               query: QueryExpression) -> QueryExpression:
-            if not all_restrictions:
-                return query & dict()
+        def filter_to_restriction(filter_card: dict) -> str:
+            if filter_card['operation'] in ('>', '<', '>=', '<='):
+                operation = filter_card['operation']
+            elif filter_card['value'] is None:
+                operation = (' IS ' if filter_card['operation'] == '='
+                             else ' IS NOT ')
             else:
-                current_restriction = all_restrictions[0]
-                if current_restriction['operation'] in ('>', '<', '>=', '<='):
-                    operation = current_restriction['operation']
-                elif current_restriction['value'] is None:
-                    operation = (' IS ' if current_restriction['operation'] == '='
-                                 else ' IS NOT ')
-                else:
-                    operation = current_restriction['operation']
+                operation = filter_card['operation']
 
-                if (isinstance(current_restriction['value'], str) and
-                        not current_restriction['value'].isnumeric()):
-                    value = f"'{current_restriction['value']}'"
-                else:
-                    value = ('NULL' if current_restriction['value'] is None
-                             else current_restriction['value'])
+            if (isinstance(filter_card['value'], str) and
+                    not filter_card['value'].isnumeric()):
+                value = f"'{filter_card['value']}'"
+            else:
+                value = ('NULL' if filter_card['value'] is None
+                         else filter_card['value'])
 
-                current_restriction = f"""{current_restriction[
-                    'attributeName']}{operation}{value}"""
-                return (query & current_restriction if len(all_restrictions) == 1
-                        else resolve_expression(all_restrictions[1:],
-                                                query & current_restriction))
+            return f"{filter_card['attributeName']}{operation}{value}"
 
         DJConnector.set_datajoint_config(jwt_payload)
 
@@ -160,7 +152,8 @@ class DJConnector():
 
         # Fetch tuples without blobs as dict to be used to create a
         #   list of tuples for returning
-        query = resolve_expression(restriction, table)
+        query = reduce(lambda q1, q2: q1 & q2, [table()] + [filter_to_restriction(f)
+                                                            for f in restriction])
         non_blobs_rows = query.fetch(*table.heading.non_blobs, as_dict=True, limit=limit,
                                      offset=(page-1)*limit, order_by=order)
 
