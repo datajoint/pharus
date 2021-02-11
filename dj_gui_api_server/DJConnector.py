@@ -1,5 +1,6 @@
 """Library for interfaces into DataJoint pipelines."""
 import datajoint as dj
+from datajoint.expression import QueryExpression
 import datetime
 import numpy as np
 from .dj_connector_exceptions import InvalidDeleteRequest, InvalidRestriction, \
@@ -100,7 +101,7 @@ class DJConnector():
     @staticmethod
     def fetch_tuples(jwt_payload: dict, schema_name: str, table_name: str,
                      restriction: list = [], limit: int = 1000, page: int = 1,
-                     order=['KEY ASC']) -> list:
+                     order=['KEY ASC']) -> tuple:
         """
         Get records as tuples from table
         :param jwt_payload: Dictionary containing databaseAddress, username and password
@@ -110,12 +111,23 @@ class DJConnector():
         :type schema_name: str
         :param table_name: Table name under the given schema; must be in camel case
         :type table_name: str
-        :return: List of tuples in dict form
-        :rtype: list
+        :param restriction: Sequence of filter cards with attribute_name, operation, value
+            defined, defaults to []
+        :type restriction: list, optional
+        :param limit: Max number of records to return, defaults to 1000
+        :type limit: int, optional
+        :param page: Page number to return, defaults to 1
+        :type page: int, optional
+        :param order: Sequence to order records, defaults to ['KEY ASC'].
+            See :class:`datajoint.fetch.Fetch` for more info.
+        :type order: list, optional
+        :return: Records in dict form and the total number of records that can be paged
+        :rtype: tuple
         """
-        def resolve_expression(all_restrictions, query):
+        def resolve_expression(all_restrictions: list,
+                               query: QueryExpression) -> QueryExpression:
             if not all_restrictions:
-                return query
+                return query & dict()
             else:
                 current_restriction = all_restrictions[0]
                 if current_restriction['operation'] in ('>', '<', '>=', '<='):

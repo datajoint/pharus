@@ -133,6 +133,8 @@ def fetch_tuples(jwt_payload: dict):
     """
     Route to fetch all records for a given table. Expects:
         (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
+        (html:query_params): {"limit": <limit>, "page": <page>, "order": <order>,
+                              "restriction": <Base64 encoded restriction as JSONArray>}
         (html:POST:JSON): {"schemaName": <schema_name>, "tableName": <table_name>}
             NOTE: Table name must be in CamalCase
     :param jwt_payload: Dictionary containing databaseAddress, username and password
