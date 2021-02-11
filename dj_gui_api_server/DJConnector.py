@@ -1,6 +1,5 @@
 """Library for interfaces into DataJoint pipelines."""
 import datajoint as dj
-from datajoint.expression import QueryExpression
 import datetime
 import numpy as np
 from .dj_connector_exceptions import InvalidDeleteRequest, InvalidRestriction, \
