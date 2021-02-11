@@ -138,7 +138,8 @@ class DJConnector():
                 else:
                     operation = current_restriction['operation']
 
-                if isinstance(current_restriction['value'], str):
+                if (isinstance(current_restriction['value'], str) and
+                        not current_restriction['value'].isnumeric()):
                     value = f"'{current_restriction['value']}'"
                 else:
                     value = ('NULL' if current_restriction['value'] is None
