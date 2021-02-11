@@ -93,8 +93,8 @@ def test_dependencies_underprivileged(underprivileged_token, client):
     table_name = 'TableA'
     restriction = b64encode(dumps(dict(a_id=0)).encode('utf-8')).decode('utf-8')
     REST_dependencies = client.get(
-        f"""/api/record/dependency?schema_name={
-            schema_name}&table_name={table_name}&restriction={restriction}""",
+        f"""/api/record/dependency?schemaName={
+            schema_name}&tableName={table_name}&restriction={restriction}""",
         headers=dict(Authorization=f'Bearer {underprivileged_token}')).json['dependencies']
     REST_records = client.post('/api/fetch_tuples',
                                headers=dict(Authorization=f'Bearer {underprivileged_token}'),
@@ -123,8 +123,8 @@ def test_dependencies_admin(token, client, connection):
     table_name = 'TableA'
     restriction = b64encode(dumps(dict(a_id=0)).encode('utf-8')).decode('utf-8')
     REST_dependencies = client.get(
-        f"""/api/record/dependency?schema_name={
-            schema_name}&table_name={table_name}&restriction={restriction}""",
+        f"""/api/record/dependency?schemaName={
+            schema_name}&tableName={table_name}&restriction={restriction}""",
         headers=dict(Authorization=f'Bearer {token}')).json['dependencies']
     REST_records = client.post('/api/fetch_tuples',
                                headers=dict(Authorization=f'Bearer {token}'),
