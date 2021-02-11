@@ -124,23 +124,23 @@ class DJConnector():
         :return: Records in dict form and the total number of records that can be paged
         :rtype: tuple
         """
-        def filter_to_restriction(filter_card: dict) -> str:
-            if filter_card['operation'] in ('>', '<', '>=', '<='):
-                operation = filter_card['operation']
-            elif filter_card['value'] is None:
-                operation = (' IS ' if filter_card['operation'] == '='
+        def filter_to_restriction(attribute_filter: dict) -> str:
+            if attribute_filter['operation'] in ('>', '<', '>=', '<='):
+                operation = attribute_filter['operation']
+            elif attribute_filter['value'] is None:
+                operation = (' IS ' if attribute_filter['operation'] == '='
                              else ' IS NOT ')
             else:
-                operation = filter_card['operation']
+                operation = attribute_filter['operation']
 
-            if (isinstance(filter_card['value'], str) and
-                    not filter_card['value'].isnumeric()):
-                value = f"'{filter_card['value']}'"
+            if (isinstance(attribute_filter['value'], str) and
+                    not attribute_filter['value'].isnumeric()):
+                value = f"'{attribute_filter['value']}'"
             else:
-                value = ('NULL' if filter_card['value'] is None
-                         else filter_card['value'])
+                value = ('NULL' if attribute_filter['value'] is None
+                         else attribute_filter['value'])
 
-            return f"{filter_card['attributeName']}{operation}{value}"
+            return f"{attribute_filter['attributeName']}{operation}{value}"
 
         DJConnector.set_datajoint_config(jwt_payload)
 
