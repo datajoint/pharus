@@ -227,7 +227,7 @@ def record_dependency(jwt_payload: dict) -> dict:
     """
     Route to insert record. Expects:
         (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
-        (html:query_params): {"schema_name": <schema_name>, "table_name": <table_name>,
+        (html:query_params): {"schemaName": <schema_name>, "tableName": <table_name>,
                            "restriction": <b64 JSON restriction>}
             NOTE: Table name must be in CamalCase
     :param jwt_payload: Dictionary containing databaseAddress, username and password
