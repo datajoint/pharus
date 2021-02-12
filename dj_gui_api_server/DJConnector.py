@@ -54,7 +54,7 @@ class DJConnector():
         # Attempt to connect return true if successful, false is failed
         return [row[0] for row in dj.conn().query("""
         SELECT SCHEMA_NAME FROM information_schema.schemata
-        WHERE SCHEMA_NAME != "information_schema"
+        WHERE SCHEMA_NAME != "information_schema" OR "sys"
         ORDER BY SCHEMA_NAME
         """)]
 
