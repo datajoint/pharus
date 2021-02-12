@@ -1,4 +1,4 @@
 flask
 pyjwt[crypto]
-datajoint==0.13.dev4
+datajoint==0.13.dev5
 datajoint_connection_hub
