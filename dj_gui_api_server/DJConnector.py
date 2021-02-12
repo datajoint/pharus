@@ -73,7 +73,7 @@ class DJConnector():
         DJConnector.set_datajoint_config(jwt_payload)
 
         # Get list of tables names\
-        tables_name = dj.schema(schema_name).list_tables()
+        tables_name = dj.VirtualModule(schema_name, schema_name).schema.list_tables()
 
         # Dict to store list of table name for each type
         tables_dict_list = dict(manual_tables=[], lookup_tables=[], computed_tables=[],
@@ -115,7 +115,7 @@ class DJConnector():
         :type schema_name: str
         :param table_name: Table name under the given schema; must be in camel case
         :type table_name: str
-        :param restriction: Sequence of filter cards with attribute_name, operation, value
+        :param restriction: Sequence of filter cards with attributeName, operation, value
             defined, defaults to []
         :type restriction: list, optional
         :param limit: Max number of records to return, defaults to 1000
