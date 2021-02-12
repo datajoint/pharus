@@ -72,8 +72,10 @@ class DJConnector():
         """
         DJConnector.set_datajoint_config(jwt_payload)
 
-        # Get list of tables names\
-        tables_name = dj.VirtualModule(schema_name, schema_name).schema.list_tables()
+        # Get list of tables names
+        print(dj.Schema().activate(schema_name, create_schema=False), flush=True)
+        tables_name = dj.Schema().activate(schema_name, create_schema=False).list_tables()  # Activate work around...
+        print('hi', flush=True)
 
         # Dict to store list of table name for each type
         tables_dict_list = dict(manual_tables=[], lookup_tables=[], computed_tables=[],
