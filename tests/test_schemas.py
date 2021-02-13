@@ -51,5 +51,4 @@ def test_schemas(token, client, connection):
     REST_schemas = client.get('/api/list_schemas',
                               headers=dict(
                                   Authorization=f'Bearer {token}')).json['schemaNames']
-    expected_schemas = dj.list_schemas(connection=connection)
-    assert set(REST_schemas) == set(expected_schemas)
+    assert set(REST_schemas) == {'schema1', 'schema2'}
