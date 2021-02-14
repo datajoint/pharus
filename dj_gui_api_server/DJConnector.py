@@ -382,7 +382,7 @@ class DJConnector():
             raise InvalidDeleteRequest('Nothing to delete')
 
         # All check pass thus proceed to delete
-        tuple_to_delete.delete_quick()
+        tuple_to_delete.delete(safemode=False)
 
     @staticmethod
     def get_table_object(schema_virtual_module, table_name: str):
