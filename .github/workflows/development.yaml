@@ -37,7 +37,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-${{matrix.distro}}
-          path: >-
+          path: >
             image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-
             ${{matrix.distro}}.tar.gz
           retention-days: 1
@@ -186,7 +186,7 @@ jobs:
           asset_path: >
             image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-
             ${{matrix.distro}}.tar.gz
-          asset_name: >-
+          asset_name: >
             image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-
             ${{matrix.distro}}.tar.gz
           asset_content_type: application/gzip
