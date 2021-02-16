@@ -121,7 +121,6 @@ jobs:
           echo "PHARUS_WHEEL_PATH=$(ls dist/pharus-*.whl)" >> $GITHUB_ENV
           echo "PHARUS_SDIST_PATH=$(ls dist/pharus-*.tar.gz)" >> $GITHUB_ENV
       - name: Upload pip wheel asset to release
-        id: upload-gh-release-asset 
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
@@ -131,7 +130,6 @@ jobs:
           asset_name: pip-pharus-${{env.PHARUS_VERSION}}.whl
           asset_content_type: application/zip
       - name: Upload pip sdist asset to release
-        id: upload-gh-release-asset 
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
