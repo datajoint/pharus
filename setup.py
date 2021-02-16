@@ -25,7 +25,7 @@ setup(
     description='A generic REST API server backend for DataJoint pipelines.',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://datajoint.io',
+    url='https://github.com/datajoint/pharus',
     packages=find_packages(exclude=['test*', 'docs']),
     classifiers=[
         'Programming Language :: Python :: 3',
