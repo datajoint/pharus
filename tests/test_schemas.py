@@ -1,6 +1,6 @@
 from os import getenv
 import pytest
-from dj_gui_api_server.DJGUIAPIServer import app
+from pharus.server import app
 import datajoint as dj
 
 
@@ -12,7 +12,7 @@ def client():
 
 @pytest.fixture
 def token(client):
-    yield client.post('/api/login', json=dict(databaseAddress=getenv('TEST_DB_SERVER'),
+    yield client.post('/login', json=dict(databaseAddress=getenv('TEST_DB_SERVER'),
                                               username=getenv('TEST_DB_USER'),
                                               password=getenv('TEST_DB_PASS'))).json['jwt']
 
@@ -48,7 +48,7 @@ def connection():
 
 
 def test_schemas(token, client, connection):
-    REST_schemas = client.get('/api/list_schemas',
+    REST_schemas = client.get('/list_schemas',
                               headers=dict(
                                   Authorization=f'Bearer {token}')).json['schemaNames']
     assert set(REST_schemas) == {'schema1', 'schema2'}

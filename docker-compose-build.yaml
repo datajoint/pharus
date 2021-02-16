@@ -1,0 +1,23 @@
+# PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}') HOST_UID=$(id -u) docker-compose -f docker-compose-build.yaml up --exit-code-from pharus --build
+version: "2.4"
+services:
+  pharus:
+    extends:
+      file: ./docker-compose-base.yaml
+      service: pharus
+    build:
+      context: .
+      args:
+        - PY_VER
+        - DISTRO
+        - IMAGE
+    volumes:
+      - .:/main
+    command:
+      - sh
+      - -lc
+      - |
+        set -e
+        pip install twine
+        rm -R build dist *.egg-info || echo "No prev build"
+        python setup.py bdist_wheel sdist
