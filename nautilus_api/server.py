@@ -1,4 +1,4 @@
-"""Exposed DJGUI REST API."""
+"""Exposed Nautilus REST API."""
 import os
 from .DJConnector import DJConnector
 from . import __version__ as version

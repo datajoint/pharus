@@ -1,7 +1,7 @@
-from dj_gui_api_server import __version__ as version
+from nautilus_api import __version__ as version
 import pytest
-from dj_gui_api_server.DJGUIAPIServer import app
-from dj_gui_api_server.DJConnector import DJConnector
+from nautilus_api.server import app
+from nautilus_api.interface import DJConnector
 from os import getenv
 
 

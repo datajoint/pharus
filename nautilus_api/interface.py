@@ -5,7 +5,7 @@ import numpy as np
 from functools import reduce
 from datajoint.errors import AccessError
 import re
-from .errors import InvalidDeleteRequest, InvalidRestriction, UnsupportedTableType
+from .error import InvalidDeleteRequest, InvalidRestriction, UnsupportedTableType
 
 DAY = 24 * 60 * 60
 DEFAULT_FETCH_LIMIT = 1000  # Stop gap measure to deal with super large tables

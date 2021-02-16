@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 from os import path, listdir
 import re
 
-pkg_name = 'dj_gui_api_server'
+pkg_name = 'nautilus_api'
 here = path.abspath(path.dirname(__file__))
 
 with open(path.join(here, 'README.md'), 'r') as f:
@@ -33,6 +33,6 @@ setup(
     ],
     install_requires=requirements,
     entry_points={
-        'console_scripts': ['djgui_api={}.DJGUIAPIServer:run'.format(pkg_name)],
+        'console_scripts': ['nautilus_api={}.server:run'.format(pkg_name)],
     },
 )

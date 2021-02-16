@@ -1,6 +1,6 @@
 from os import getenv
 import pytest
-from dj_gui_api_server.DJGUIAPIServer import app
+from nautilus_api.server import app
 import datajoint as dj
 from datetime import date, datetime, time
 from numbers import Number

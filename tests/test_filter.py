@@ -1,6 +1,6 @@
 from os import getenv
 import pytest
-from dj_gui_api_server.DJGUIAPIServer import app
+from nautilus_api.server import app
 import datajoint as dj
 from json import dumps
 from base64 import b64encode
