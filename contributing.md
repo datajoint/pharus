@@ -14,10 +14,11 @@ There is primarily 3 things to consider when looking to contribute.
 
 After considering the above, you may comment on the issue you'd like to help fix and a maintainer will assign it to you.
 
-## What is the proper pull request (PR) etiquette?
+## What is the proper etiquette for proposing changes as contribution?
 
-What is generally expected from new pull requests are the following:
+What is generally expected from new contributions are the following:
 
+- Any proposed contributor changes should be introduced in the form of a pull request (PR) from their fork.
 - Proper branch target specified. The following is generally the available branches that can be targeted:
   - `master` or `main`: Represents the single source of truth and the latest in completed development.
   - `pre`: Represents the source at the point of the last stable release.
@@ -30,6 +31,8 @@ What is generally expected from new pull requests are the following:
   3. No style errors e.g. PEP8, etc.
   4. Similar or better code coverage
 - Additional documentation to reflect new feature or behavior introduced.
+- A contributor should not approve or merge their own PR.
+- Reviewer suggestions or feedback should not be directly committed to a branch on contributor's fork. A less intrusive way to collaborate would be for the reviewer to PR to the contributor's fork/branch that is associated with the main PR currently in review.
 
 Maintainers will also ensure that PR's have the appropriate assignment for reviewer, milestone, and project. 
 

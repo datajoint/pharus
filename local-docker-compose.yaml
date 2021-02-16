@@ -16,8 +16,8 @@ services:
       - FLASK_ENV=development # enables logging to console from Flask
     networks:
       - dj-gui-api
-    # volumes: # can enable this for development to bypass build times
-    #   - ./dj_gui_api_server:/opt/conda/lib/python3.8/site-packages/dj_gui_api_server
+    volumes: # to bypass build times. Should disable for PROD
+      - ./dj_gui_api_server:/opt/conda/lib/python3.8/site-packages/dj_gui_api_server
     ports:
       - "5000:5000"
     working_dir: /main
