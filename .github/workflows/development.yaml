@@ -65,7 +65,7 @@ jobs:
       AS_SCRIPT: "TRUE"
     steps:
       - uses: actions/checkout@v2
-      - name: Set pharus version
+      - name: Determine package version
         run: |
           PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
@@ -87,7 +87,7 @@ jobs:
       TWINE_PASSWORD: ${{secrets.twine_password}}
     steps:
       - uses: actions/checkout@v2
-      - name: Set pharus version
+      - name: Determine package version
         run: |
           PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
@@ -155,7 +155,7 @@ jobs:
       DOCKER_PASSWORD: ${{secrets.docker_password}}
     steps:
       - uses: actions/checkout@v2
-      - name: Set pharus version
+      - name: Determine package version
         run: |
           PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
