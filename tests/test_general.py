@@ -1,7 +1,7 @@
-from nautilus_api import __version__ as version
+from pharus import __version__ as version
 import pytest
-from nautilus_api.server import app
-from nautilus_api.interface import DJConnector
+from pharus.server import app
+from pharus.interface import DJConnector
 from os import getenv
 
 
@@ -12,7 +12,7 @@ def client():
 
 
 def test_version(client):
-    assert client.get('/api/version').data.decode() == version
+    assert client.get('/version').data.decode() == version
 
 
 def test_connect():

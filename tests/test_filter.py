@@ -1,6 +1,6 @@
 from os import getenv
 import pytest
-from nautilus_api.server import app
+from pharus.server import app
 import datajoint as dj
 from json import dumps
 from base64 import b64encode
@@ -21,7 +21,7 @@ def client():
 
 @pytest.fixture
 def token(client):
-    yield client.post('/api/login', json=dict(databaseAddress=getenv('TEST_DB_SERVER'),
+    yield client.post('/login', json=dict(databaseAddress=getenv('TEST_DB_SERVER'),
                                               username=getenv('TEST_DB_USER'),
                                               password=getenv('TEST_DB_PASS'))).json['jwt']
 
@@ -67,7 +67,7 @@ def test_filters(token, client, virtual_module):
     encoded_restriction = b64encode(dumps(restriction).encode('utf-8')).decode('utf-8')
     q = dict(limit=10, page=1, order='student_enroll_date DESC',
              restriction=encoded_restriction)
-    REST_records = client.post(f'/api/fetch_tuples?{urlencode(q)}',
+    REST_records = client.post(f'/fetch_tuples?{urlencode(q)}',
                                headers=dict(Authorization=f'Bearer {token}'),
                                json=dict(schemaName='filter',
                                          tableName='Student')).json['tuples']
@@ -78,7 +78,7 @@ def test_filters(token, client, virtual_module):
     encoded_restriction = b64encode(dumps(restriction).encode('utf-8')).decode('utf-8')
     q = dict(limit=10, page=2, order='student_id ASC',
              restriction=encoded_restriction)
-    REST_records = client.post(f'/api/fetch_tuples?{urlencode(q)}',
+    REST_records = client.post(f'/fetch_tuples?{urlencode(q)}',
                                headers=dict(Authorization=f'Bearer {token}'),
                                json=dict(schemaName='filter',
                                          tableName='Student')).json['tuples']
@@ -90,7 +90,7 @@ def test_filters(token, client, virtual_module):
     encoded_restriction = b64encode(dumps(restriction).encode('utf-8')).decode('utf-8')
     q = dict(limit=10, page=1, order='student_id ASC',
              restriction=encoded_restriction)
-    REST_records = client.post(f'/api/fetch_tuples?{urlencode(q)}',
+    REST_records = client.post(f'/fetch_tuples?{urlencode(q)}',
                                headers=dict(Authorization=f'Bearer {token}'),
                                json=dict(schemaName='filter',
                                          tableName='Student')).json['tuples']
@@ -103,7 +103,7 @@ def test_filters(token, client, virtual_module):
     encoded_restriction = b64encode(dumps(restriction).encode('utf-8')).decode('utf-8')
     q = dict(limit=10, page=1, order='student_id ASC',
              restriction=encoded_restriction)
-    REST_records = client.post(f'/api/fetch_tuples?{urlencode(q)}',
+    REST_records = client.post(f'/fetch_tuples?{urlencode(q)}',
                                headers=dict(Authorization=f'Bearer {token}'),
                                json=dict(schemaName='filter',
                                          tableName='Student')).json['tuples']

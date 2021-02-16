@@ -1,4 +1,5 @@
 flask
+gunicorn
 pyjwt[crypto]
 datajoint==0.13.dev4
 datajoint_connection_hub

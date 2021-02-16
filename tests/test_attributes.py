@@ -1,6 +1,6 @@
 from os import getenv
 import pytest
-from nautilus_api.server import app
+from pharus.server import app
 import datajoint as dj
 from datetime import date, datetime, time
 from numbers import Number
@@ -15,7 +15,7 @@ def client():
 
 @pytest.fixture
 def token(client):
-    yield client.post('/api/login', json=dict(databaseAddress=getenv('TEST_DB_SERVER'),
+    yield client.post('/login', json=dict(databaseAddress=getenv('TEST_DB_SERVER'),
                                               username=getenv('TEST_DB_USER'),
                                               password=getenv('TEST_DB_PASS'))).json['jwt']
 
@@ -231,7 +231,7 @@ def ParentPart(schema):
 
 def validate(table, inserted_value, expected_type, expected_value, client, token):
     table.insert([(1, inserted_value)])
-    _, REST_value = client.post('/api/fetch_tuples',
+    _, REST_value = client.post('/fetch_tuples',
                                 headers=dict(Authorization=f'Bearer {token}'),
                                 json=dict(schemaName='add_types',
                                           tableName=table.__name__)).json['tuples'][0]
@@ -376,7 +376,7 @@ def test_part_table(token, client, ParentPart):
     ProcessScanData.populate()
 
     # Test Parent
-    REST_value = client.post('/api/fetch_tuples',
+    REST_value = client.post('/fetch_tuples',
                              headers=dict(Authorization=f'Bearer {token}'),
                              json=dict(schemaName='add_types',
                                        tableName=ProcessScanData.__name__)).json['tuples'][0]
@@ -385,7 +385,7 @@ def test_part_table(token, client, ParentPart):
 
     # Test Child
     REST_value = client.post(
-        '/api/fetch_tuples',
+        '/fetch_tuples',
         headers=dict(Authorization=f'Bearer {token}'),
         json=dict(schemaName='add_types',
                   tableName=(ProcessScanData.__name__ + '.' +

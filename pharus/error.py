@@ -1,3 +1,6 @@
+"""Error class library."""
+
+
 class UnsupportedTableType(Exception):
     pass
 
