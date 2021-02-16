@@ -99,6 +99,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: pip-pharus-${{env.PHARUS_VERSION}}
+          path: dist
       - name: Publish pip release
         run: |
           export HOST_UID=$(id -u)
