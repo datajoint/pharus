@@ -37,9 +37,8 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-${{matrix.distro}}
-          path: >
-            image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-
-            ${{matrix.distro}}.tar.gz
+          path: "image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-\
+            ${{matrix.distro}}.tar.gz"
           retention-days: 1
       - if: matrix.py_ver == '3.8' && matrix.distro == 'alpine'
         name: Add pip artifacts
@@ -183,12 +182,10 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           upload_url: ${{needs.publish-release.steps.create_gh_release.outputs.upload_url}}
-          asset_path: >
-            image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-
-            ${{matrix.distro}}.tar.gz
-          asset_name: >
-            image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-
-            ${{matrix.distro}}.tar.gz
+          asset_path: "image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-\
+            ${{matrix.distro}}.tar.gz"
+          asset_name: "image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-\
+            ${{matrix.distro}}.tar.gz"
           asset_content_type: application/gzip
   # publish-docs:
   #   if: github.event_name == 'push' && github.ref == 'refs/heads/master'
