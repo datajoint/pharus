@@ -13,11 +13,11 @@ services:
         - IMAGE
     volumes:
       - .:/main
+      - ./requirements_package.txt:/tmp/pip_requirements.txt
     command:
       - sh
       - -lc
       - |
         set -e
-        pip install twine
         rm -R build dist *.egg-info || echo "No prev build"
         python setup.py bdist_wheel sdist

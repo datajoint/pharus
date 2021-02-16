@@ -91,12 +91,19 @@ jobs:
         run: |
           PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
+      - name: Fetch image artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: image-pharus-${{env.PHARUS_VERSION}}-py3.8-alpine
       - name: Fetch pip artifacts
         uses: actions/download-artifact@v2
         with:
           name: pip-pharus-${{env.PHARUS_VERSION}}
       - name: Publish pip release
-        run: python -m twine upload dist/*
+        run: |
+          export HOST_UID=$(id -u)
+          docker load < "image-pharus-${PHARUS_VERSION}-py3.8-alpine.tar.gz"
+          docker-compose -f docker-compose-build.yaml run pharus python -m twine upload dist/*
       - name: Get changelog entry
         id: changelog_reader
         uses: mindsers/changelog-reader-action@v2
