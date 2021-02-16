@@ -73,6 +73,15 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-${{matrix.distro}}
+      - name: debug1
+        uses: actions/download-artifact@v2
+        with:
+          name: pip-pharus-${{env.PHARUS_VERSION}}
+      - name: debug2
+        run: |
+          ls -la
+          echo pause
+          ls -la dist
       - name: Run primary tests
         run: |
           export HOST_UID=$(id -u)
