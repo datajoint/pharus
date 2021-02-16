@@ -69,7 +69,7 @@ Please see StackOverflow posts related to the [datajoint](https://stackoverflow.
 
 ### I just encountered this error and I am sure it is a bug, how do I report it?
 
-Please file is under the issue tracker associated with the open-source software.
+Please file it under the issue tracker associated with the open-source software.
 
 ### I have an idea or new feature request, how do I submit it?
 
