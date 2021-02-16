@@ -32,7 +32,7 @@ jobs:
           TAG=$(docker images --filter "reference=datajoint/pharus*" --format "{{.Tag}}")
           docker save "${IMAGE}:${TAG}" | \
             gzip > "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
-          echo "::set-env name=PHARUS_VERSION::$PHARUS_VERSION"
+          echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
       - name: Add image artifact
         uses: actions/upload-artifact@v2
         with:
@@ -75,7 +75,7 @@ jobs:
       - name: Set env variables
         run: |
           PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
-          echo "::set-env name=PHARUS_VERSION::$PHARUS_VERSION"
+          echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
       - name: Fetch image artifact
         uses: actions/download-artifact@v2
         with:
