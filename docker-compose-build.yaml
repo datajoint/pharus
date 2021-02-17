@@ -13,7 +13,6 @@ services:
         - IMAGE
     volumes:
       - .:/main
-      - ./requirements_package.txt:/tmp/pip_requirements.txt
     command:
       - sh
       - -lc

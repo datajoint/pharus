@@ -108,7 +108,7 @@ jobs:
           docker load < "image-pharus-${PHARUS_VERSION}-py3.8-alpine.tar.gz"
           docker-compose -f docker-compose-build.yaml run \
             -e TWINE_USERNAME=${TWINE_USERNAME} -e TWINE_PASSWORD=${TWINE_PASSWORD} pharus \
-            python -m twine upload dist/*
+            sh -lc "pip install twine && python -m twine upload dist/*"
       - name: Get changelog entry
         id: changelog_reader
         uses: mindsers/changelog-reader-action@v2
