@@ -11,18 +11,27 @@
 
 A generic REST API server backend for DataJoint pipelines built on top of `flask`, `datajoint`, and `pyjwt`.
 
-Requirements:
+Usage and API documentation currently available within method docstrings. See Python's `help(...)` utility.
+
+## Requirements for Preferred Setup
+
 - [Docker](https://docs.docker.com/get-docker/  )
 - [Docker Compose](https://docs.docker.com/compose/install/)
 
-## Run Locally
+## Run Locally w/ Docker
 
 - Copy a `*-docker-compose.yaml` file corresponding to your usage to `docker-compose.yaml`. This file is untracked so feel free to modify as necessary.
 - Check the first comment which will provide best instruction on how to start the service.
 
 > :warning: Deployment options currently being considered are [Docker Compose](https://docs.docker.com/compose/install/) and [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
 
-## Run Tests for Development
+## Run Locally w/ Python
+
+- Set environment variables for port assignment (`PHARUS_PORT`, defaults to 5000) and API route prefix (`PHARUS_PREFIX` e.g. `/api`, defaults to ``).
+- For development, use CLI command `pharus`. This method supports hot-reloading so probably best coupled with `pip install -e ...`.
+- For production, use `gunicorn --bind 0.0.0.0:${PHARUS_PORT} pharus.server:app`.
+
+## Run Tests for Development w/ Docker
 
 - Create a `.env` as appropriate for your setup:
 ```shell
@@ -32,6 +41,16 @@ DISTRO=alpine # Distribution:   alpine|debian
 AS_SCRIPT=    # If 'TRUE', will not keep container alive but run tests and exit
 ```
 - Navigate to `test-docker-compose.yaml` and check first comment which will provide best instruction on how to start the service. Yes, the command is a bit long...
+
+## Run Tests for Development w/ Pytest and Flake8
+
+- Set `pharus` package directory environment variable. For example:
+  ```shell
+  PKG_DIR=/opt/conda/lib/python3.8/site-packages/pharus
+  ```
+- For syntax tests, run `flake8 ${PKG_DIR} --count --select=E9,F63,F7,F82 --show-source --statistics`
+- For pytest integration tests, run `pytest -sv --cov-report term-missing --cov=${PKG_DIR} /main/tests`
+- For style tests, run `flake8 ${PKG_DIR} --count --max-complexity=20 --max-line-length=95 --statistics`
 
 ## References
 
