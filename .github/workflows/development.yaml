@@ -5,36 +5,36 @@ on:
     tags:
       - '*.*.*'
 jobs:
-  # test-changelog:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Determine package version
-  #       run: |
-  #         PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
-  #         echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
-  #     - name: Get changelog entry
-  #       id: changelog_reader
-  #       uses: mindsers/changelog-reader-action@v2
-  #       with:
-  #         path: ./CHANGELOG.md
-  #         validation_depth: 10
-  #         version: ${{env.PHARUS_VERSION}}
-  #     - name: Verify changelog parsing
-  #       env:
-  #         TAG_NAME: ${{steps.changelog_reader.outputs.version}}
-  #         RELEASE_NAME: Release ${{steps.changelog_reader.outputs.version}}
-  #         BODY: ${{steps.changelog_reader.outputs.changes}}
-  #         PRERELEASE: ${{steps.changelog_reader.outputs.status == 'prereleased'}}
-  #         DRAFT: ${{steps.changelog_reader.outputs.status == 'unreleased'}}
-  #       run: |
-  #         echo "TAG_NAME=${TAG_NAME}"
-  #         echo "RELEASE_NAME=${RELEASE_NAME}"
-  #         echo "BODY=${BODY}"
-  #         echo "PRERELEASE=${PRERELEASE}"
-  #         echo "DRAFT=${DRAFT}"
+  test-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Determine package version
+        run: |
+          PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
+          echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
+      - name: Get changelog entry
+        id: changelog_reader
+        uses: guzman-raphael/changelog-reader-action@v2
+        with:
+          path: ./CHANGELOG.md
+          validation_depth: 10
+          version: ${{env.PHARUS_VERSION}}
+      - name: Verify changelog parsing
+        env:
+          TAG_NAME: ${{steps.changelog_reader.outputs.version}}
+          RELEASE_NAME: Release ${{steps.changelog_reader.outputs.version}}
+          BODY: ${{steps.changelog_reader.outputs.changes}}
+          PRERELEASE: ${{steps.changelog_reader.outputs.status == 'prereleased'}}
+          DRAFT: ${{steps.changelog_reader.outputs.status == 'unreleased'}}
+        run: |
+          echo "TAG_NAME=${TAG_NAME}"
+          echo "RELEASE_NAME=${RELEASE_NAME}"
+          echo "BODY=${BODY}"
+          echo "PRERELEASE=${PRERELEASE}"
+          echo "DRAFT=${DRAFT}"
   build:
-    # needs: test-changelog
+    needs: test-changelog
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -140,7 +140,7 @@ jobs:
             sh -lc "pip install twine && python -m twine upload dist/*"
       - name: Get changelog entry
         id: changelog_reader
-        uses: mindsers/changelog-reader-action@v2
+        uses: guzman-raphael/changelog-reader-action@v2
         with:
           path: ./CHANGELOG.md
           validation_depth: 10
