@@ -5,7 +5,30 @@ on:
     tags:
       - '*.*.*'
 jobs:
+  test-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get changelog entry
+        id: changelog_reader
+        uses: guzman-raphael/changelog-reader-action@v5
+        with:
+          path: ./CHANGELOG.md
+      - name: Verify changelog parsing
+        env:
+          TAG_NAME: ${{steps.changelog_reader.outputs.version}}
+          RELEASE_NAME: Release ${{steps.changelog_reader.outputs.version}}
+          BODY: ${{steps.changelog_reader.outputs.changes}}
+          PRERELEASE: ${{steps.changelog_reader.outputs.status == 'prereleased'}}
+          DRAFT: ${{steps.changelog_reader.outputs.status == 'unreleased'}}
+        run: |
+          echo "TAG_NAME=${TAG_NAME}"
+          echo "RELEASE_NAME=${RELEASE_NAME}"
+          echo "BODY=${BODY}"
+          echo "PRERELEASE=${PRERELEASE}"
+          echo "DRAFT=${DRAFT}"
   build:
+    needs: test-changelog
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -93,6 +116,23 @@ jobs:
         run: |
           PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
+      - name: Get changelog entry
+        id: changelog_reader
+        uses: guzman-raphael/changelog-reader-action@v5
+        with:
+          path: ./CHANGELOG.md
+          version: ${{env.PHARUS_VERSION}}
+      - name: Create GH release
+        id: create_gh_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          tag_name: ${{steps.changelog_reader.outputs.version}}
+          release_name: Release ${{steps.changelog_reader.outputs.version}}
+          body: ${{steps.changelog_reader.outputs.changes}}
+          prerelease: ${{steps.changelog_reader.outputs.status == 'prereleased'}}
+          draft: ${{steps.changelog_reader.outputs.status == 'unreleased'}}
       - name: Fetch image artifact
         uses: actions/download-artifact@v2
         with:
@@ -109,24 +149,6 @@ jobs:
           docker-compose -f docker-compose-build.yaml run \
             -e TWINE_USERNAME=${TWINE_USERNAME} -e TWINE_PASSWORD=${TWINE_PASSWORD} pharus \
             sh -lc "pip install twine && python -m twine upload dist/*"
-      - name: Get changelog entry
-        id: changelog_reader
-        uses: mindsers/changelog-reader-action@v2
-        with:
-          path: ./CHANGELOG.md
-          validation_depth: 10
-          version: ${{env.PHARUS_VERSION}}
-      - name: Create GH release
-        id: create_gh_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        with:
-          tag_name: ${{steps.changelog_reader.outputs.version}}
-          release_name: Release ${{steps.changelog_reader.outputs.version}}
-          body: ${{steps.changelog_reader.outputs.changes}}
-          prerelease: ${{steps.changelog_reader.outputs.status == 'prereleased'}}
-          draft: ${{steps.changelog_reader.outputs.status == 'unreleased'}}
       - name: Determine pip artifact paths
         run: |
           echo "PHARUS_WHEEL_PATH=$(ls dist/pharus-*.whl)" >> $GITHUB_ENV
