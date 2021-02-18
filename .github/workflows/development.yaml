@@ -113,16 +113,16 @@ jobs:
         id: changelog_reader
         uses: mindsers/changelog-reader-action@v2
         with:
-          validation_depth: 10
-          version: ${{steps.tag_name.outputs.current_version}}
           path: ./CHANGELOG.md
+          validation_depth: 10
+          version: ${{env.PHARUS_VERSION}}
       - name: Create GH release
         id: create_gh_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
-          tag_name: ${{github.ref}}
+          tag_name: ${{steps.changelog_reader.outputs.version}}
           release_name: Release ${{steps.changelog_reader.outputs.version}}
           body: ${{steps.changelog_reader.outputs.changes}}
           prerelease: ${{steps.changelog_reader.outputs.status == 'prereleased'}}
