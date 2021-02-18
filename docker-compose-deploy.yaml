@@ -1,14 +1,14 @@
-# PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}') docker-compose -f docker-compose-deploy.yaml pull
-# PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}') docker-compose -f docker-compose-deploy.yaml up -d
+# docker-compose -f docker-compose-deploy.yaml pull
+# docker-compose -f docker-compose-deploy.yaml up -d
+#
+# Intended for production deployment.
 # Note: You must run both commands above
 version: "2.4"
 services:
   pharus:
-    extends:
-      file: ./docker-compose-base.yaml
-      service: pharus
-    environment:
-      - PHARUS_PORT=5000
-      - PHARUS_PREFIX=/now
+    image: datajoint/pharus:latest
+    # environment: # configurable values with defaults
+    #   - PHARUS_PORT=5000
+    #   - PHARUS_PREFIX=/
     ports:
       - "5000:5000"

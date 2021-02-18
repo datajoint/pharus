@@ -1,0 +1,16 @@
+# PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}') HOST_UID=$(id -u) docker-compose -f docker-compose-dev.yaml up
+#
+# Intended for normal development. Supports hot/live reloading.
+# Note: If requirements or Dockerfile change, will need to add --build flag
+version: "2.4"
+services:
+  pharus:
+    <<: *net
+    extends:
+      file: ./docker-compose-build.yaml
+      service: pharus
+    environment:
+      - FLASK_ENV=development # enables logging to console from Flask
+    volumes:
+      - ./pharus:/opt/conda/lib/python3.8/site-packages/pharus
+    command: pharus

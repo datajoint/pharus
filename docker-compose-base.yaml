@@ -1,9 +1,0 @@
-# WARNING: Do not run this compose file directly. Please see other compose files.
-version: "2.4"
-services:
-  pharus:
-    image: datajoint/pharus:${PHARUS_VERSION}
-    environment:
-      - PHARUS_PRIVATE_KEY
-      - PHARUS_PUBLIC_KEY
-    user: ${HOST_UID}:anaconda
