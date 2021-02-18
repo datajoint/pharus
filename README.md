@@ -1,11 +1,11 @@
 <div
 <p align="center">
   <em>👷‍♀️ <b>Under Construction</b> 👷</em>
-  <img src="under_contruction.png" alt="construction_fig"/>  
+  <img src="https://raw.githubusercontent.com/datajoint/pharus/master/under_contruction.png" alt="construction_fig"/>
 </p>
 </div>
 
-> :warning: The Pharus project is still early in its life and the maintainers are currently actively developing with a priority of addressing first critical issues directly related to the deliveries of [Alpha](https://github.com/datajoint/pharus/milestone/1) and [Beta](https://github.com/datajoint/pharus/milestone/2) milestones. Please be advised that while working through our milestones, we may restructure/refactor the codebase without warning until we issue our [Official Release](https://github.com/datajoint/pharus/milestone/3) currently planned as `0.1.0` on `2021-03-31`.
+> ⚠️ The Pharus project is still early in its life and the maintainers are currently actively developing with a priority of addressing first critical issues directly related to the deliveries of [Alpha](https://github.com/datajoint/pharus/milestone/1) and [Beta](https://github.com/datajoint/pharus/milestone/2) milestones. Please be advised that while working through our milestones, we may restructure/refactor the codebase without warning until we issue our [Official Release](https://github.com/datajoint/pharus/milestone/3) currently planned as `0.1.0` on `2021-03-31`.
 
 # Pharus
 
@@ -23,7 +23,7 @@ Usage and API documentation currently available within method docstrings. See Py
 - Copy a `*-docker-compose.yaml` file corresponding to your usage to `docker-compose.yaml`. This file is untracked so feel free to modify as necessary.
 - Check the first comment which will provide best instruction on how to start the service.
 
-> :warning: Deployment options currently being considered are [Docker Compose](https://docs.docker.com/compose/install/) and [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
+> ⚠️ Deployment options currently being considered are [Docker Compose](https://docs.docker.com/compose/install/) and [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
 
 ## Run Locally w/ Python
 
