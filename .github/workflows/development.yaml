@@ -9,10 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Determine package version
-        run: |
-          PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
-          echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
       - name: Get changelog entry
         id: changelog_reader
         uses: guzman-raphael/changelog-reader-action@v5
@@ -120,15 +116,6 @@ jobs:
         run: |
           PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
-      - name: Fetch image artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: image-pharus-${{env.PHARUS_VERSION}}-py3.8-alpine
-      - name: Fetch pip artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: pip-pharus-${{env.PHARUS_VERSION}}
-          path: dist
       - name: Get changelog entry
         id: changelog_reader
         uses: guzman-raphael/changelog-reader-action@v5
@@ -146,6 +133,15 @@ jobs:
           body: ${{steps.changelog_reader.outputs.changes}}
           prerelease: ${{steps.changelog_reader.outputs.status == 'prereleased'}}
           draft: ${{steps.changelog_reader.outputs.status == 'unreleased'}}
+      - name: Fetch image artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: image-pharus-${{env.PHARUS_VERSION}}-py3.8-alpine
+      - name: Fetch pip artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: pip-pharus-${{env.PHARUS_VERSION}}
+          path: dist
       - name: Publish pip release
         run: |
           export HOST_UID=$(id -u)
