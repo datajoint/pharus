@@ -10,27 +10,6 @@ services:
     image: datajoint/mysql:5.7
     environment:
       - MYSQL_ROOT_PASSWORD=simple
-  # changelog-linter:
-  #   image: node:10-alpine
-  #   volumes:
-  #     - ./CHANGELOG.md:/main/CHANGELOG.md:ro
-  #   working_dir: /main
-  #   command:
-  #     - sh
-  #     - -c
-  #     - |
-  #       npm i -g @brightcove/kacl
-  #       cat > package.json <<-EOF
-  #       {
-  #         "name": "example",
-  #         "version": "0.0.0",
-  #         "repository": {
-  #           "type": "git",
-  #           "url": "https://github.com/org/repo"
-  #         }
-  #       }
-  #       EOF
-  #       kacl lint && tail -f /dev/null
   pharus:
     <<: *net
     extends:
@@ -64,8 +43,6 @@ services:
           tail -f /dev/null
         fi
     depends_on:
-      # changelog-linter:
-      #   condition: service_started
       db:
         condition: service_healthy
 networks:
