@@ -15,7 +15,7 @@ jobs:
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
       - name: Get changelog entry
         id: changelog_reader
-        uses: guzman-raphael/changelog-reader-action@v4
+        uses: guzman-raphael/changelog-reader-action@v5
         with:
           path: ./CHANGELOG.md
           # validation_depth: 10
@@ -133,7 +133,7 @@ jobs:
           path: dist
       - name: Get changelog entry
         id: changelog_reader
-        uses: guzman-raphael/changelog-reader-action@v4
+        uses: guzman-raphael/changelog-reader-action@v5
         with:
           path: ./CHANGELOG.md
           # validation_depth: 10
