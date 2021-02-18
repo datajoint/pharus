@@ -18,8 +18,8 @@ jobs:
         uses: guzman-raphael/changelog-reader-action@v2
         with:
           path: ./CHANGELOG.md
-          validation_depth: 10
-          version: ${{env.PHARUS_VERSION}}
+          # validation_depth: 10
+          # version: ${{env.PHARUS_VERSION}}
       - name: Verify changelog parsing
         env:
           TAG_NAME: ${{steps.changelog_reader.outputs.version}}
