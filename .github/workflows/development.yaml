@@ -15,7 +15,7 @@ jobs:
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
       - name: Get changelog entry
         id: changelog_reader
-        uses: guzman-raphael/changelog-reader-action@v3
+        uses: guzman-raphael/changelog-reader-action@v4
         with:
           path: ./CHANGELOG.md
           # validation_depth: 10
@@ -131,16 +131,9 @@ jobs:
         with:
           name: pip-pharus-${{env.PHARUS_VERSION}}
           path: dist
-      - name: Publish pip release
-        run: |
-          export HOST_UID=$(id -u)
-          docker load < "image-pharus-${PHARUS_VERSION}-py3.8-alpine.tar.gz"
-          docker-compose -f docker-compose-build.yaml run \
-            -e TWINE_USERNAME=${TWINE_USERNAME} -e TWINE_PASSWORD=${TWINE_PASSWORD} pharus \
-            sh -lc "pip install twine && python -m twine upload dist/*"
       - name: Get changelog entry
         id: changelog_reader
-        uses: guzman-raphael/changelog-reader-action@v3
+        uses: guzman-raphael/changelog-reader-action@v4
         with:
           path: ./CHANGELOG.md
           # validation_depth: 10
@@ -156,6 +149,13 @@ jobs:
           body: ${{steps.changelog_reader.outputs.changes}}
           prerelease: ${{steps.changelog_reader.outputs.status == 'prereleased'}}
           draft: ${{steps.changelog_reader.outputs.status == 'unreleased'}}
+      - name: Publish pip release
+        run: |
+          export HOST_UID=$(id -u)
+          docker load < "image-pharus-${PHARUS_VERSION}-py3.8-alpine.tar.gz"
+          docker-compose -f docker-compose-build.yaml run \
+            -e TWINE_USERNAME=${TWINE_USERNAME} -e TWINE_PASSWORD=${TWINE_PASSWORD} pharus \
+            sh -lc "pip install twine && python -m twine upload dist/*"
       - name: Determine pip artifact paths
         run: |
           echo "PHARUS_WHEEL_PATH=$(ls dist/pharus-*.whl)" >> $GITHUB_ENV
