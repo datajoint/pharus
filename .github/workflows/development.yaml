@@ -15,11 +15,11 @@ jobs:
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
       - name: Get changelog entry
         id: changelog_reader
-        uses: guzman-raphael/changelog-reader-action@v2
+        uses: guzman-raphael/changelog-reader-action@v3
         with:
           path: ./CHANGELOG.md
           # validation_depth: 10
-          # version: ${{env.PHARUS_VERSION}}
+          version: ${{env.PHARUS_VERSION}}
       - name: Verify changelog parsing
         env:
           TAG_NAME: ${{steps.changelog_reader.outputs.version}}
@@ -140,10 +140,10 @@ jobs:
             sh -lc "pip install twine && python -m twine upload dist/*"
       - name: Get changelog entry
         id: changelog_reader
-        uses: guzman-raphael/changelog-reader-action@v2
+        uses: guzman-raphael/changelog-reader-action@v3
         with:
           path: ./CHANGELOG.md
-          validation_depth: 10
+          # validation_depth: 10
           version: ${{env.PHARUS_VERSION}}
       - name: Create GH release
         id: create_gh_release
