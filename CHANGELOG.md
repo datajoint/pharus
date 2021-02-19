@@ -4,7 +4,8 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 
 ## [Unreleased]
 ### Added
-- Add docker `dev` environment that supports hot reloading.
+- Docker `dev` environment that supports hot reloading.
+- Documentation on setting up environments within `docker-compose` header.
 
 ## [0.1.0a5] - 2021-02-18
 ### Added
