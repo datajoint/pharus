@@ -7,6 +7,9 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Docker `dev` environment that supports hot reloading.
 - Documentation on setting up environments within `docker-compose` header.
 
+### Removed
+- Docker `base` environment to simplify dependencies.
+
 ## [0.1.0a5] - 2021-02-18
 ### Added
 - List schemas method.
