@@ -1,5 +1,7 @@
-# PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}') HOST_UID=$(id -u) docker-compose -f docker-compose-test.yaml up --exit-code-from pharus
-# Note: If requirements or Dockerfile change, will need to add --build flag
+# PY_VER=3.8 IMAGE=djtest DISTRO=alpine AS_SCRIPT=FALSE PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}') HOST_UID=$(id -u) docker-compose -f docker-compose-test.yaml up --exit-code-from pharus
+#
+# Intended for running test suite locally.
+# Note: If requirements or Dockerfile change, will need to add --build flag.
 version: "2.4"
 x-net: &net
   networks:
@@ -28,8 +30,8 @@ services:
       - sh
       - -c
       - |
-        if [ ! -z "$${AS_SCRIPT}" ]; then
-          set -e
+        set -e
+        if echo "${AS_SCRIPT}" | grep -i true &>/dev/null; then
           echo "------ SYNTAX TESTS ------"
           PKG_DIR=/opt/conda/lib/python3.8/site-packages/pharus
           flake8 $${PKG_DIR} --count --select=E9,F63,F7,F82 --show-source --statistics
@@ -39,7 +41,7 @@ services:
           flake8 $${PKG_DIR} --count --max-complexity=20 --max-line-length=95 --statistics
         else
           echo "=== Running ==="
-          echo "Please see 'LNX-docker-compose.yaml' for detail on running tests."
+          echo "Please see 'docker-compose-test.yaml' for detail on running tests."
           tail -f /dev/null
         fi
     depends_on:

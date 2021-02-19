@@ -20,8 +20,15 @@ Usage and API documentation currently available within method docstrings. See Py
 
 ## Run Locally w/ Docker
 
-- Copy a `*-docker-compose.yaml` file corresponding to your usage to `docker-compose.yaml`. This file is untracked so feel free to modify as necessary.
-- Check the first comment which will provide best instruction on how to start the service.
+- Copy a `*-docker-compose.yaml` file corresponding to your usage to `docker-compose.yaml`. This file is untracked so feel free to modify as necessary. Idea is to commit anything generic but system/setup dependent should go on 'your' version i.e. local UID/GID, etc.
+- Check the first comment which will provide the best instruction on how to start the service; yes, it is a bit long. Note: Any of the keyword arguments prepended to the `docker-compose` command can be safely moved into a dedicated `.env` and read automatically if they are not evaluated i.e. `$(...)`. Below is a brief description of the non-evaluated environment variables:
+
+```shell
+PY_VER=3.8    # Python version: 3.6|3.7|3.8
+IMAGE=djtest  # Image type:     djbase|djtest|djlab|djlabhub
+DISTRO=alpine # Distribution:   alpine|debian
+AS_SCRIPT=    # If 'TRUE', will not keep container alive but run tests and exit
+```
 
 > ⚠️ Deployment options currently being considered are [Docker Compose](https://docs.docker.com/compose/install/) and [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
 
@@ -30,17 +37,6 @@ Usage and API documentation currently available within method docstrings. See Py
 - Set environment variables for port assignment (`PHARUS_PORT`, defaults to 5000) and API route prefix (`PHARUS_PREFIX` e.g. `/api`, defaults to empty string).
 - For development, use CLI command `pharus`. This method supports hot-reloading so probably best coupled with `pip install -e ...`.
 - For production, use `gunicorn --bind 0.0.0.0:${PHARUS_PORT} pharus.server:app`.
-
-## Run Tests for Development w/ Docker
-
-- Create a `.env` as appropriate for your setup:
-  ```shell
-  PY_VER=3.8    # Python version: 3.6|3.7|3.8
-  IMAGE=djtest  # Image type:     djbase|djtest|djlab|djlabhub
-  DISTRO=alpine # Distribution:   alpine|debian
-  AS_SCRIPT=    # If 'TRUE', will not keep container alive but run tests and exit
-  ```
-- Navigate to `test-docker-compose.yaml` and check first comment which will provide best instruction on how to start the service. Yes, the command is a bit long...
 
 ## Run Tests for Development w/ Pytest and Flake8
 
