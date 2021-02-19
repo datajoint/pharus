@@ -4,9 +4,9 @@
 # Intended for production deployment.
 # Note: You must run both commands above for minimal outage
 # Make sure to add an entry into your /etc/hosts file as `127.0.0.1 fakeservices.datajoint.io`
-# This serves to as an alias for the domain to resolve locally.
+# This serves as an alias for the domain to resolve locally.
 # With this config and the configuration below in NGINX, you should be able to verify it is
-# running properly with a `curl https://fakeservices.datajoint.io/api/version`
+# running properly with a `curl https://fakeservices.datajoint.io/api/version`.
 version: "2.4"
 x-net: &net
   networks:

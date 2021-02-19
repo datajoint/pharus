@@ -1,7 +1,7 @@
 # PY_VER=3.8 IMAGE=djtest DISTRO=alpine AS_SCRIPT=FALSE PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}') HOST_UID=$(id -u) docker-compose -f docker-compose-test.yaml up --exit-code-from pharus
 #
 # Intended for running test suite locally.
-# Note: If requirements or Dockerfile change, will need to add --build flag
+# Note: If requirements or Dockerfile change, will need to add --build flag.
 version: "2.4"
 x-net: &net
   networks:
