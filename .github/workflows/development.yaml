@@ -1,9 +1,34 @@
 name: Development
 on:
-  push:
   pull_request:
+  push:
+    tags:
+      - '*.*.*'
 jobs:
+  test-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get changelog entry
+        id: changelog_reader
+        uses: guzman-raphael/changelog-reader-action@v5
+        with:
+          path: ./CHANGELOG.md
+      - name: Verify changelog parsing
+        env:
+          TAG_NAME: ${{steps.changelog_reader.outputs.version}}
+          RELEASE_NAME: Release ${{steps.changelog_reader.outputs.version}}
+          BODY: ${{steps.changelog_reader.outputs.changes}}
+          PRERELEASE: ${{steps.changelog_reader.outputs.status == 'prereleased'}}
+          DRAFT: ${{steps.changelog_reader.outputs.status == 'unreleased'}}
+        run: |
+          echo "TAG_NAME=${TAG_NAME}"
+          echo "RELEASE_NAME=${RELEASE_NAME}"
+          echo "BODY=${BODY}"
+          echo "PRERELEASE=${PRERELEASE}"
+          echo "DRAFT=${DRAFT}"
   build:
+    needs: test-changelog
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -15,27 +40,34 @@ jobs:
       PY_VER: ${{matrix.py_ver}}
       DISTRO: ${{matrix.distro}}
       IMAGE: ${{matrix.image}}
-      HOST_UID: "1001"
       DOCKER_CLIENT_TIMEOUT: "120"
       COMPOSE_HTTP_TIMEOUT: "120"
-      AS_SCRIPT: "TRUE"
     steps:
       - uses: actions/checkout@v2
       - name: Compile image
         run: |
-          export DJGUI_API_VERSION=$(cat dj_gui_api_server/version.py | tail -1 | \
-            awk -F\' '{print $2}')
-          docker-compose -f LNX-docker-compose.yaml build
-          IMAGE=$(docker images --filter "reference=datajoint/djgui*" \
+          export PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
+          export HOST_UID=$(id -u)
+          docker-compose -f docker-compose-build.yaml up --exit-code-from pharus --build
+          IMAGE=$(docker images --filter "reference=datajoint/pharus*" \
             --format "{{.Repository}}")
-          TAG=$(docker images --filter "reference=datajoint/djgui*" --format "{{.Tag}}")
-          docker save "${IMAGE}:${TAG}" | gzip > "djgui_api-py${PY_VER}-${DISTRO}.tar.gz"
+          TAG=$(docker images --filter "reference=datajoint/pharus*" --format "{{.Tag}}")
+          docker save "${IMAGE}:${TAG}" | \
+            gzip > "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
+          echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
       - name: Add image artifact
         uses: actions/upload-artifact@v2
         with:
-          name: ${{format('{0}-py{1}-{2}', 'djgui_api', matrix.py_ver, matrix.distro)}}
-          path: >
-            ${{format('{0}-py{1}-{2}.tar.gz', 'djgui_api', matrix.py_ver, matrix.distro)}}
+          name: image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-${{matrix.distro}}
+          path: "image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-\
+            ${{matrix.distro}}.tar.gz"
+          retention-days: 1
+      - if: matrix.py_ver == '3.8' && matrix.distro == 'alpine'
+        name: Add pip artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: pip-pharus-${{env.PHARUS_VERSION}}
+          path: dist
           retention-days: 1
   test:
     needs: build
@@ -50,56 +82,144 @@ jobs:
       PY_VER: ${{matrix.py_ver}}
       DISTRO: ${{matrix.distro}}
       IMAGE: ${{matrix.image}}
-      HOST_UID: "1001"
       DOCKER_CLIENT_TIMEOUT: "120"
       COMPOSE_HTTP_TIMEOUT: "120"
       AS_SCRIPT: "TRUE"
     steps:
       - uses: actions/checkout@v2
+      - name: Determine package version
+        run: |
+          PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
+          echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
       - name: Fetch image artifact
         uses: actions/download-artifact@v2
         with:
-          name: ${{format('{0}-py{1}-{2}','djgui_api', matrix.py_ver, matrix.distro)}}
+          name: image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-${{matrix.distro}}
       - name: Run primary tests
         run: |
-          docker load < "djgui_api-py${PY_VER}-${DISTRO}.tar.gz"
-          export DJGUI_API_VERSION=$(cat dj_gui_api_server/version.py | tail -1 | \
-            awk -F\' '{print $2}')
-          docker-compose -f LNX-docker-compose.yaml up --exit-code-from dj-gui-api-test
-  # publish:
-  #   if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-  #   needs: test
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       include:
-  #         - py_ver: 3.8
-  #           distro: alpine
-  #           image: djbase
-  #   env:
-  #     PY_VER: ${{matrix.py_ver}}
-  #     DISTRO: ${{matrix.distro}}
-  #     IMAGE: ${{matrix.image}}
-  #     DOCKER_USERNAME: ${{secrets.docker_username}}
-  #     DOCKER_PASSWORD: ${{secrets.docker_password}}
-  #   steps:
-  #     - name: Fetch image artifact
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: ${{format('{0}-py{1}-{2}', matrix.conda_ver, matrix.py_ver, matrix.distro)}}
-  #     - name: Publish image
-  #       run: |
-  #         echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  #         docker load < "${CONDA_VER}-py${PY_VER}-${DISTRO}.tar.gz"
-  #         IMAGE=$(docker images --filter "reference=datajoint/*" --format "{{.Repository}}")
-  #         TAG=$(docker images --filter "reference=datajoint/*" --format "{{.Tag}}")
-  #         docker push "${IMAGE}:${TAG}"
-  #         docker tag "${IMAGE}:${TAG}" "${IMAGE}:${TAG}-${GITHUB_SHA:0:7}"
-  #         docker push "${IMAGE}:${TAG}-${GITHUB_SHA:0:7}"
-  #         [ "$PY_VER" == "3.9" ] && [ "$DISTRO" == "debian" ] \
-  #                 && docker tag "${IMAGE}:${TAG}" "${IMAGE}:latest" \
-  #                 && docker push "${IMAGE}:latest" \
-  #             || echo "skipping 'latest' tag..."
+          export HOST_UID=$(id -u)
+          docker load < "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
+          docker-compose -f docker-compose-test.yaml up --exit-code-from pharus
+  publish-release:
+    if: github.event_name == 'push'
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      TWINE_USERNAME: ${{secrets.twine_username}}
+      TWINE_PASSWORD: ${{secrets.twine_password}}
+    outputs:
+      release_upload_url: ${{steps.create_gh_release.outputs.upload_url}}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Determine package version
+        run: |
+          PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
+          echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
+      - name: Get changelog entry
+        id: changelog_reader
+        uses: guzman-raphael/changelog-reader-action@v5
+        with:
+          path: ./CHANGELOG.md
+          version: ${{env.PHARUS_VERSION}}
+      - name: Create GH release
+        id: create_gh_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          tag_name: ${{steps.changelog_reader.outputs.version}}
+          release_name: Release ${{steps.changelog_reader.outputs.version}}
+          body: ${{steps.changelog_reader.outputs.changes}}
+          prerelease: ${{steps.changelog_reader.outputs.status == 'prereleased'}}
+          draft: ${{steps.changelog_reader.outputs.status == 'unreleased'}}
+      - name: Fetch image artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: image-pharus-${{env.PHARUS_VERSION}}-py3.8-alpine
+      - name: Fetch pip artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: pip-pharus-${{env.PHARUS_VERSION}}
+          path: dist
+      - name: Publish pip release
+        run: |
+          export HOST_UID=$(id -u)
+          docker load < "image-pharus-${PHARUS_VERSION}-py3.8-alpine.tar.gz"
+          docker-compose -f docker-compose-build.yaml run \
+            -e TWINE_USERNAME=${TWINE_USERNAME} -e TWINE_PASSWORD=${TWINE_PASSWORD} pharus \
+            sh -lc "pip install twine && python -m twine upload dist/*"
+      - name: Determine pip artifact paths
+        run: |
+          echo "PHARUS_WHEEL_PATH=$(ls dist/pharus-*.whl)" >> $GITHUB_ENV
+          echo "PHARUS_SDIST_PATH=$(ls dist/pharus-*.tar.gz)" >> $GITHUB_ENV
+      - name: Upload pip wheel asset to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          upload_url: ${{steps.create_gh_release.outputs.upload_url}}
+          asset_path: ${{env.PHARUS_WHEEL_PATH}}
+          asset_name: pip-pharus-${{env.PHARUS_VERSION}}.whl
+          asset_content_type: application/zip
+      - name: Upload pip sdist asset to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          upload_url: ${{steps.create_gh_release.outputs.upload_url}}
+          asset_path: ${{env.PHARUS_SDIST_PATH}}
+          asset_name: pip-pharus-${{env.PHARUS_VERSION}}.tar.gz
+          asset_content_type: application/gzip
+  publish-images:
+    if: github.event_name == 'push'
+    needs: publish-release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - py_ver: 3.8
+            distro: alpine
+            image: djbase
+    env:
+      PY_VER: ${{matrix.py_ver}}
+      DISTRO: ${{matrix.distro}}
+      IMAGE: ${{matrix.image}}
+      DOCKER_USERNAME: ${{secrets.docker_username}}
+      DOCKER_PASSWORD: ${{secrets.docker_password}}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Determine package version
+        run: |
+          PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
+          echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
+      - name: Fetch image artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-${{matrix.distro}}
+      - name: Publish image
+        run: |
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          docker load < "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
+          IMAGE=$(docker images --filter "reference=datajoint/*" --format "{{.Repository}}")
+          TAG=$(docker images --filter "reference=datajoint/*" --format "{{.Tag}}")
+          docker push "${IMAGE}:${TAG}"
+          docker tag "${IMAGE}:${TAG}" "${IMAGE}:${TAG}-${GITHUB_SHA:0:7}"
+          docker push "${IMAGE}:${TAG}-${GITHUB_SHA:0:7}"
+          [ "$PY_VER" == "3.8" ] && [ "$DISTRO" == "alpine" ] \
+                  && docker tag "${IMAGE}:${TAG}" "${IMAGE}:latest" \
+                  && docker push "${IMAGE}:latest" \
+              || echo "skipping 'latest' tag..."
+      - name: Upload image to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          upload_url: ${{needs.publish-release.outputs.release_upload_url}}
+          asset_path: "image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-\
+            ${{matrix.distro}}.tar.gz"
+          asset_name: "image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-\
+            ${{matrix.distro}}.tar.gz"
+          asset_content_type: application/gzip
   # publish-docs:
   #   if: github.event_name == 'push' && github.ref == 'refs/heads/master'
   #   runs-on: ubuntu-latest

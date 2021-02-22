@@ -1,43 +1,59 @@
 <div
 <p align="center">
   <em>👷‍♀️ <b>Under Construction</b> 👷</em>
-  <img src="under_contruction.png" alt="construction_fig"/>  
+  <img src="https://raw.githubusercontent.com/datajoint/pharus/master/under_contruction.png" alt="construction_fig"/>
 </p>
 </div>
 
-> :warning: The DJGUI project is still early in its life and the maintainers are currently actively developing with a priority of addressing first critical issues directly related to the deliveries of [Alpha](https://github.com/datajoint/DJ-GUI-API/milestone/1) and [Beta](https://github.com/datajoint/DJ-GUI-API/milestone/2) milestones. Please be advised that while working through our milestones, we may restructure/refactor the codebase without warning until we issue our [Official Release](https://github.com/datajoint/DJ-GUI-API/milestone/3) currently planned as `0.1.0` on `2021-03-31`.
+> ⚠️ The Pharus project is still early in its life and the maintainers are currently actively developing with a priority of addressing first critical issues directly related to the deliveries of [Alpha](https://github.com/datajoint/pharus/milestone/1) and [Beta](https://github.com/datajoint/pharus/milestone/2) milestones. Please be advised that while working through our milestones, we may restructure/refactor the codebase without warning until we issue our [Official Release](https://github.com/datajoint/pharus/milestone/3) currently planned as `0.1.0` on `2021-03-31`.
 
-# DJ-GUI-API Backend
+# Pharus
 
-Serves as the REST API backend for DJGUI project complimented by [React frontend](https://github.com/datajoint/DJ-GUI-React).
-Built on top of `flask`, `datajoint`, and `pyjwt`.
+A generic REST API server backend for DataJoint pipelines built on top of `flask`, `datajoint`, and `pyjwt`.
 
-Requirements:
+Usage and API documentation currently available within method docstrings. See Python's `help(...)` utility.
+
+## Requirements for Preferred Setup
+
 - [Docker](https://docs.docker.com/get-docker/  )
 - [Docker Compose](https://docs.docker.com/compose/install/)
 
-## Run Locally
+## Run Locally w/ Docker
 
-- Copy `local-docker-compose.yaml` to `docker-compose.yaml`. This file is untracked so feel free to modify as necessary.
-- Check the first comment which will provide best instruction on how to start the service.
+- Copy a `*-docker-compose.yaml` file corresponding to your usage to `docker-compose.yaml`. This file is untracked so feel free to modify as necessary. Idea is to commit anything generic but system/setup dependent should go on 'your' version i.e. local UID/GID, etc.
+- Check the first comment which will provide the best instruction on how to start the service; yes, it is a bit long. Note: Any of the keyword arguments prepended to the `docker-compose` command can be safely moved into a dedicated `.env` and read automatically if they are not evaluated i.e. `$(...)`. Below is a brief description of the non-evaluated environment variables:
 
-> :warning: The docker-compose file creates a docker network called `dj-gui-api` which is meant to connect the frontend to the backend via reverse proxy for development. Running or installation options currently being considered are [Docker Compose](https://docs.docker.com/compose/install/) and [Electron](https://www.electronjs.org/). Deployment options currently being considered are [Docker Compose](https://docs.docker.com/compose/install/) and [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
-
-## Run Tests
-
-- Create a `.env` as appropriate for your setup:
 ```shell
-HOST_UID=1000 # Unix UID associated with non-root login
 PY_VER=3.8    # Python version: 3.6|3.7|3.8
 IMAGE=djtest  # Image type:     djbase|djtest|djlab|djlabhub
 DISTRO=alpine # Distribution:   alpine|debian
 AS_SCRIPT=    # If 'TRUE', will not keep container alive but run tests and exit
 ```
-- Navigate to `LNX-docker-compose.yaml` and check first comment which will provide best instruction on how to start the service. Yes, the command is a bit long...
+
+> ⚠️ Deployment options currently being considered are [Docker Compose](https://docs.docker.com/compose/install/) and [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
+
+## Run Locally w/ Python
+
+- Set environment variables for port assignment (`PHARUS_PORT`, defaults to 5000) and API route prefix (`PHARUS_PREFIX` e.g. `/api`, defaults to empty string).
+- For development, use CLI command `pharus`. This method supports hot-reloading so probably best coupled with `pip install -e ...`.
+- For production, use `gunicorn --bind 0.0.0.0:${PHARUS_PORT} pharus.server:app`.
+
+## Run Tests for Development w/ Pytest and Flake8
+
+- Set `pharus` testing environment variables:
+  ```shell
+  PKG_DIR=/opt/conda/lib/python3.8/site-packages/pharus # path to pharus installation
+  TEST_DB_SERVER=example.com:3306 # testing db server address
+  TEST_DB_USER=root # testing db server user (needs CRUD on schemas, tables, users)
+  TEST_DB_PASS=unsecure # testing db server password
+  ```
+- For syntax tests, run `flake8 ${PKG_DIR} --count --select=E9,F63,F7,F82 --show-source --statistics`
+- For pytest integration tests, run `pytest -sv --cov-report term-missing --cov=${PKG_DIR} /main/tests`
+- For style tests, run `flake8 ${PKG_DIR} --count --max-complexity=20 --max-line-length=95 --statistics`
 
 ## References
 
-- DJGUI Frontend:
-  - https://github.com/datajoint/DJ-GUI-React
-- Under construction image credits:
+- DataJoint LabBook (a companion frontend)
+  - https://github.com/datajoint/datajoint-labbook
+- Under construction image credits
   - https://www.pngfind.com/mpng/ooiim_under-construction-tape-png-under-construction-transparent-png/

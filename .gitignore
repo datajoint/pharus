@@ -3,3 +3,6 @@
 .vscode
 docker-compose.y*ml
 .coverage
+*.egg-info
+dist
+build

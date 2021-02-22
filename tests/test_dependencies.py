@@ -1,6 +1,6 @@
 from os import getenv
 import pytest
-from dj_gui_api_server.DJGUIAPIServer import app
+from pharus.server import app
 import datajoint as dj
 from base64 import b64encode
 from json import dumps
@@ -14,7 +14,7 @@ def client():
 
 @pytest.fixture
 def token(client):
-    yield client.post('/api/login', json=dict(databaseAddress=getenv('TEST_DB_SERVER'),
+    yield client.post('/login', json=dict(databaseAddress=getenv('TEST_DB_SERVER'),
                                               username=getenv('TEST_DB_USER'),
                                               password=getenv('TEST_DB_PASS'))).json['jwt']
 
@@ -83,7 +83,7 @@ def connection():
 
 @pytest.fixture
 def underprivileged_token(client, connection):
-    yield client.post('/api/login', json=dict(databaseAddress=getenv('TEST_DB_SERVER'),
+    yield client.post('/login', json=dict(databaseAddress=getenv('TEST_DB_SERVER'),
                                               username='underprivileged',
                                               password='datajoint')).json['jwt']
 
@@ -93,10 +93,10 @@ def test_dependencies_underprivileged(underprivileged_token, client):
     table_name = 'TableA'
     restriction = b64encode(dumps(dict(a_id=0)).encode('utf-8')).decode('utf-8')
     REST_dependencies = client.get(
-        f"""/api/record/dependency?schemaName={
+        f"""/record/dependency?schemaName={
             schema_name}&tableName={table_name}&restriction={restriction}""",
         headers=dict(Authorization=f'Bearer {underprivileged_token}')).json['dependencies']
-    REST_records = client.post('/api/fetch_tuples',
+    REST_records = client.post('/fetch_tuples',
                                headers=dict(Authorization=f'Bearer {underprivileged_token}'),
                                json=dict(schemaName=schema_name,
                                          tableName=table_name)).json['tuples']
@@ -121,10 +121,10 @@ def test_dependencies_admin(token, client, connection):
     table_name = 'TableA'
     restriction = b64encode(dumps(dict(a_id=0)).encode('utf-8')).decode('utf-8')
     REST_dependencies = client.get(
-        f"""/api/record/dependency?schemaName={
+        f"""/record/dependency?schemaName={
             schema_name}&tableName={table_name}&restriction={restriction}""",
         headers=dict(Authorization=f'Bearer {token}')).json['dependencies']
-    REST_records = client.post('/api/fetch_tuples',
+    REST_records = client.post('/fetch_tuples',
                                headers=dict(Authorization=f'Bearer {token}'),
                                json=dict(schemaName=schema_name,
                                          tableName=table_name)).json['tuples']

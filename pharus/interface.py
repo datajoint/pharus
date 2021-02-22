@@ -5,7 +5,7 @@ import numpy as np
 from functools import reduce
 from datajoint.errors import AccessError
 import re
-from .errors import InvalidDeleteRequest, InvalidRestriction, UnsupportedTableType
+from .error import InvalidDeleteRequest, InvalidRestriction, UnsupportedTableType
 
 DAY = 24 * 60 * 60
 DEFAULT_FETCH_LIMIT = 1000  # Stop gap measure to deal with super large tables
@@ -54,7 +54,7 @@ class DJConnector():
         # Attempt to connect return true if successful, false is failed
         return [row[0] for row in dj.conn().query("""
         SELECT SCHEMA_NAME FROM information_schema.schemata
-        WHERE SCHEMA_NAME != "information_schema"
+        WHERE SCHEMA_NAME NOT IN ("information_schema", "sys", "performance_schema", "mysql")
         ORDER BY SCHEMA_NAME
         """)]
 
@@ -384,7 +384,7 @@ class DJConnector():
             raise InvalidDeleteRequest('Nothing to delete')
 
         # All check pass thus proceed to delete
-        tuple_to_delete.delete_quick()
+        tuple_to_delete.delete(safemode=False)
 
     @staticmethod
     def get_table_object(schema_virtual_module, table_name: str):

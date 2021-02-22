@@ -1,6 +1,6 @@
-"""Exposed DJGUI REST API."""
-import os
-from .DJConnector import DJConnector
+"""Exposed REST API."""
+from os import environ
+from .interface import DJConnector
 from . import __version__ as version
 from typing import Callable
 
@@ -18,15 +18,15 @@ app = Flask(__name__)
 # Check if PRIVATE_KEY and PUBIC_KEY is set, if not generate them.
 # NOTE: For web deployment, please set the these enviorment variable to be the same between
 # the instance
-if os.environ.get('PRIVATE_KEY') is None or os.environ.get('PUBLIC_KEY') is None:
+if environ.get('PHARUS_PRIVATE_KEY') is None or environ.get('PHARUS_PUBLIC_KEY') is None:
     key = rsa.generate_private_key(backend=crypto_default_backend(),
                                    public_exponent=65537,
                                    key_size=2048)
-    os.environ['PRIVATE_KEY'] = key.private_bytes(
+    environ['PHARUS_PRIVATE_KEY'] = key.private_bytes(
         crypto_serialization.Encoding.PEM,
         crypto_serialization.PrivateFormat.PKCS8,
         crypto_serialization.NoEncryption()).decode()
-    os.environ['PUBLIC_KEY'] = key.public_key().public_bytes(
+    environ['PHARUS_PUBLIC_KEY'] = key.public_key().public_bytes(
         crypto_serialization.Encoding.OpenSSH,
         crypto_serialization.PublicFormat.OpenSSH
     ).decode()
@@ -43,7 +43,7 @@ def protected_route(function: Callable):
     def wrapper():
         try:
             jwt_payload = jwt.decode(request.headers.get('Authorization').split()[1],
-                                     os.environ['PUBLIC_KEY'], algorithms='RS256')
+                                     environ['PHARUS_PUBLIC_KEY'], algorithms='RS256')
             return function(jwt_payload)
         except Exception as e:
             return str(e), 401
@@ -52,7 +52,7 @@ def protected_route(function: Callable):
     return wrapper
 
 
-@app.route('/api/version')
+@app.route(f"{environ.get('PHARUS_PREFIX', '')}/version")
 def api_version():
     """
     Route to check if the server is alive or not
@@ -62,7 +62,7 @@ def api_version():
     return version
 
 
-@app.route('/api/login', methods=['POST'])
+@app.route(f"{environ.get('PHARUS_PREFIX', '')}/login", methods=['POST'])
 def login():
     """
     Login route which uses DataJoint database server login. Expects:
@@ -81,13 +81,14 @@ def login():
                                   request.json['username'],
                                   request.json['password'])
         # Generate JWT key and send it back
-        encoded_jwt = jwt.encode(request.json, os.environ['PRIVATE_KEY'], algorithm='RS256')
+        encoded_jwt = jwt.encode(request.json, environ['PHARUS_PRIVATE_KEY'],
+                                 algorithm='RS256')
         return dict(jwt=encoded_jwt)
     except Exception as e:
         return str(e), 500
 
 
-@app.route('/api/list_schemas', methods=['GET'])
+@app.route(f"{environ.get('PHARUS_PREFIX', '')}/list_schemas", methods=['GET'])
 @protected_route
 def list_schemas(jwt_payload: dict):
     """
@@ -107,7 +108,7 @@ def list_schemas(jwt_payload: dict):
         return str(e), 500
 
 
-@app.route('/api/list_tables', methods=['POST'])
+@app.route(f"{environ.get('PHARUS_PREFIX', '')}/list_tables", methods=['POST'])
 @protected_route
 def list_tables(jwt_payload: dict):
     """
@@ -127,7 +128,7 @@ def list_tables(jwt_payload: dict):
         return str(e), 500
 
 
-@app.route('/api/fetch_tuples', methods=['POST'])
+@app.route(f"{environ.get('PHARUS_PREFIX', '')}/fetch_tuples", methods=['POST'])
 @protected_route
 def fetch_tuples(jwt_payload: dict):
     """
@@ -158,7 +159,7 @@ def fetch_tuples(jwt_payload: dict):
         return str(e), 500
 
 
-@app.route('/api/get_table_definition', methods=['POST'])
+@app.route(f"{environ.get('PHARUS_PREFIX', '')}/get_table_definition", methods=['POST'])
 @protected_route
 def get_table_definition(jwt_payload: dict):
     """
@@ -181,7 +182,7 @@ def get_table_definition(jwt_payload: dict):
         return str(e), 500
 
 
-@app.route('/api/get_table_attributes', methods=['POST'])
+@app.route(f"{environ.get('PHARUS_PREFIX', '')}/get_table_attributes", methods=['POST'])
 @protected_route
 def get_table_attributes(jwt_payload: dict):
     """
@@ -203,7 +204,7 @@ def get_table_attributes(jwt_payload: dict):
         return str(e), 500
 
 
-@app.route('/api/insert_tuple', methods=['POST'])
+@app.route(f"{environ.get('PHARUS_PREFIX', '')}/insert_tuple", methods=['POST'])
 @protected_route
 def insert_tuple(jwt_payload: dict):
     """
@@ -229,7 +230,7 @@ def insert_tuple(jwt_payload: dict):
         return str(e), 500
 
 
-@app.route('/api/record/dependency', methods=['GET'])
+@app.route(f"{environ.get('PHARUS_PREFIX', '')}/record/dependency", methods=['GET'])
 @protected_route
 def record_dependency(jwt_payload: dict) -> dict:
     """
@@ -256,7 +257,7 @@ def record_dependency(jwt_payload: dict) -> dict:
         return str(e), 500
 
 
-@app.route('/api/update_tuple', methods=['POST'])
+@app.route(f"{environ.get('PHARUS_PREFIX', '')}/update_tuple", methods=['POST'])
 @protected_route
 def update_tuple(jwt_payload: dict):
     """
@@ -282,7 +283,7 @@ def update_tuple(jwt_payload: dict):
         return str(e), 500
 
 
-@app.route('/api/delete_tuple', methods=['POST'])
+@app.route(f"{environ.get('PHARUS_PREFIX', '')}/delete_tuple", methods=['POST'])
 @protected_route
 def delete_tuple(jwt_payload: dict):
     """
@@ -312,7 +313,7 @@ def run():
     """
     Starts API server.
     """
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=environ.get('PHARUS_PORT', 5000))
 
 
 if __name__ == '__main__':

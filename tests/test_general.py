@@ -1,7 +1,7 @@
-from dj_gui_api_server import __version__ as version
+from pharus import __version__ as version
 import pytest
-from dj_gui_api_server.DJGUIAPIServer import app
-from dj_gui_api_server.DJConnector import DJConnector
+from pharus.server import app
+from pharus.interface import DJConnector
 from os import getenv
 
 
@@ -12,7 +12,7 @@ def client():
 
 
 def test_version(client):
-    assert client.get('/api/version').data.decode() == version
+    assert client.get('/version').data.decode() == version
 
 
 def test_connect():
