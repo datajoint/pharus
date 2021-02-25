@@ -3,12 +3,24 @@
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
 ## [Unreleased]
+
+## Fixed
+- Incorrect virtual module reference of `schema_virtual_module` in table metadata. (#85) PR #88
+
 ### Added
-- Docker `dev` environment that supports hot reloading.
-- Documentation on setting up environments within `docker-compose` header.
+- Docker `dev` environment that supports hot reloading. PR #79
+- Documentation on setting up environments within `docker-compose` header. PR #79
+- `cascade` option for `/delete_tuple` route. (#86) PR #88
+- When delete with `cascade=False` fails due to foreign key relations, returns a HTTP error code of `409 Conflict` with a JSON body containing specfics on 1st child. (#86) PR #88
+- Documentation with detail regarding bearer token possible vulnerability (which database credentials) if hosted remotely. Recommend local deployment only for now. (#83) PR #88
+
+### Changed
+- Replaced `DJConnector.snake_to_camel_case` usage with `datajoint.utils.to_camel_case`. PR #88
+- Default behavior for `/delete_tuple` now deletes without cascading. (#86) PR #88
+- Consolidated `pytest` fixtures into `__init__.py` to facilate reuse. PR #88
 
 ### Removed
-- Docker `base` environment to simplify dependencies.
+- Docker `base` environment to simplify dependencies. PR #79
 
 ## [0.1.0a5] - 2021-02-18
 ### Added
