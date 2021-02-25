@@ -13,6 +13,9 @@ from flask import Flask, request
 import jwt
 from json import loads
 from base64 import b64decode
+from datajoint.errors import IntegrityError
+from datajoint.table import foregn_key_error_regexp
+from datajoint.utils import to_camel_case
 
 app = Flask(__name__)
 # Check if PRIVATE_KEY and PUBIC_KEY is set, if not generate them.
@@ -65,6 +68,22 @@ def api_version():
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/login", methods=['POST'])
 def login():
     """
+    *WARNING*: Currently, this implementation exposes user database credentials as plain text
+        in POST body once and stores it within a bearer token as Base64 encoded for subsequent
+        requests. That is how the server is able to submit queries on user's behalf. Due to
+        this, it is required that remote hosts expose the server only under HTTPS to ensure
+        end-to-end encryption. Sending passwords in plain text over HTTPS in POST request body
+        is common and utilized by companies such as GitHub (2021) and Chase Bank (2021). On
+        server side, there is no caching, logging, or storage of received passwords or tokens
+        and thus available only briefly in memory. This means the primary vulnerable point is
+        client side. Users should be responsible with their passwords and bearer tokens
+        treating them as one-in-the-same. Be aware that if your client system happens to be
+        compromised, a bad actor could monitor your outgoing network requests and capture/log
+        your credentials. However, in such a terrible scenario, a bad actor would not only
+        collect credentials for your DataJoint database but also other sites such as
+        github.com, chase.com, etc. Please be responsible and vigilant with credentials and
+        tokens on client side systems. Improvements to the above strategy is currently being
+        tracked in https://github.com/datajoint/pharus/issues/82.
     Login route which uses DataJoint database server login. Expects:
         (html:POST:body): json with keys
             {databaseAddress: string, username: string, password: string}
@@ -301,8 +320,17 @@ def delete_tuple(jwt_payload: dict):
         DJConnector.delete_tuple(jwt_payload,
                                  request.json["schemaName"],
                                  request.json["tableName"],
-                                 request.json["restrictionTuple"])
+                                 request.json["restrictionTuple"],
+                                 **{k: v.lower() == 'true'
+                                    for k, v in request.args.items() if k == 'cascade'},)
         return "Delete Sucessful"
+    except IntegrityError as e:
+        match = foregn_key_error_regexp.match(e.args[0])
+        return dict(error=e.__class__.__name__,
+                    error_msg=str(e),
+                    child_schema=match.group('child').split('.')[0][1:-1],
+                    child_table=to_camel_case(match.group('child').split('.')[1][1:-1]),
+                    ), 409
     except Exception as e:
         return str(e), 500
 

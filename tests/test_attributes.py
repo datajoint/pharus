@@ -1,239 +1,16 @@
-from os import getenv
-import pytest
-from pharus.server import app
-import datajoint as dj
+from . import (client, token, connection, schema_main,
+               Int, Float, Decimal, String, Bool, Date, Datetime, Timestamp, Time, Blob,
+               Longblob, Uuid, ParentPart)
 from datetime import date, datetime, time
 from numbers import Number
 from uuid import UUID
-
-
-@pytest.fixture
-def client():
-    with app.test_client() as client:
-        yield client
-
-
-@pytest.fixture
-def token(client):
-    yield client.post('/login', json=dict(databaseAddress=getenv('TEST_DB_SERVER'),
-                                              username=getenv('TEST_DB_USER'),
-                                              password=getenv('TEST_DB_PASS'))).json['jwt']
-
-
-@pytest.fixture
-def connection():
-    dj.config['safemode'] = False
-    connection = dj.conn(host=getenv('TEST_DB_SERVER'),
-                         user=getenv('TEST_DB_USER'),
-                         password=getenv('TEST_DB_PASS'), reset=True)
-    yield connection
-    dj.config['safemode'] = True
-    connection.close()
-
-
-@pytest.fixture
-def schema(connection):
-    schema = dj.Schema('add_types', connection=connection)
-    yield schema
-    schema.drop()
-
-
-@pytest.fixture
-def Int(schema):
-    @schema
-    class Int(dj.Manual):
-        definition = """
-        id: int
-        ---
-        int_attribute: int
-        """
-    yield Int
-    Int.drop()
-
-
-@pytest.fixture
-def Float(schema):
-    @schema
-    class Float(dj.Manual):
-        definition = """
-        id: int
-        ---
-        float_attribute: float
-        """
-    yield Float
-    Float.drop()
-
-
-@pytest.fixture
-def Decimal(schema):
-    @schema
-    class Decimal(dj.Manual):
-        definition = """
-        id: int
-        ---
-        decimal_attribute: decimal(5, 2)
-        """
-    yield Decimal
-    Decimal.drop()
-
-
-@pytest.fixture
-def String(schema):
-    @schema
-    class String(dj.Manual):
-        definition = """
-        id: int
-        ---
-        string_attribute: varchar(32)
-        """
-    yield String
-    String.drop()
-
-
-@pytest.fixture
-def Bool(schema):
-    @schema
-    class Bool(dj.Manual):
-        definition = """
-        id: int
-        ---
-        bool_attribute: bool
-        """
-    yield Bool
-    Bool.drop()
-
-
-@pytest.fixture
-def Date(schema):
-    @schema
-    class Date(dj.Manual):
-        definition = """
-        id: int
-        ---
-        date_attribute: date
-        """
-    yield Date
-    Date.drop()
-
-
-@pytest.fixture
-def Datetime(schema):
-    @schema
-    class Datetime(dj.Manual):
-        definition = """
-        id: int
-        ---
-        datetime_attribute: datetime
-        """
-    yield Datetime
-    Datetime.drop()
-
-
-@pytest.fixture
-def Timestamp(schema):
-    @schema
-    class Timestamp(dj.Manual):
-        definition = """
-        id: int
-        ---
-        timestamp_attribute: timestamp
-        """
-    yield Timestamp
-    Timestamp.drop()
-
-
-@pytest.fixture
-def Time(schema):
-    @schema
-    class Time(dj.Manual):
-        definition = """
-        id: int
-        ---
-        time_attribute: time
-        """
-    yield Time
-    Time.drop()
-
-
-@pytest.fixture
-def Blob(schema):
-    @schema
-    class Blob(dj.Manual):
-        definition = """
-        id: int
-        ---
-        blob_attribute: blob
-        """
-    yield Blob
-    Blob.drop()
-
-
-@pytest.fixture
-def Longblob(schema):
-    @schema
-    class Longblob(dj.Manual):
-        definition = """
-        id: int
-        ---
-        longblob_attribute: longblob
-        """
-    yield Longblob
-    Longblob.drop()
-
-
-@pytest.fixture
-def Uuid(schema):
-    @schema
-    class Uuid(dj.Manual):
-        definition = """
-        id: int
-        ---
-        uuid_attribute: uuid
-        """
-    yield Uuid
-    Uuid.drop()
-
-
-@pytest.fixture
-def ParentPart(schema):
-    @schema
-    class ScanData(dj.Manual):
-        definition = """
-        scan_id : int unsigned
-        ---
-        data: int unsigned
-        """
-
-    @schema
-    class ProcessScanData(dj.Computed):
-        definition = """
-        -> ScanData # Forigen Key Reference
-        ---
-        processed_scan_data : int unsigned
-        """
-
-        class ProcessScanDataPart(dj.Part):
-            definition = """
-            -> ProcessScanData
-            ---
-            processed_scan_data_part : int unsigned
-            """
-
-        def make(self, key):
-            scan_data_dict = (ScanData & key).fetch1()
-            self.insert1(dict(key, processed_scan_data=scan_data_dict['data']))
-            self.ProcessScanDataPart.insert1(
-                dict(key, processed_scan_data_part=scan_data_dict['data'] * 2))
-
-    yield ScanData, ProcessScanData
-    ScanData.drop()
 
 
 def validate(table, inserted_value, expected_type, expected_value, client, token):
     table.insert([(1, inserted_value)])
     _, REST_value = client.post('/fetch_tuples',
                                 headers=dict(Authorization=f'Bearer {token}'),
-                                json=dict(schemaName='add_types',
+                                json=dict(schemaName=table.database,
                                           tableName=table.__name__)).json['tuples'][0]
     assert isinstance(REST_value, expected_type) and REST_value == expected_value
 
@@ -378,7 +155,7 @@ def test_part_table(token, client, ParentPart):
     # Test Parent
     REST_value = client.post('/fetch_tuples',
                              headers=dict(Authorization=f'Bearer {token}'),
-                             json=dict(schemaName='add_types',
+                             json=dict(schemaName=ScanData.database,
                                        tableName=ProcessScanData.__name__)).json['tuples'][0]
 
     assert REST_value == [0, 5]
@@ -387,7 +164,7 @@ def test_part_table(token, client, ParentPart):
     REST_value = client.post(
         '/fetch_tuples',
         headers=dict(Authorization=f'Bearer {token}'),
-        json=dict(schemaName='add_types',
+        json=dict(schemaName=ProcessScanData.database,
                   tableName=(ProcessScanData.__name__ + '.' +
                              ProcessScanData.ProcessScanDataPart.__name__))).json['tuples'][0]
 

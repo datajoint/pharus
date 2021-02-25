@@ -44,7 +44,7 @@ AS_SCRIPT=    # If 'TRUE', will not keep container alive but run tests and exit
   ```shell
   PKG_DIR=/opt/conda/lib/python3.8/site-packages/pharus # path to pharus installation
   TEST_DB_SERVER=example.com:3306 # testing db server address
-  TEST_DB_USER=root # testing db server user (needs CRUD on schemas, tables, users)
+  TEST_DB_USER=root # testing db server user (needs DDL privilege)
   TEST_DB_PASS=unsecure # testing db server password
   ```
 - For syntax tests, run `flake8 ${PKG_DIR} --count --select=E9,F63,F7,F82 --show-source --statistics`
