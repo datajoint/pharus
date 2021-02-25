@@ -4,6 +4,9 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 
 ## [Unreleased]
 
+## Security
+- Documentation with detail regarding warning on bearer token. (#83) PR #88
+
 ## Fixed
 - Incorrect virtual module reference of `schema_virtual_module` in table metadata. (#85) PR #88
 
@@ -12,7 +15,6 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Documentation on setting up environments within `docker-compose` header. PR #79
 - `cascade` option for `/delete_tuple` route. (#86) PR #88
 - When delete with `cascade=False` fails due to foreign key relations, returns a HTTP error code of `409 Conflict` with a JSON body containing specifics of 1st child. (#86) PR #88
-- Documentation with detail regarding warning on bearer token. (#83) PR #88
 
 ### Changed
 - Replaced `DJConnector.snake_to_camel_case` usage with `datajoint.utils.to_camel_case`. PR #88

@@ -7,7 +7,6 @@ def test_delete_dependent_with_cascade(token, client, connection, schemas_simple
     table_name = 'TableB'
     restriction = dict(a_id=0, b_id=11)
     vm = dj.VirtualModule('group1_simple', schema_name)
-    print(getattr(vm, table_name) & restriction)
     REST_response = client.post(
         '/delete_tuple?cascade=tRuE',
         headers=dict(Authorization=f'Bearer {token}'),
