@@ -1,54 +1,24 @@
-from os import getenv
-import pytest
-from pharus.server import app
+from . import (SCHEMA_PREFIX, client, token, connection, schemas_simple, schema_main,
+               ParentPart)
 import datajoint as dj
 
 
-@pytest.fixture
-def client():
-    with app.test_client() as client:
-        yield client
-
-
-@pytest.fixture
-def token(client):
-    yield client.post('/login', json=dict(databaseAddress=getenv('TEST_DB_SERVER'),
-                                              username=getenv('TEST_DB_USER'),
-                                              password=getenv('TEST_DB_PASS'))).json['jwt']
-
-
-@pytest.fixture
-def connection():
-    dj.config['safemode'] = False
-    connection = dj.conn(host=getenv('TEST_DB_SERVER'),
-                         user=getenv('TEST_DB_USER'),
-                         password=getenv('TEST_DB_PASS'), reset=True)
-    schema1 = dj.Schema('schema1', connection=connection)
-    @schema1
-    class TableA(dj.Manual):
-        definition = """
-        id: int
-        ---
-        name: varchar(30)
-        """
-
-    schema2 = dj.Schema('schema2', connection=connection)
-    @schema2
-    class TableB(dj.Manual):
-        definition = """
-        id: int
-        ---
-        number: float
-        """
-    yield connection
-    schema1.drop()
-    schema2.drop()
-    connection.close()
-    dj.config['safemode'] = True
-
-
-def test_schemas(token, client, connection):
+def test_schemas(token, client, connection, schemas_simple):
     REST_schemas = client.get('/list_schemas',
                               headers=dict(
                                   Authorization=f'Bearer {token}')).json['schemaNames']
-    assert set(REST_schemas) == {'schema1', 'schema2'}
+    assert set(REST_schemas) == set(
+        [s for s in dj.list_schemas(connection=connection)
+         if s not in ('mysql', 'performance_schema', 'sys')])
+
+
+def test_tables(token, client, ParentPart):
+    ScanData, ProcessScanData = ParentPart
+    REST_tables = client.post(
+        '/list_tables',
+        headers=dict(Authorization=f'Bearer {token}'),
+        json=dict(schemaName=ScanData.database)).json['tableTypeAndNames']
+    assert ScanData.__name__ == REST_tables['manual_tables'][0]
+    assert ProcessScanData.__name__ == REST_tables['computed_tables'][0]
+    assert f"""{ProcessScanData.__name__}.{
+        ProcessScanData.ProcessScanDataPart.__name__}""" == REST_tables['part_tables'][0]

@@ -14,7 +14,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 ### Added
 - List schemas method.
 - List tables method.
-- Create, Read, Update, Delete (CRUD) operations for DataJoint table tiers: `dj.Manual`, `dj.Lookup`.
+- Data entry, update, delete, and view operations for DataJoint table tiers: `dj.Manual`, `dj.Lookup`.
 - Read table records with proper paging and compounding restrictions (i.e. filters).
 - Read table definition method.
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.

@@ -13,6 +13,9 @@ from flask import Flask, request
 import jwt
 from json import loads
 from base64 import b64decode
+from datajoint.errors import IntegrityError
+from datajoint.table import foregn_key_error_regexp
+from datajoint.utils import to_camel_case
 
 app = Flask(__name__)
 # Check if PRIVATE_KEY and PUBIC_KEY is set, if not generate them.
@@ -65,6 +68,12 @@ def api_version():
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/login", methods=['POST'])
 def login():
     """
+    *WARNING*: Currently, this implementation exposes user database credentials in the bearer
+        token. This means it is not recommended for production use and should be avoided
+        unless clients are co-located with Pharus server. Secure certificates are highly
+        recommended (i.e. TLS/SSL) along with not exposing publicly the ports pointed to the
+        Pharus server. This issue is currently being tracked in
+        https://github.com/datajoint/pharus/issues/82.
     Login route which uses DataJoint database server login. Expects:
         (html:POST:body): json with keys
             {databaseAddress: string, username: string, password: string}
@@ -301,8 +310,17 @@ def delete_tuple(jwt_payload: dict):
         DJConnector.delete_tuple(jwt_payload,
                                  request.json["schemaName"],
                                  request.json["tableName"],
-                                 request.json["restrictionTuple"])
+                                 request.json["restrictionTuple"],
+                                 **{k: v.lower() == 'true'
+                                    for k, v in request.args.items() if k == 'cascade'},)
         return "Delete Sucessful"
+    except IntegrityError as e:
+        match = foregn_key_error_regexp.match(e.args[0])
+        return dict(error=e.__class__.__name__,
+                    error_msg=str(e),
+                    child_schema=match.group('child').split('.')[0][1:-1],
+                    child_table=to_camel_case(match.group('child').split('.')[1][1:-1]),
+                    ), 409
     except Exception as e:
         return str(e), 500
 

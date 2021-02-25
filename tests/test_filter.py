@@ -1,64 +1,11 @@
-from os import getenv
-import pytest
-from pharus.server import app
-import datajoint as dj
 from json import dumps
 from base64 import b64encode
 from urllib.parse import urlencode
 from datetime import date, datetime
-from random import randint, choice, seed, getrandbits
-from faker import Faker
-seed('lock') # Pin down randomizer between runs
-faker = Faker()
-Faker.seed(0) # Pin down randomizer between runs
+from . import token, client, connection, schema_main, Student
 
 
-@pytest.fixture
-def client():
-    with app.test_client() as client:
-        yield client
-
-
-@pytest.fixture
-def token(client):
-    yield client.post('/login', json=dict(databaseAddress=getenv('TEST_DB_SERVER'),
-                                              username=getenv('TEST_DB_USER'),
-                                              password=getenv('TEST_DB_PASS'))).json['jwt']
-
-
-@pytest.fixture
-def virtual_module():
-    dj.config['safemode'] = False
-    connection = dj.conn(host=getenv('TEST_DB_SERVER'),
-                         user=getenv('TEST_DB_USER'),
-                         password=getenv('TEST_DB_PASS'), reset=True)
-    schema = dj.Schema('filter')
-
-    @schema
-    class Student(dj.Lookup):
-        definition = """
-        student_id: int
-        ---
-        student_name: varchar(50)
-        student_ssn: varchar(20)
-        student_enroll_date: datetime
-        student_balance: float
-        student_parking_lot=null : varchar(20)
-        student_out_of_state: bool
-        """
-        contents = [(i, faker.name(), faker.ssn(), faker.date_between_dates(
-                        date_start=date(2021, 1, 1), date_end=date(2021, 1, 31)),
-                     round(randint(1000, 3000), 2),
-                     choice([None, 'LotA', 'LotB', 'LotC']),
-                     bool(getrandbits(1))) for i in range(100)]
-
-    yield dj.VirtualModule('filter', 'filter')
-    schema.drop()
-    connection.close()
-    dj.config['safemode'] = True
-
-
-def test_filters(token, client, virtual_module):
+def test_filters(token, client, Student):
     # 'between' dates
     restriction = [dict(attributeName='student_enroll_date', operation='>',
                         value='2021-01-07'),
@@ -69,7 +16,7 @@ def test_filters(token, client, virtual_module):
              restriction=encoded_restriction)
     REST_records = client.post(f'/fetch_tuples?{urlencode(q)}',
                                headers=dict(Authorization=f'Bearer {token}'),
-                               json=dict(schemaName='filter',
+                               json=dict(schemaName=Student.database,
                                          tableName='Student')).json['tuples']
     assert len(REST_records) == 10
     assert REST_records[0][3] == datetime(2021, 1, 16).timestamp()
@@ -80,7 +27,7 @@ def test_filters(token, client, virtual_module):
              restriction=encoded_restriction)
     REST_records = client.post(f'/fetch_tuples?{urlencode(q)}',
                                headers=dict(Authorization=f'Bearer {token}'),
-                               json=dict(schemaName='filter',
+                               json=dict(schemaName=Student.database,
                                          tableName='Student')).json['tuples']
     assert len(REST_records) == 10
     assert all([r[5] is None for r in REST_records])
@@ -92,7 +39,7 @@ def test_filters(token, client, virtual_module):
              restriction=encoded_restriction)
     REST_records = client.post(f'/fetch_tuples?{urlencode(q)}',
                                headers=dict(Authorization=f'Bearer {token}'),
-                               json=dict(schemaName='filter',
+                               json=dict(schemaName=Student.database,
                                          tableName='Student')).json['tuples']
     assert len(REST_records) == 10
     assert all([r[0] != 2 for r in REST_records])
@@ -105,7 +52,7 @@ def test_filters(token, client, virtual_module):
              restriction=encoded_restriction)
     REST_records = client.post(f'/fetch_tuples?{urlencode(q)}',
                                headers=dict(Authorization=f'Bearer {token}'),
-                               json=dict(schemaName='filter',
+                               json=dict(schemaName=Student.database,
                                          tableName='Student')).json['tuples']
     assert len(REST_records) == 1
     assert REST_records[0][1] == 'Norma Fisher'
