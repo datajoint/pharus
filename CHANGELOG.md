@@ -20,7 +20,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Replaced `DJConnector.snake_to_camel_case` usage with `datajoint.utils.to_camel_case`. PR #88
 - Default behavior for `/delete_tuple` now deletes without cascading. (#86) PR #88
 - Consolidated `pytest` fixtures into `__init__.py` to facilitate reuse. PR #88
-- Modify dependency check to not perform deep check and use accessible fk relations only. PR #90
+- Modify dependency check to not perform deep check and use accessible fk relations only. (#89) PR #90
 
 ### Removed
 - Docker `base` environment to simplify dependencies. PR #79
