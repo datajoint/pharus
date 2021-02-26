@@ -4,7 +4,6 @@ from datajoint.utils import to_camel_case
 import datetime
 import numpy as np
 from functools import reduce
-from datajoint.errors import AccessError
 import re
 from .error import InvalidDeleteRequest, InvalidRestriction, UnsupportedTableType
 
