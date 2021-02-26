@@ -2,7 +2,7 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
-## [0.1.0b1] - 2021-02-26
+## [0.1.0b0] - 2021-02-26
 
 ### Security
 - Documentation with detail regarding warning on bearer token. (#83) PR #88
@@ -35,5 +35,5 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
-[0.1.0b1]: https://github.com/datajoint/pharus/compare/0.1.0a5...0.1.0b1
+[0.1.0b0]: https://github.com/datajoint/pharus/compare/0.1.0a5...0.1.0b0
 [0.1.0a5]: https://github.com/datajoint/pharus/releases/tag/0.1.0a5
