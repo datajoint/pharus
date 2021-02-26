@@ -2,12 +2,12 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
-## [Unreleased]
+## [0.1.0b1] - 2021-02-26
 
-## Security
+### Security
 - Documentation with detail regarding warning on bearer token. (#83) PR #88
 
-## Fixed
+### Fixed
 - Incorrect virtual module reference of `schema_virtual_module` in table metadata. (#85) PR #88
 
 ### Added
@@ -20,6 +20,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Replaced `DJConnector.snake_to_camel_case` usage with `datajoint.utils.to_camel_case`. PR #88
 - Default behavior for `/delete_tuple` now deletes without cascading. (#86) PR #88
 - Consolidated `pytest` fixtures into `__init__.py` to facilitate reuse. PR #88
+- Modify dependency check to not perform deep check and use accessible fk relations only. PR #
 
 ### Removed
 - Docker `base` environment to simplify dependencies. PR #79
@@ -34,5 +35,5 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
-[Unreleased]: https://github.com/datajoint/pharus/compare/0.1.0a5...HEAD
+[0.1.0b1]: https://github.com/datajoint/pharus/compare/0.1.0a5...0.1.0b1
 [0.1.0a5]: https://github.com/datajoint/pharus/releases/tag/0.1.0a5
