@@ -9,8 +9,6 @@ from .error import InvalidDeleteRequest, InvalidRestriction, UnsupportedTableTyp
 
 DAY = 24 * 60 * 60
 DEFAULT_FETCH_LIMIT = 1000  # Stop gap measure to deal with super large tables
-TABLE_INFO_REGEX = re.compile(
-    r'.*?FROM\s+`(?P<schema>\w+)`.*?name\s*?=\s*?"(?P<table>.*?)".*?')
 
 
 class DJConnector():
