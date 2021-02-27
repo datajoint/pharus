@@ -4,14 +4,10 @@ from datajoint.utils import to_camel_case
 import datetime
 import numpy as np
 from functools import reduce
-from datajoint.errors import AccessError
-import re
 from .error import InvalidDeleteRequest, InvalidRestriction, UnsupportedTableType
 
 DAY = 24 * 60 * 60
 DEFAULT_FETCH_LIMIT = 1000  # Stop gap measure to deal with super large tables
-TABLE_INFO_REGEX = re.compile(
-    r'.*?FROM\s+`(?P<schema>\w+)`.*?name\s*?=\s*?"(?P<table>.*?)".*?')
 
 
 class DJConnector():
@@ -312,16 +308,6 @@ class DJConnector():
         dependencies = [dict(schema=descendant.database, table=descendant.table_name,
                              accessible=True, count=len(descendant & primary_restriction))
                         for descendant in table().descendants(as_objects=True)]
-        # Determine first issue regarding access
-        # Start transaction, try to delete, catch first occurrence, rollback
-        virtual_module.schema.connection.start_transaction()
-        try:
-            (table & primary_restriction).delete(safemode=False, transaction=False)
-        except AccessError as errors:
-            dependencies = dependencies + [dict(TABLE_INFO_REGEX.match(
-                errors.args[2]).groupdict(), accessible=False)]
-        finally:
-            virtual_module.schema.connection.cancel_transaction()
         return dependencies
 
     @staticmethod
