@@ -21,6 +21,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Default behavior for `/delete_tuple` now deletes without cascading. (#86) PR #88
 - Consolidated `pytest` fixtures into `__init__.py` to facilitate reuse. PR #88
 - Modify dependency check to not perform deep check and use accessible fk relations only. (#89) PR #90
+- Update nginx image to pull from datajoint organization. (#80) PR #90
 
 ### Removed
 - Docker `base` environment to simplify dependencies. PR #79
