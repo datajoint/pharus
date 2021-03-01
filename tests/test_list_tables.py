@@ -1,43 +1,24 @@
+from . import client, connection, token, schema_main, ParentPart
+import flask
+import datajoint as dj
 
+def test_list_tables(token, client, ParentPart):
+    ScanData, ProcessScanData = ParentPart
+    REST_tables = client.post(
+        '/list_tables',
+        headers=dict(Authorization=f'Bearer {token}'),
+        json=dict(schemaName=ScanData.database)).json['tableTypeAndNames']
+    assert ScanData.__name__ == REST_tables['manual_tables'][0]
+    assert ProcessScanData.__name__ == REST_tables['computed_tables'][0]
+    assert f"""{ProcessScanData.__name__}.{
+        ProcessScanData.ProcessScanDataPart.__name__}""" == REST_tables['part_tables'][0]
 
-@pytest.fixture
-def client():
-    with app.test_client() as client:
-        yield client
+def test_invalid_schema_list_table(token, client):
+    # Test invalid schema
+    response: flask.wrappers.Response = client.post(
+        '/list_tables', 
+        headers=dict(Authorization=f'Bearer {token}'),
+        json=dict(schemaName='invalid_schema')
+        )
 
-@pytest.fixture
-def token(client):
-    yield client.post('/api/login', json=dict(databaseAddress=getenv('TEST_DB_SERVER'),
-                                              username=getenv('TEST_DB_USER'),
-                                              password=getenv('TEST_DB_PASS'))).json['jwt']
-
-@pytest.fixture
-def connection():
-    dj.config['safemode'] = False
-    connection = dj.conn(host=getenv('TEST_DB_SERVER'),
-                         user=getenv('TEST_DB_USER'),
-                         password=getenv('TEST_DB_PASS'), reset=True)
-    yield connection
-    dj.config['safemode'] = True
-    connection.close()
-
-@pytest.fixture
-def schema(connection):
-    schema = dj.Schema('schema', connection=connection)
-    yield schema
-    schema.drop()
-    
-@pytest.fixture
-def test_list_tables(schema, client, token):
-    # Create example table
-    class TestTable(dj.Manual):
-        definition="""
-        test_id: int
-        """
-
-    # Testing for schema that exists
-    client.post(
-        '/api/list_tables', 
-        json=dict(schema_name='schema_test',
-        headers=dict(Authorization=f'Bearer {token}')
-        ))
+    assert(response.get_data(as_text=True) == 'Database `invalid_schema` has not yet been declared. Set argument create_schema=True to create it.')
