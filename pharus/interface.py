@@ -1,16 +1,13 @@
 """Library for interfaces into DataJoint pipelines."""
 import datajoint as dj
+from datajoint.utils import to_camel_case
 import datetime
 import numpy as np
 from functools import reduce
-from datajoint.errors import AccessError
-import re
 from .error import InvalidDeleteRequest, InvalidRestriction, UnsupportedTableType
 
 DAY = 24 * 60 * 60
 DEFAULT_FETCH_LIMIT = 1000  # Stop gap measure to deal with super large tables
-TABLE_INFO_REGEX = re.compile(
-    r'.*?FROM\s+`(?P<schema>\w+)`.*?name\s*?=\s*?"(?P<table>.*?)".*?')
 
 
 class DJConnector():
@@ -96,9 +93,9 @@ class DJConnector():
                 tables_dict_list['imported_tables'].append(dj.utils.to_camel_case(table_name))
             elif table_type == 'Part':
                 table_name_parts = table_name.split('__')
-                tables_dict_list['part_tables'].append(DJConnector.snake_to_camel_case(
-                    table_name_parts[-2]) + '.' + DJConnector.snake_to_camel_case(
-                        table_name_parts[-1]))
+                tables_dict_list['part_tables'].append(
+                    to_camel_case(table_name_parts[-2]) + '.' +
+                    to_camel_case(table_name_parts[-1]))
             else:
                 raise UnsupportedTableType(table_name + ' is of unknown table type')
 
@@ -264,8 +261,9 @@ class DJConnector():
         """
         DJConnector.set_datajoint_config(jwt_payload)
 
-        schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
-        return getattr(schema_virtual_module, table_name).describe()
+        local_values = locals()
+        local_values[schema_name] = dj.VirtualModule(schema_name, schema_name)
+        return getattr(local_values[schema_name], table_name).describe()
 
     @staticmethod
     def insert_tuple(jwt_payload: dict, schema_name: str, table_name: str,
@@ -312,16 +310,6 @@ class DJConnector():
         dependencies = [dict(schema=descendant.database, table=descendant.table_name,
                              accessible=True, count=len(descendant & primary_restriction))
                         for descendant in table().descendants(as_objects=True)]
-        # Determine first issue regarding access
-        # Start transaction, try to delete, catch first occurrence, rollback
-        virtual_module.schema.connection.start_transaction()
-        try:
-            (table & primary_restriction).delete(safemode=False, transaction=False)
-        except AccessError as errors:
-            dependencies = dependencies + [dict(TABLE_INFO_REGEX.match(
-                errors.args[2]).groupdict(), accessible=False)]
-        finally:
-            virtual_module.schema.connection.cancel_transaction()
         return dependencies
 
     @staticmethod
@@ -346,7 +334,7 @@ class DJConnector():
 
     @staticmethod
     def delete_tuple(jwt_payload: dict, schema_name: str, table_name: str,
-                     tuple_to_restrict_by: dict):
+                     tuple_to_restrict_by: dict, cascade: bool = False):
         """
         Delete a specific record based on the restriction given (Can only delete 1 at a time)
         :param jwt_payload: Dictionary containing databaseAddress, username and password
@@ -358,6 +346,8 @@ class DJConnector():
         :type table_name: str
         :param tuple_to_restrict_by: Record to restrict the table by to delete
         :type tuple_to_restrict_by: dict
+        :param cascade: Allow for cascading delete, defaults to False
+        :type cascade: bool
         """
         DJConnector.set_datajoint_config(jwt_payload)
 
@@ -384,7 +374,7 @@ class DJConnector():
             raise InvalidDeleteRequest('Nothing to delete')
 
         # All check pass thus proceed to delete
-        tuple_to_delete.delete(safemode=False)
+        tuple_to_delete.delete(safemode=False) if cascade else tuple_to_delete.delete_quick()
 
     @staticmethod
     def get_table_object(schema_virtual_module, table_name: str):
@@ -415,14 +405,3 @@ class DJConnector():
         dj.config['database.user'] = jwt_payload['username']
         dj.config['database.password'] = jwt_payload['password']
         dj.conn(reset=True)
-
-    @staticmethod
-    def snake_to_camel_case(string: str):
-        """
-        Helper method for converting snake to camel case
-        :param string: String in snake format to convert to camel case
-        :type string: str
-        :return: String formated in CamelCase notation
-        :rtype: str
-        """
-        return ''.join(string_component.title() for string_component in string.split('_'))

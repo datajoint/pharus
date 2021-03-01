@@ -1,5 +1,5 @@
-# PHARUS_VERSION=0.1.0a5 docker-compose -f docker-compose-deploy.yaml pull
-# PHARUS_VERSION=0.1.0a5 docker-compose -f docker-compose-deploy.yaml up -d
+# PHARUS_VERSION=0.1.0b0 docker-compose -f docker-compose-deploy.yaml pull
+# PHARUS_VERSION=0.1.0b0 docker-compose -f docker-compose-deploy.yaml up -d
 #
 # Intended for production deployment.
 # Note: You must run both commands above for minimal outage
@@ -20,7 +20,7 @@ services:
     #   - PHARUS_PREFIX=/
   fakeservices.datajoint.io:
     <<: *net
-    image: raphaelguzman/nginx:v0.0.15
+    image: datajoint/nginx:v0.0.15
     environment:
       - ADD_pharus_TYPE=REST
       - ADD_pharus_ENDPOINT=pharus:5000
