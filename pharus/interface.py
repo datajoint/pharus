@@ -1,6 +1,8 @@
 """Library for interfaces into DataJoint pipelines."""
 import datajoint as dj
 from datajoint.utils import to_camel_case
+from datajoint.user_tables import UserTable
+from datajoint import VirtualModule
 import datetime
 import numpy as np
 from functools import reduce
@@ -11,21 +13,21 @@ DEFAULT_FETCH_LIMIT = 1000  # Stop gap measure to deal with super large tables
 
 
 class DJConnector():
-    """
-    Primary connector that communicates with a DataJoint database server.
-    """
+    """Primary connector that communicates with a DataJoint database server."""
 
     @staticmethod
-    def attempt_login(database_address: str, username: str, password: str):
+    def attempt_login(database_address: str, username: str, password: str) -> dict:
         """
-        Attempts to authenticate against database with given username and address
+        Attempts to authenticate against database with given username and address.
+
         :param database_address: Address of database
         :type database_address: str
         :param username: Username of user
         :type username: str
         :param password: Password of user
         :type password: str
-        :return: Dictionary with keys: result(True|False), and error (if applicable)
+        :return: Dictionary with keys: result (``True`` | ``False``), and error (if
+            applicable)
         :rtype: dict
         """
         dj.config['database.host'] = database_address
@@ -37,13 +39,15 @@ class DJConnector():
         return dict(result=True)
 
     @staticmethod
-    def list_schemas(jwt_payload: dict):
+    def list_schemas(jwt_payload: dict) -> list:
         """
-        List all schemas under the database
-        :param jwt_payload: Dictionary containing databaseAddress, username and password
+        List all schemas under the database.
+
+        :param jwt_payload: Dictionary containing databaseAddress, username, and password
             strings
         :type jwt_payload: dict
-        :return: List of schemas names in alphabetical order excluding information_schema
+        :return: List of schemas names in alphabetical order (excludes ``information_schema``,
+            ``sys``, ``performance_schema``, ``mysql``)
         :rtype: list
         """
         DJConnector.set_datajoint_config(jwt_payload)
@@ -56,15 +60,17 @@ class DJConnector():
         """)]
 
     @staticmethod
-    def list_tables(jwt_payload: dict, schema_name: str):
+    def list_tables(jwt_payload: dict, schema_name: str) -> dict:
         """
-        List all tables and their type give a schema
-        :param jwt_payload: Dictionary containing databaseAddress, username and password
+        List all tables and their type given a schema.
+
+        :param jwt_payload: Dictionary containing databaseAddress, username, and password
             strings
         :type jwt_payload: dict
         :param schema_name: Name of schema to list all tables from
         :type schema_name: str
-        :return: Contains a key for a each table type and it corressponding table names
+        :return: Contains a key for each table type where values are the respective list of
+            table names
         :rtype: dict
         """
         DJConnector.set_datajoint_config(jwt_payload)
@@ -104,23 +110,24 @@ class DJConnector():
                      restriction: list = [], limit: int = 1000, page: int = 1,
                      order=['KEY ASC']) -> tuple:
         """
-        Get records as tuples from table
-        :param jwt_payload: Dictionary containing databaseAddress, username and password
+        Get records as tuples from table.
+
+        :param jwt_payload: Dictionary containing databaseAddress, username, and password
             strings
         :type jwt_payload: dict
         :param schema_name: Name of schema to list all tables from
         :type schema_name: str
         :param table_name: Table name under the given schema; must be in camel case
         :type table_name: str
-        :param restriction: Sequence of filter cards with attribute_name, operation, value
-            defined, defaults to []
+        :param restriction: Sequence of filters as ``dict`` with ``attribute_name``,
+            ``operation``, ``value`` keys defined, defaults to ``[]``
         :type restriction: list, optional
-        :param limit: Max number of records to return, defaults to 1000
+        :param limit: Max number of records to return, defaults to ``1000``
         :type limit: int, optional
-        :param page: Page number to return, defaults to 1
+        :param page: Page number to return, defaults to ``1``
         :type page: int, optional
-        :param order: Sequence to order records, defaults to ['KEY ASC'].
-            See :class:`datajoint.fetch.Fetch` for more info.
+        :param order: Sequence to order records, defaults to ``['KEY ASC']``. See
+            :class:`~datajoint.fetch.Fetch` for more info.
         :type order: list, optional
         :return: Records in dict form and the total number of records that can be paged
         :rtype: tuple
@@ -201,18 +208,20 @@ class DJConnector():
         return rows, len(query)
 
     @staticmethod
-    def get_table_attributes(jwt_payload: dict, schema_name: str, table_name: str):
+    def get_table_attributes(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
         """
-        Method to get primary and secondary attributes of a table
-        :param jwt_payload: Dictionary containing databaseAddress, username and password
+        Method to get primary and secondary attributes of a table.
+
+        :param jwt_payload: Dictionary containing databaseAddress, username, and password
             strings
         :type jwt_payload: dict
         :param schema_name: Name of schema to list all tables from
         :type schema_name: str
         :param table_name: Table name under the given schema; must be in camel case
         :type table_name: str
-        :return: Dict of primary, secondary attributes and with metadata: attribute_name,
-            type, nullable, default, autoincrement.
+        :return: Dict with keys ``primary_attributes``, ``secondary_attributes`` containing a
+            ``list`` of ``tuples`` specifying: ``attribute_name``, ``type``, ``nullable``,
+            ``default``, ``autoincrement``.
         :rtype: dict
         """
         DJConnector.set_datajoint_config(jwt_payload)
@@ -244,17 +253,18 @@ class DJConnector():
         return table_attributes
 
     @staticmethod
-    def get_table_definition(jwt_payload: dict, schema_name: str, table_name: str):
+    def get_table_definition(jwt_payload: dict, schema_name: str, table_name: str) -> str:
         """
-        Get the table definition
-        :param jwt_payload: Dictionary containing databaseAddress, username and password
+        Get the table definition.
+
+        :param jwt_payload: Dictionary containing databaseAddress, username, and password
             strings
         :type jwt_payload: dict
         :param schema_name: Name of schema to list all tables from
         :type schema_name: str
         :param table_name: Table name under the given schema; must be in camel case
         :type table_name: str
-        :return: definition of the table
+        :return: Definition of the table
         :rtype: str
         """
         DJConnector.set_datajoint_config(jwt_payload)
@@ -267,8 +277,9 @@ class DJConnector():
     def insert_tuple(jwt_payload: dict, schema_name: str, table_name: str,
                      tuple_to_insert: dict):
         """
-        Insert record as tuple into table
-        :param jwt_payload: Dictionary containing databaseAddress, username and password
+        Insert record as tuple into table.
+
+        :param jwt_payload: Dictionary containing databaseAddress, username, and password
             strings
         :type jwt_payload: dict
         :param schema_name: Name of schema to list all tables from
@@ -287,8 +298,10 @@ class DJConnector():
     def record_dependency(jwt_payload: dict, schema_name: str, table_name: str,
                           primary_restriction: dict) -> list:
         """
-        Return summary of dependencies associated with a restricted table
-        :param jwt_payload: Dictionary containing databaseAddress, username and password
+        Return summary of dependencies associated with a restricted table. Will only show
+        dependencies that user has access to.
+
+        :param jwt_payload: Dictionary containing databaseAddress, username, and password
             strings
         :type jwt_payload: dict
         :param schema_name: Name of schema
@@ -297,8 +310,7 @@ class DJConnector():
         :type table_name: str
         :param primary_restriction: Restriction to be applied to table
         :type primary_restriction: dict
-        :return: Tables that are dependant on specific records. Includes accessibility and,
-            if accessible, how many rows are affected.
+        :return: Tables that are dependent on specific records.
         :rtype: list
         """
         DJConnector.set_datajoint_config(jwt_payload)
@@ -314,8 +326,9 @@ class DJConnector():
     def update_tuple(jwt_payload: dict, schema_name: str, table_name: str,
                      tuple_to_update: dict):
         """
-        Update record as tuple into table
-        :param jwt_payload: Dictionary containing databaseAddress, username and password
+        Update record as tuple into table.
+
+        :param jwt_payload: Dictionary containing databaseAddress, username, and password
             strings
         :type jwt_payload: dict
         :param schema_name: Name of schema to list all tables from
@@ -334,8 +347,10 @@ class DJConnector():
     def delete_tuple(jwt_payload: dict, schema_name: str, table_name: str,
                      tuple_to_restrict_by: dict, cascade: bool = False):
         """
-        Delete a specific record based on the restriction given (Can only delete 1 at a time)
-        :param jwt_payload: Dictionary containing databaseAddress, username and password
+        Delete a specific record based on the restriction given (supports only deleting one at
+        a time).
+
+        :param jwt_payload: Dictionary containing databaseAddress, username, and password
             strings
         :type jwt_payload: dict
         :param schema_name: Name of schema to list all tables from
@@ -344,7 +359,7 @@ class DJConnector():
         :type table_name: str
         :param tuple_to_restrict_by: Record to restrict the table by to delete
         :type tuple_to_restrict_by: dict
-        :param cascade: Allow for cascading delete, defaults to False
+        :param cascade: Allow for cascading delete, defaults to ``False``
         :type cascade: bool
         """
         DJConnector.set_datajoint_config(jwt_payload)
@@ -375,13 +390,16 @@ class DJConnector():
         tuple_to_delete.delete(safemode=False) if cascade else tuple_to_delete.delete_quick()
 
     @staticmethod
-    def get_table_object(schema_virtual_module, table_name: str):
+    def get_table_object(schema_virtual_module: VirtualModule, table_name: str) -> UserTable:
         """
-        Helper method for getting the table object based on the table_name provided
-        :param schema_virtual_module: dj.VirtualModule for accesing the schema
-        :type schema_virtual_module: dj.VirtualModule
-        :param table_name: name of the table, for part it should be parent.part
+        Helper method for getting the table object based on the table name provided.
+
+        :param schema_virtual_module: Virtual module for accesing the schema
+        :type schema_virtual_module: :class:`~datajoint.schemas.VirtualModule`
+        :param table_name: Name of the table; for part it should be ``Parent.Part``
         :type table_name: str
+        :return: DataJoint table object.
+        :rtype: :class:`~datajoint.user_tables.UserTable`
         """
         # Split the table name by '.' for dealing with part tables
         table_name_parts = table_name.split('.')
@@ -394,8 +412,9 @@ class DJConnector():
     @staticmethod
     def set_datajoint_config(jwt_payload: dict):
         """
-        Method to set credentials for database
-        :param jwt_payload: Dictionary containing databaseAddress, username and password
+        Method to set credentials for database.
+
+        :param jwt_payload: Dictionary containing databaseAddress, username, and password
             strings
         :type jwt_payload: dict
         """

@@ -6,3 +6,4 @@ docker-compose.y*ml
 *.egg-info
 dist
 build
+docs/_build
