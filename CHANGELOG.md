@@ -5,7 +5,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 ## [Unreleased]
 
 ### Fixed
-- Fixed list_table create schema if user gives an nonexistent schema as params (#65) PR #63
+- Fixed behavior where using list_table with a nonexistent schema_name creates it instead of returning an error message (#65) PR #63
 
 ## [0.1.0b0] - 2021-02-26
 
