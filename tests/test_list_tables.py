@@ -21,4 +21,4 @@ def test_invalid_schema_list_table(token, client):
         json=dict(schemaName='invalid_schema')
         )
 
-    assert(response.get_data(as_text=True) in 'Database `invalid_schema` has not yet been declared. Set argument create_schema=True to create it.')
+    assert('Database `invalid_schema` has not yet been declared. Set argument create_schema=True to create it.' in response.get_data(as_text=True))
