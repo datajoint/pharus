@@ -1,5 +1,5 @@
 from . import client, connection, token, schema_main, ParentPart
-import flask
+from flask.wrappers import Response
 import datajoint as dj
 
 def test_list_tables(token, client, ParentPart):
@@ -15,10 +15,10 @@ def test_list_tables(token, client, ParentPart):
 
 def test_invalid_schema_list_table(token, client):
     # Test invalid schema
-    response: flask.wrappers.Response = client.post(
+    response: Response = client.post(
         '/list_tables', 
         headers=dict(Authorization=f'Bearer {token}'),
         json=dict(schemaName='invalid_schema')
         )
 
-    assert(response.get_data(as_text=True) == 'Database `invalid_schema` has not yet been declared. Set argument create_schema=True to create it.')
+    assert(response.get_data(as_text=True) in 'Database `invalid_schema` has not yet been declared. Set argument create_schema=True to create it.')

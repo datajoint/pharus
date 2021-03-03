@@ -271,8 +271,6 @@ def record_dependency(jwt_payload: dict) -> dict:
             loads(b64decode(request.args.get('restriction').encode('utf-8')).decode('utf-8')))
         return dict(dependencies=dependencies)
     except Exception as e:
-        import traceback
-        traceback.print_exc()
         return str(e), 500
 
 
