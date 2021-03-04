@@ -13,7 +13,7 @@ def test_list_tables(token, client, ParentPart):
     assert f"""{ProcessScanData.__name__}.{
         ProcessScanData.ProcessScanDataPart.__name__}""" == REST_tables['part_tables'][0]
 
-def test_invalid_schema_list_table(token, client):
+def test_invalid_schema_list_table(token, client, schema_main):
     # Test invalid schema
     response: Response = client.post(
         '/list_tables', 
@@ -21,4 +21,5 @@ def test_invalid_schema_list_table(token, client):
         json=dict(schemaName='invalid_schema')
         )
 
-    assert('Database `invalid_schema` has not yet been declared. Set argument create_schema=True to create it.' in response.get_data(as_text=True))
+    assert(response.status_code != 200)
+    assert('invalid_schema' not in dj.list_schemas())
