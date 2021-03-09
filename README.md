@@ -51,9 +51,38 @@ AS_SCRIPT=    # If 'TRUE', will not keep container alive but run tests and exit
 - For pytest integration tests, run `pytest -sv --cov-report term-missing --cov=${PKG_DIR} /main/tests`
 - For style tests, run `flake8 ${PKG_DIR} --count --max-complexity=20 --max-line-length=95 --statistics`
 
+## Creating Sphinx Documentation from Scratch
+
+Recommend the follow to be ran within the `pharus` container in `docs` Docker Compose environment.
+
+- Run the following commands and complete the prompts as requested.
+  ```bash
+  mkdir docs
+  cd docs
+  sphinx-quickstart
+  ```
+- In `docs/conf.py` add to the beginning:
+  ```python
+  import os
+  import sys
+  sys.path.insert(0, os.path.abspath('..'))
+  ```
+- In `docs/conf.py:extensions` append `['sphinx.ext.autodoc', 'sphinxcontrib.httpdomain']`. See `requirements_docs.txt` for details on documentation dependencies.
+- Run the following to automatically generate the API docs:
+  ```bash
+  sphinx-apidoc -o . .. ../tests/* ../setup.py
+  ```
+- Add `modules` within the `toctree` directive in `index.rst`.
+- Build the docs by running:
+  ```bash
+  make html
+  ```
+
 ## References
 
 - DataJoint LabBook (a companion frontend)
   - https://github.com/datajoint/datajoint-labbook
 - Under construction image credits
   - https://www.pngfind.com/mpng/ooiim_under-construction-tape-png-under-construction-transparent-png/
+- Python Tutorial for Flask, Swagger, and Automated docs
+  - https://realpython.com/flask-connexion-rest-api/#reader-comments

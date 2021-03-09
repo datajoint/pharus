@@ -3,6 +3,7 @@ from os import environ
 from .interface import DJConnector
 from . import __version__ as version
 from typing import Callable
+from functools import wraps
 
 # Crypto libaries
 from cryptography.hazmat.primitives import serialization as crypto_serialization
@@ -35,14 +36,17 @@ if environ.get('PHARUS_PRIVATE_KEY') is None or environ.get('PHARUS_PUBLIC_KEY')
     ).decode()
 
 
-def protected_route(function: Callable):
+def protected_route(function: Callable) -> Callable:
     """
-    Protected route function decorator which authenticates requests
+    Protected route function decorator which authenticates requests.
+
     :param function: Function to decorate, typically routes
-    :type function: :class:`typing.Callable`
-    :return: Function output if jwt authecation is successful, otherwise return error message
-    :rtype: class:`typing.Callable`
+    :type function: :class:`~typing.Callable`
+    :return: Function output if jwt authetication is successful, otherwise return error
+        message
+    :rtype: :class:`~typing.Callable`
     """
+    @wraps(function)
     def wrapper():
         try:
             jwt_payload = jwt.decode(request.headers.get('Authorization').split()[1],
@@ -56,9 +60,10 @@ def protected_route(function: Callable):
 
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/version")
-def api_version():
+def api_version() -> str:
     """
-    Route to check if the server is alive or not
+    Route to check if the server is alive or not.
+
     :return: API version
     :rtype: str
     """
@@ -66,7 +71,7 @@ def api_version():
 
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/login", methods=['POST'])
-def login():
+def login() -> dict:
     """
     **WARNING**: Currently, this implementation exposes user database credentials as plain
     text in POST body once and stores it within a bearer token as Base64 encoded for
@@ -302,19 +307,59 @@ def update_tuple(jwt_payload: dict):
         return str(e), 500
 
 
-@app.route(f"{environ.get('PHARUS_PREFIX', '')}/delete_tuple", methods=['POST'])
 @protected_route
-def delete_tuple(jwt_payload: dict):
+@app.route(f"{environ.get('PHARUS_PREFIX', '')}/delete_tuple", methods=['POST'])
+def delete_tuple(jwt_payload: dict) -> dict:
     """
-    Route to delete a specific record. Expects:
-        (html:GET:Authorization): Must include in format of: bearer <JWT-Token>
-        (html:POST:JSON): {"schemaName": <schema_name>, "tableName": <table_name>,
-                           "restrictionTuple": <tuple_to_restrict_table_by>}
-            NOTE: Table name must be in CamalCase
-    :param jwt_payload: Dictionary containing databaseAddress, username and password
-        strings.
+    .. http:get:: /users/(int:user_id)/posts/(tag)
+
+        The posts tagged with `tag` that the user (`user_id`) wrote.
+
+        **Example request**:
+
+        .. sourcecode:: http
+
+            GET /users/123/posts/web HTTP/1.1
+            Host: example.com
+            Accept: application/json, text/javascript
+
+        **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
+
+            [
+                {
+                "post_id": 12345,
+                "author_id": 123,
+                "tags": ["server", "web"],
+                "subject": "I tried Nginx"
+                },
+                {
+                "post_id": 12346,
+                "author_id": 123,
+                "tags": ["html5", "standards", "web"],
+                "subject": "We go to HTML 5"
+                }
+            ]
+
+        :query sort: one of ``hit``, ``created-at``
+        :query offset: offset number. default is 0
+        :query limit: limit number. default is 30
+        :reqheader Accept: the response content type depends on
+                            :mailheader:`Accept` header
+        :reqheader Authorization: optional OAuth token to authenticate
+        :resheader Content-Type: this depends on :mailheader:`Accept`
+                                    header of request
+        :statuscode 200: no error
+        :statuscode 404: there's no user
+
+    :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
     :type jwt_payload: dict
-    :return: If successful then returns "Delete Successful" otherwise returns error
+    :return: If successful returns ``Delete Successful`` otherwise returns error
     :rtype: dict
     """
     try:
