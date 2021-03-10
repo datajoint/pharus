@@ -67,7 +67,7 @@ Recommend the follow to be ran within the `pharus` container in `docs` Docker Co
   import sys
   sys.path.insert(0, os.path.abspath('..'))
   ```
-- In `docs/conf.py:extensions` append `['sphinx.ext.autodoc', 'sphinxcontrib.httpdomain']`. See `requirements_docs.txt` for details on documentation dependencies.
+- In `docs/conf.py:extensions` append `['sphinx.ext.autodoc', 'sphinxcontrib.httpdomain']`. See `requirements_docs.txt` and `docker-compose-docs.yaml` for details on documentation dependencies.
 - Run the following to automatically generate the API docs:
   ```bash
   sphinx-apidoc -o . .. ../tests/* ../setup.py
