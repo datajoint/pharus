@@ -11,7 +11,7 @@
 
 A generic REST API server backend for DataJoint pipelines built on top of `flask`, `datajoint`, and `pyjwt`.
 
-Usage and API documentation currently available within method docstrings. See Python's `help(...)` utility.
+User and Developer documentation currently available in https://datajoint.github.io/pharus.
 
 ## Requirements for Preferred Setup
 

@@ -7,3 +7,4 @@ docker-compose.y*ml
 dist
 build
 docs/_build
+*.tar.gz
