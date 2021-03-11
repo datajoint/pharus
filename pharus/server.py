@@ -335,13 +335,10 @@ def fetch_tuples(jwt_payload: dict) -> dict:
 
         .. sourcecode:: http
 
-            POST /fetch_tuples?"""
-                "limit=2&"
-                "page=1&"
-                "order=computer_id%20DESC&"
-                "restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9u"
-                    "IjogIj49IiwgInZhbHVlIjogMzJ9XQo="
-                """ HTTP/1.1
+            POST /fetch_tuples?limit=2&page=1&order=computer_id%20DESC&"""
+     "restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49Iiw"
+     "gInZhbHVlIjogMzJ9XQo="
+     """ HTTP/1.1
             Host: fakeservices.datajoint.io
             Accept: application/json
 
@@ -407,7 +404,7 @@ def fetch_tuples(jwt_payload: dict) -> dict:
         :query restriction: Base64-encoded ``AND`` sequence of restrictions. For example, you
             could restrict as ``[{"attributeName": "computer_memory">=", "value": 32}]`` with
             this param set as ``""" "W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl"
-            """cmF0aW9uIjo``-``gIj49IiwgInZhbHVlIjogMzJ9XQo=``. Defaults to no restriction.
+     """cmF0aW9uIjo``-``gIj49IiwgInZhbHVlIjogMzJ9XQo=``. Defaults to no restriction.
         :reqheader Authorization: Bearer <OAuth2_token>
         :resheader Content-Type: text/plain, application/json
         :statuscode 200: No error.
@@ -747,12 +744,10 @@ def record_dependency(jwt_payload: dict) -> dict:
 
         .. sourcecode:: http
 
-            GET /fetch_tuples?"""
-                "schemaName=alpha_company&"
-                "tableName=Computer&"
-                "restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9u"
-                    "IjogIj49IiwgInZhbHVlIjogMzJ9XQo="
-                """ HTTP/1.1
+            GET /fetch_tuples?schemaName=alpha_company&tableName=Computer&"""
+     "restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49Iiw"
+     "gInZhbHVlIjogMzJ9XQo="
+     """ HTTP/1.1
             Host: fakeservices.datajoint.io
 
         **Example successful response**:
@@ -796,7 +791,7 @@ def record_dependency(jwt_payload: dict) -> dict:
         :query restriction: Base64-encoded ``AND`` sequence of restrictions. For example, you
             could restrict as ``[{"attributeName": "computer_memory">=", "value": 32}]`` with
             this param set as ``""" "W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl"
-            """cmF0aW9uIjo``-``gIj49IiwgInZhbHVlIjogMzJ9XQo=``.
+     """cmF0aW9uIjo``-``gIj49IiwgInZhbHVlIjogMzJ9XQo=``.
         :reqheader Authorization: Bearer <OAuth2_token>
         :resheader Content-Type: text/plain, application/json
         :statuscode 200: No error.
@@ -891,8 +886,8 @@ def update_tuple(jwt_payload: dict) -> str:
         return str(e), 500
 
 
-@protected_route
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/delete_tuple", methods=['POST'])
+@protected_route
 def delete_tuple(jwt_payload: dict) -> dict:
     """
     Handler for ``/delete_tuple`` route.
