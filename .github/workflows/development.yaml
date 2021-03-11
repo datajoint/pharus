@@ -27,6 +27,29 @@ jobs:
           echo "BODY=${BODY}"
           echo "PRERELEASE=${PRERELEASE}"
           echo "DRAFT=${DRAFT}"
+  build-docs:
+    needs: test-changelog
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_CLIENT_TIMEOUT: "120"
+      COMPOSE_HTTP_TIMEOUT: "120"
+      PY_VER: "3.8"
+      IMAGE: "djtest"
+      DISTRO: "alpine"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Compile docs static artifacts
+        run: |
+          export PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
+          export HOST_UID=$(id -u)
+          docker-compose -f docker-compose-docs.yaml up --exit-code-from pharus --build
+          echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
+      - name: Add docs static artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: docs-static-pharus-${{env.PHARUS_VERSION}}
+          path: docs/_build/html
+          retention-days: 1
   build:
     needs: test-changelog
     runs-on: ubuntu-latest
