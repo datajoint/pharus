@@ -10,7 +10,8 @@ Welcome to Pharus's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   modules
+   user
+   developer
 
 Indices and tables
 ==================

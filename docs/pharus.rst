@@ -1,8 +1,8 @@
 pharus package
 ==============
 
-Submodules
-----------
+.. Submodules
+.. ----------
 
 pharus.error module
 -------------------
@@ -36,10 +36,10 @@ pharus.version module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+.. Module contents
+.. ---------------
 
-.. automodule:: pharus
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. .. automodule:: pharus
+..    :members:
+..    :undoc-members:
+..    :show-inheritance:
