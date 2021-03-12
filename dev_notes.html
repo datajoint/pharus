@@ -88,7 +88,15 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="user.html">User Documentation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="developer.html">Developer Documentation</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">General Notes</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">General Notes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#requirements-for-preferred-setup">Requirements for Preferred Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-locally-w-docker">Run Locally w/ Docker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-locally-w-python">Run Locally w/ Python</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-tests-for-development-w-pytest-and-flake8">Run Tests for Development w/ Pytest and Flake8</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-sphinx-documentation-from-scratch">Creating Sphinx Documentation from Scratch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="modules.html">API</a></li>
 </ul>
 </li>
@@ -163,7 +171,119 @@
             
   <div class="section" id="general-notes">
 <h1>General Notes<a class="headerlink" href="#general-notes" title="Permalink to this headline">¶</a></h1>
-<p>Dev docs TBD.</p>
+<div class="section" id="requirements-for-preferred-setup">
+<h2>Requirements for Preferred Setup<a class="headerlink" href="#requirements-for-preferred-setup" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.docker.com/get-docker/">Docker</a></p></li>
+<li><p><a class="reference external" href="https://docs.docker.com/compose/install/">Docker Compose</a></p></li>
+</ul>
+</div>
+<div class="section" id="run-locally-w-docker">
+<h2>Run Locally w/ Docker<a class="headerlink" href="#run-locally-w-docker" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p>Copy the docker environment (i.e. <code class="docutils literal notranslate"><span class="pre">*-docker-compose.yaml</span></code>) of your choice corresponding to your usage to <code class="docutils literal notranslate"><span class="pre">docker-compose.yaml</span></code>. This file is untracked so feel free to modify as necessary. Idea is to commit anything generic but system/setup dependent should go on ‘your’ version i.e. local UID/GID, etc.</p></li>
+<li><p>Check the first header comment which will provide the best instruction on how to start the service; yes, it is a bit long. Note: Any of the keyword arguments prepended to the <code class="docutils literal notranslate"><span class="pre">docker-compose</span></code> command can be safely moved into a dedicated <code class="docutils literal notranslate"><span class="pre">.env</span></code> and read automatically if they are not evaluated i.e. <code class="docutils literal notranslate"><span class="pre">$(...)</span></code>. Below is a brief description of the non-evaluated environment variables:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">PY_VER</span><span class="o">=</span><span class="m">3</span>.8    <span class="c1"># Python version: 3.6|3.7|3.8</span>
+<span class="nv">IMAGE</span><span class="o">=</span>djtest  <span class="c1"># Image type:     djbase|djtest|djlab|djlabhub</span>
+<span class="nv">DISTRO</span><span class="o">=</span>alpine <span class="c1"># Distribution:   alpine|debian</span>
+<span class="nv">AS_SCRIPT</span><span class="o">=</span>    <span class="c1"># If &#39;TRUE&#39;, will not keep container alive but run tests and exit</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Deployment options currently being considered are <a class="reference external" href="https://docs.docker.com/compose/install/">Docker Compose</a> and <a class="reference external" href="https://kubernetes.io/docs/tutorials/kubernetes-basics/">Kubernetes</a>.</p>
+</div>
+</div>
+<div class="section" id="run-locally-w-python">
+<h2>Run Locally w/ Python<a class="headerlink" href="#run-locally-w-python" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Set environment variables for port assignment (<code class="docutils literal notranslate"><span class="pre">PHARUS_PORT</span></code>, defaults to 5000) and API route prefix (<code class="docutils literal notranslate"><span class="pre">PHARUS_PREFIX</span></code> e.g. <code class="docutils literal notranslate"><span class="pre">/api</span></code>, defaults to empty string).</p></li>
+<li><p>For development, use CLI command <code class="docutils literal notranslate"><span class="pre">pharus</span></code>. This method supports hot-reloading so probably best coupled with <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">...</span></code>.</p></li>
+<li><p>For production, use <code class="docutils literal notranslate"><span class="pre">gunicorn</span> <span class="pre">--bind</span> <span class="pre">0.0.0.0:${PHARUS_PORT}</span> <span class="pre">pharus.server:app</span></code>.</p></li>
+</ul>
+</div>
+<div class="section" id="run-tests-for-development-w-pytest-and-flake8">
+<h2>Run Tests for Development w/ Pytest and Flake8<a class="headerlink" href="#run-tests-for-development-w-pytest-and-flake8" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">pharus</span></code> testing environment variables:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">PKG_DIR</span><span class="o">=</span>/opt/conda/lib/python3.8/site-packages/pharus <span class="c1"># path to pharus installation</span>
+<span class="nv">TEST_DB_SERVER</span><span class="o">=</span>example.com:3306 <span class="c1"># testing db server address</span>
+<span class="nv">TEST_DB_USER</span><span class="o">=</span>root <span class="c1"># testing db server user (needs DDL privilege)</span>
+<span class="nv">TEST_DB_PASS</span><span class="o">=</span>unsecure <span class="c1"># testing db server password</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>For syntax tests, run <code class="docutils literal notranslate"><span class="pre">flake8</span> <span class="pre">${PKG_DIR}</span> <span class="pre">--count</span> <span class="pre">--select=E9,F63,F7,F82</span> <span class="pre">--show-source</span> <span class="pre">--statistics</span></code></p></li>
+<li><p>For pytest integration tests, run <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">-sv</span> <span class="pre">--cov-report</span> <span class="pre">term-missing</span> <span class="pre">--cov=${PKG_DIR}</span> <span class="pre">/main/tests</span></code></p></li>
+<li><p>For style tests, run <code class="docutils literal notranslate"><span class="pre">flake8</span> <span class="pre">${PKG_DIR}</span> <span class="pre">--count</span> <span class="pre">--max-complexity=20</span> <span class="pre">--max-line-length=95</span> <span class="pre">--statistics</span></code></p></li>
+</ul>
+</div>
+<div class="section" id="creating-sphinx-documentation-from-scratch">
+<h2>Creating Sphinx Documentation from Scratch<a class="headerlink" href="#creating-sphinx-documentation-from-scratch" title="Permalink to this headline">¶</a></h2>
+<p>Recommend the follow to be ran within the <code class="docutils literal notranslate"><span class="pre">pharus</span></code> container in <code class="docutils literal notranslate"><span class="pre">docs</span></code> Docker Compose environment.</p>
+<ul>
+<li><p>Run the following commands and complete the prompts as requested.</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir docs
+<span class="nb">cd</span> docs
+sphinx-quickstart
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>In <code class="docutils literal notranslate"><span class="pre">docs/conf.py</span></code> add to the beginning:</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>In <code class="docutils literal notranslate"><span class="pre">docs/conf.py:extensions</span></code> append <code class="docutils literal notranslate"><span class="pre">['sphinx.ext.autodoc',</span> <span class="pre">'sphinxcontrib.httpdomain']</span></code>. See <code class="docutils literal notranslate"><span class="pre">requirements_docs.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">docker-compose-docs.yaml</span></code> for details on documentation dependencies.</p></li>
+<li><p>Run the following to automatically generate the API docs:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sphinx-apidoc -o . .. ../tests/* ../setup.py
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">modules</span></code> within the <code class="docutils literal notranslate"><span class="pre">toctree</span></code> directive in <code class="docutils literal notranslate"><span class="pre">index.rst</span></code>.</p></li>
+<li><p>Build the docs by running:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make html
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>DataJoint</p>
+<ul>
+<li><p><a class="reference external" href="https://datajoint.io">https://datajoint.io</a></p></li>
+</ul>
+</li>
+<li><p>DataJoint LabBook (a companion frontend)</p>
+<ul>
+<li><p><a class="reference external" href="https://github.com/datajoint/datajoint-labbook">https://github.com/datajoint/datajoint-labbook</a></p></li>
+</ul>
+</li>
+<li><p>Python Tutorial for Flask, Swagger, and Automated docs</p>
+<ul>
+<li><p><a class="reference external" href="https://realpython.com/flask-connexion-rest-api/#reader-comments">https://realpython.com/flask-connexion-rest-api/#reader-comments</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 
 
