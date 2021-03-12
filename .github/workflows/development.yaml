@@ -193,6 +193,15 @@ jobs:
           asset_path: ${{env.PHARUS_SDIST_PATH}}
           asset_name: pip-pharus-${{env.PHARUS_VERSION}}.tar.gz
           asset_content_type: application/gzip
+      - name: Upload deploy docker environment
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          upload_url: ${{steps.create_gh_release.outputs.upload_url}}
+          asset_path: docker-compose-deploy.yaml
+          asset_name: docker-compose-deploy.yaml
+          asset_content_type: application/yaml
   publish-images:
     if: github.event_name == 'push'
     needs: publish-release
@@ -287,7 +296,7 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           upload_url: ${{needs.publish-release.outputs.release_upload_url}}
-          asset_path: docs-static-pharus-${PHARUS_VERSION}.zip
-          asset_name: docs-static-pharus-${PHARUS_VERSION}.zip
+          asset_path: "docs-static-pharus-${{env.PHARUS_VERSION}}.zip"
+          asset_name: "docs-static-pharus-${{env.PHARUS_VERSION}}.zip"
           asset_content_type: application/zip
           # fail_on_unmatched_files: true
