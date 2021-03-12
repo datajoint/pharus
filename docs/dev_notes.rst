@@ -85,6 +85,10 @@ Recommend the follow to be ran within the ``pharus`` container in ``docs`` Docke
 References
 ----------
 
+- DataJoint
+
+  - https://datajoint.io
+
 - DataJoint LabBook (a companion frontend)
 
   - https://github.com/datajoint/datajoint-labbook

@@ -8,13 +8,13 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Fixed behavior where using list_table with a nonexistent schema_name creates it instead of returning an error message (#65) PR #63
 
 ### Changed
-- Contribution policy to follow directly the general DataJoint Contribution Guideline. (#91) PR #94
+- Contribution policy to follow directly the general DataJoint Contribution Guideline. (#91) PR #94, #95
 
 ### Added
-- Issue templates for bug reports and enhancement requests. PR #94
-- Docker environment for documentation build. (#92) PR #94
-- Add Sphinx-based documentation source and fix parsing issues. (#92) PR #94
-- GitHub Actions automation that publishes on release new docs to release and GitHub Pages. (#92) PR #94
+- Issue templates for bug reports and enhancement requests. PR #94, #95
+- Docker environment for documentation build. (#92) PR #94, #95
+- Add Sphinx-based documentation source and fix parsing issues. (#92) PR #94, #95
+- GitHub Actions automation that publishes on release new docs to release and GitHub Pages. (#92) PR #94, #95
 
 ## [0.1.0b0] - 2021-02-26
 
