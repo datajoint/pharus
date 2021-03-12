@@ -24,7 +24,7 @@ If you have not done so already, please install the following dependencies.
 Prerequisites
 -------------
 
-Download the ``docker-compose-deploy.yaml`` docker environment from the source located `here <https://github.com/datajoint/pharus/blob/master/docker-compose-deploy.yaml>`_.
+Download the ``docker-compose-deploy.yaml`` docker environment from the source located `here <https://github.com/datajoint/pharus/releases/latest/download/docker-compose-deploy.yaml>`_.
 
 Running the API server
 ----------------------
