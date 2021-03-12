@@ -2,10 +2,19 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
-## [Unreleased]
+## [0.1.0b1] - 2021-03-11
 
 ### Fixed
 - Fixed behavior where using list_table with a nonexistent schema_name creates it instead of returning an error message (#65) PR #63
+
+### Changed
+- Contribution policy to follow directly the general DataJoint Contribution Guideline. (#91) PR #94
+
+### Added
+- Issue templates for bug reports and enhancement requests. PR #94
+- Docker environment for documentation build. (#92) PR #94
+- Add Sphinx-based documentation source and fix parsing issues. (#92) PR #94
+- GitHub Actions automation that publishes on release new docs to release and GitHub Pages. (#92) PR #94
 
 ## [0.1.0b0] - 2021-02-26
 
@@ -41,6 +50,6 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
-[Unreleased]: https://github.com/datajoint/pharus/compare/0.1.0b0...HEAD
+[0.1.0b1]: https://github.com/datajoint/pharus/compare/0.1.0b0...0.1.0b1
 [0.1.0b0]: https://github.com/datajoint/pharus/compare/0.1.0a5...0.1.0b0
 [0.1.0a5]: https://github.com/datajoint/pharus/releases/tag/0.1.0a5

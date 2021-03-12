@@ -2,7 +2,7 @@ ARG PY_VER
 ARG DISTRO
 ARG IMAGE
 FROM datajoint/${IMAGE}:py${PY_VER}-${DISTRO}
-COPY --chown=dja:anaconda ./README.md ./requirements.txt ./setup.py \
+COPY --chown=dja:anaconda ./README.rst ./requirements.txt ./setup.py \
     /main/
 COPY --chown=dja:anaconda ./pharus/*.py /main/pharus/
 RUN \

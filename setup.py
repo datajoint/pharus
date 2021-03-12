@@ -6,7 +6,7 @@ import re
 pkg_name = 'pharus'
 here = path.abspath(path.dirname(__file__))
 
-with open(path.join(here, 'README.md'), 'r') as f:
+with open(path.join(here, 'README.rst'), 'r') as f:
     long_description = f.read()
 
 with open(path.join(here, pkg_name, 'version.py')) as f:
@@ -24,7 +24,7 @@ setup(
     author_email='support@vathes.com',
     description='A generic REST API server backend for DataJoint pipelines.',
     long_description=long_description,
-    long_description_content_type='text/markdown',
+    long_description_content_type='text/x-rst',
     url='https://github.com/datajoint/pharus',
     packages=find_packages(exclude=['test*', 'docs']),
     classifiers=[
