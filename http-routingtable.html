@@ -1,0 +1,311 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>HTTP Routing Table &mdash; Pharus  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+
+    <script>
+      DOCUMENTATION_OPTIONS.COLLAPSE_INDEX = true;
+    </script>
+
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Pharus
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">User Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Pharus</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>HTTP Routing Table</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+
+   <h1>HTTP Routing Table</h1>
+
+   <div class="modindex-jumpbox">
+   <a href="#cap-/delete_tuple"><strong>/delete_tuple</strong></a> | 
+   <a href="#cap-/fetch_tuple"><strong>/fetch_tuple</strong></a> | 
+   <a href="#cap-/get_table_attributes"><strong>/get_table_attributes</strong></a> | 
+   <a href="#cap-/get_table_definition"><strong>/get_table_definition</strong></a> | 
+   <a href="#cap-/insert_tuple"><strong>/insert_tuple</strong></a> | 
+   <a href="#cap-/list_schemas"><strong>/list_schemas</strong></a> | 
+   <a href="#cap-/list_tables"><strong>/list_tables</strong></a> | 
+   <a href="#cap-/login"><strong>/login</strong></a> | 
+   <a href="#cap-/record"><strong>/record</strong></a> | 
+   <a href="#cap-/update_tuple"><strong>/update_tuple</strong></a> | 
+   <a href="#cap-/version"><strong>/version</strong></a>
+   </div>
+
+   <table class="indextable modindextable">
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-/delete_tuple"><td></td><td>
+       <strong>/delete_tuple</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="pharus.html#post--delete_tuple"><code class="xref">POST /delete_tuple</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-/fetch_tuple"><td></td><td>
+       <strong>/fetch_tuple</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="pharus.html#post--fetch_tuple"><code class="xref">POST /fetch_tuple</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-/get_table_attributes"><td></td><td>
+       <strong>/get_table_attributes</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="pharus.html#post--get_table_attributes"><code class="xref">POST /get_table_attributes</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-/get_table_definition"><td></td><td>
+       <strong>/get_table_definition</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="pharus.html#post--get_table_definition"><code class="xref">POST /get_table_definition</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-/insert_tuple"><td></td><td>
+       <strong>/insert_tuple</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="pharus.html#post--insert_tuple"><code class="xref">POST /insert_tuple</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-/list_schemas"><td></td><td>
+       <strong>/list_schemas</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="pharus.html#get--list_schemas"><code class="xref">GET /list_schemas</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-/list_tables"><td></td><td>
+       <strong>/list_tables</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="pharus.html#post--list_tables"><code class="xref">POST /list_tables</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-/login"><td></td><td>
+       <strong>/login</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="pharus.html#post--login"><code class="xref">POST /login</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-/record"><td></td><td>
+       <strong>/record</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="pharus.html#get--record-dependency"><code class="xref">GET /record/dependency</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-/update_tuple"><td></td><td>
+       <strong>/update_tuple</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="pharus.html#post--update_tuple"><code class="xref">POST /update_tuple</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-/version"><td></td><td>
+       <strong>/version</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="pharus.html#get--version"><code class="xref">GET /version</code></a></td><td>
+       <em></em></td></tr>
+   </table>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, DataJoint Contributors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
