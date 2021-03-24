@@ -15,7 +15,7 @@ import jwt
 from json import loads
 from base64 import b64decode
 from datajoint.errors import IntegrityError
-from datajoint.table import foregn_key_error_regexp
+from datajoint.table import foreign_key_error_regexp
 from datajoint.utils import to_camel_case
 
 app = Flask(__name__)
@@ -975,7 +975,7 @@ def delete_tuple(jwt_payload: dict) -> dict:
                                     for k, v in request.args.items() if k == 'cascade'},)
         return "Delete Sucessful"
     except IntegrityError as e:
-        match = foregn_key_error_regexp.match(e.args[0])
+        match = foreign_key_error_regexp.match(e.args[0])
         return dict(error=e.__class__.__name__,
                     error_msg=str(e),
                     child_schema=match.group('child').split('.')[0][1:-1],
