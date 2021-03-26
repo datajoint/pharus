@@ -59,7 +59,7 @@ def protected_route(function: Callable) -> Callable:
     return wrapper
 
 
-@app.route(f"{environ.get('PHARUS_PREFIX', '')}/version")
+@app.route(f"{environ.get('PHARUS_PREFIX', '')}/version", methods=['GET'])
 def api_version() -> str:
     """
     Handler for ``/version`` route.
@@ -90,7 +90,8 @@ def api_version() -> str:
 
         :statuscode 200: No error.
     """
-    return version
+    if request.method == 'GET':
+        return version
 
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/login", methods=['POST'])
@@ -164,21 +165,22 @@ def login() -> dict:
         :statuscode 200: No error.
         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
     """
-    # Check if request.json has the correct fields
-    if not request.json.keys() >= {'databaseAddress', 'username', 'password'}:
-        return dict(error='Invalid json body')
+    if request.method == 'POST':
+        # Check if request.json has the correct fields
+        if not request.json.keys() >= {'databaseAddress', 'username', 'password'}:
+            return dict(error='Invalid json body')
 
-    # Try to login in with the database connection info, if true then create jwt key
-    try:
-        DJConnector.attempt_login(request.json['databaseAddress'],
-                                  request.json['username'],
-                                  request.json['password'])
-        # Generate JWT key and send it back
-        encoded_jwt = jwt.encode(request.json, environ['PHARUS_PRIVATE_KEY'],
-                                 algorithm='RS256')
-        return dict(jwt=encoded_jwt)
-    except Exception as e:
-        return str(e), 500
+        # Try to login in with the database connection info, if true then create jwt key
+        try:
+            DJConnector.attempt_login(request.json['databaseAddress'],
+                                    request.json['username'],
+                                    request.json['password'])
+            # Generate JWT key and send it back
+            encoded_jwt = jwt.encode(request.json, environ['PHARUS_PRIVATE_KEY'],
+                                    algorithm='RS256')
+            return dict(jwt=encoded_jwt)
+        except Exception as e:
+            return str(e), 500
 
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/schema", methods=['GET'])
@@ -320,7 +322,7 @@ def table(jwt_payload: dict) -> dict:
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/record", methods=['GET'])
 @protected_route
-def record(jwt_payload: dict) -> dict:
+def get_record(jwt_payload: dict) -> dict:
     ("""
     Handler for ``/fetch_tuple`` route.
 
@@ -413,19 +415,20 @@ def record(jwt_payload: dict) -> dict:
         :statuscode 200: No error.
         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
     """)
-    try:
-        table_tuples, total_count = DJConnector.fetch_tuples(
-            jwt_payload=jwt_payload,
-            schema_name=request.args["schemaName"],
-            table_name=request.args["tableName"],
-            **{k: (int(v) if k in ('limit', 'page')
-                   else (v.split(',') if k == 'order' else loads(
-                       b64decode(v.encode('utf-8')).decode('utf-8'))))
-               for k, v in request.args.items()},
-            )
-        return dict(tuples=table_tuples, total_count=total_count)
-    except Exception as e:
-        return str(e), 500
+    if request.method == 'GET':
+        try:
+            table_tuples, total_count = DJConnector.fetch_tuples(
+                jwt_payload=jwt_payload,
+                schema_name=request.args["schemaName"],
+                table_name=request.args["tableName"],
+                **{k: (int(v) if k in ('limit', 'page')
+                    else (v.split(',') if k == 'order' else loads(
+                        b64decode(v.encode('utf-8')).decode('utf-8'))))
+                for k, v in request.args.items() if k not in ('schemaName', 'tableName')},
+                )
+            return dict(tuples=table_tuples, total_count=total_count)
+        except Exception as e:
+            return str(e), 500
 
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/get_table_definition", methods=['POST'])
@@ -648,9 +651,9 @@ def get_table_attributes(jwt_payload: dict) -> dict:
         return str(e), 500
 
 
-@app.route(f"{environ.get('PHARUS_PREFIX', '')}/insert_tuple", methods=['POST'])
+@app.route(f"{environ.get('PHARUS_PREFIX', '')}/record", methods=['POST'])
 @protected_route
-def insert_tuple(jwt_payload: dict) -> str:
+def post_record(jwt_payload: dict) -> str:
     """
     Handler for ``/insert_tuple`` route.
 
@@ -716,15 +719,16 @@ def insert_tuple(jwt_payload: dict) -> str:
         :statuscode 200: No error.
         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
     """
-    try:
-        # Attempt to insert
-        DJConnector.insert_tuple(jwt_payload,
-                                 request.json["schemaName"],
-                                 request.json["tableName"],
-                                 request.json["tuple"])
-        return "Insert Successful"
-    except Exception as e:
-        return str(e), 500
+    if request.method == 'POST':
+        try:
+            # Attempt to insert
+            DJConnector.insert_tuple(jwt_payload,
+                                     request.args["schemaName"],
+                                     request.args["tableName"],
+                                     request.args["record"])
+            return "Insert Successful"
+        except Exception as e:
+            return str(e), 500
 
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/record/dependency", methods=['GET'])
