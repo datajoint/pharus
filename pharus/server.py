@@ -723,9 +723,9 @@ def post_record(jwt_payload: dict) -> str:
         try:
             # Attempt to insert
             DJConnector.insert_tuple(jwt_payload,
-                                     request.args["schemaName"],
-                                     request.args["tableName"],
-                                     request.args["record"])
+                                     request.json["schemaName"],
+                                     request.json["tableName"],
+                                     request.json["record"])
             return "Insert Successful"
         except Exception as e:
             return str(e), 500
@@ -804,19 +804,20 @@ def record_dependency(jwt_payload: dict) -> dict:
         :statuscode 200: No error.
         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
     """)
-    # Get dependencies
-    try:
-        dependencies = DJConnector.record_dependency(
-            jwt_payload, request.args.get('schemaName'), request.args.get('tableName'),
-            loads(b64decode(request.args.get('restriction').encode('utf-8')).decode('utf-8')))
-        return dict(dependencies=dependencies)
-    except Exception as e:
-        return str(e), 500
+    if request.method == 'GET':
+        # Get dependencies
+        try:
+            dependencies = DJConnector.record_dependency(
+                jwt_payload, request.args.get('schemaName'), request.args.get('tableName'),
+                loads(b64decode(request.args.get('restriction').encode('utf-8')).decode('utf-8')))
+            return dict(dependencies=dependencies)
+        except Exception as e:
+            return str(e), 500
 
 
-@app.route(f"{environ.get('PHARUS_PREFIX', '')}/update_tuple", methods=['POST'])
+@app.route(f"{environ.get('PHARUS_PREFIX', '')}/record", methods=['PATCH'])
 @protected_route
-def update_tuple(jwt_payload: dict) -> str:
+def patch_record(jwt_payload: dict) -> str:
     """
     Handler for ``/update_tuple`` route.
 
@@ -882,15 +883,16 @@ def update_tuple(jwt_payload: dict) -> str:
         :statuscode 200: No error.
         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
     """
-    try:
-        # Attempt to insert
-        DJConnector.update_tuple(jwt_payload,
-                                 request.json["schemaName"],
-                                 request.json["tableName"],
-                                 request.json["tuple"])
-        return "Update Successful"
-    except Exception as e:
-        return str(e), 500
+    if request.method == 'PATCH':
+        try:
+            # Attempt to insert
+            DJConnector.update_tuple(jwt_payload,
+                                     request.json["schemaName"],
+                                     request.json["tableName"],
+                                     request.json["record"])
+            return "Update Successful"
+        except Exception as e:
+            return str(e), 500
 
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/delete_tuple", methods=['POST'])
