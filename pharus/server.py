@@ -422,9 +422,9 @@ def get_record(jwt_payload: dict) -> dict:
                 schema_name=request.args["schemaName"],
                 table_name=request.args["tableName"],
                 **{k: (int(v) if k in ('limit', 'page')
-                    else (v.split(',') if k == 'order' else loads(
+                       else (v.split(',') if k == 'order' else loads(
                         b64decode(v.encode('utf-8')).decode('utf-8'))))
-                for k, v in request.args.items() if k not in ('schemaName', 'tableName')},
+                   for k, v in request.args.items() if k not in ('schemaName', 'tableName')},
                 )
             return dict(tuples=table_tuples, total_count=total_count)
         except Exception as e:
@@ -895,9 +895,9 @@ def patch_record(jwt_payload: dict) -> str:
             return str(e), 500
 
 
-@app.route(f"{environ.get('PHARUS_PREFIX', '')}/delete_tuple", methods=['POST'])
+@app.route(f"{environ.get('PHARUS_PREFIX', '')}/record", methods=['DELETE'])
 @protected_route
-def delete_tuple(jwt_payload: dict) -> dict:
+def delete_record(jwt_payload: dict) -> dict:
     """
     Handler for ``/delete_tuple`` route.
 
@@ -974,24 +974,26 @@ def delete_tuple(jwt_payload: dict) -> dict:
             to ``false``.
         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
     """
-    try:
-        # Attempt to delete tuple
-        DJConnector.delete_tuple(jwt_payload,
-                                 request.json["schemaName"],
-                                 request.json["tableName"],
-                                 request.json["restrictionTuple"],
-                                 **{k: v.lower() == 'true'
-                                    for k, v in request.args.items() if k == 'cascade'},)
-        return "Delete Sucessful"
-    except IntegrityError as e:
-        match = foreign_key_error_regexp.match(e.args[0])
-        return dict(error=e.__class__.__name__,
-                    error_msg=str(e),
-                    child_schema=match.group('child').split('.')[0][1:-1],
-                    child_table=to_camel_case(match.group('child').split('.')[1][1:-1]),
-                    ), 409
-    except Exception as e:
-        return str(e), 500
+    if request.method == 'DELETE':
+        try:
+            # Attempt to delete tuple
+            DJConnector.delete_tuple(jwt_payload,
+                                     request.args["schemaName"],
+                                     request.args["tableName"],
+                                     **{k: loads(b64decode(v.encode('utf-8')).decode('utf-8'))
+                                        for k, v in request.args.items() if k == 'restriction'},
+                                     **{k: v.lower() == 'true'
+                                        for k, v in request.args.items() if k == 'cascade'},)
+            return "Delete Sucessful"
+        except IntegrityError as e:
+            match = foreign_key_error_regexp.match(e.args[0])
+            return dict(error=e.__class__.__name__,
+                        error_msg=str(e),
+                        child_schema=match.group('child').split('.')[0][1:-1],
+                        child_table=to_camel_case(match.group('child').split('.')[1][1:-1]),
+                        ), 409
+        except Exception as e:
+            return str(e), 500
 
 
 def run():

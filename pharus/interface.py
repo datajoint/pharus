@@ -345,7 +345,7 @@ class DJConnector():
 
     @staticmethod
     def delete_tuple(jwt_payload: dict, schema_name: str, table_name: str,
-                     tuple_to_restrict_by: dict, cascade: bool = False):
+                     restriction: dict, cascade: bool = False):
         """
         Delete a specific record based on the restriction given (supports only deleting one at
         a time).
