@@ -243,9 +243,9 @@ def schema(jwt_payload: dict) -> dict:
             return str(e), 500
 
 
-@app.route(f"{environ.get('PHARUS_PREFIX', '')}/list_tables", methods=['POST'])
+@app.route(f"{environ.get('PHARUS_PREFIX', '')}/table", methods=['GET'])
 @protected_route
-def list_tables(jwt_payload: dict) -> dict:
+def table(jwt_payload: dict) -> dict:
     """
     Handler for ``/list_tables`` route.
 
@@ -309,11 +309,13 @@ def list_tables(jwt_payload: dict) -> dict:
         :statuscode 200: No error.
         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
     """
-    try:
-        tables_dict_list = DJConnector.list_tables(jwt_payload, request.json["schemaName"])
-        return dict(tableTypeAndNames=tables_dict_list)
-    except Exception as e:
-        return str(e), 500
+    if request.method == 'GET':
+        try:
+            tables_dict_list = DJConnector.list_tables(jwt_payload,
+                                                       request.args["schemaName"])
+            return dict(tableTypeAndNames=tables_dict_list)
+        except Exception as e:
+            return str(e), 500
 
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/fetch_tuples", methods=['POST'])
