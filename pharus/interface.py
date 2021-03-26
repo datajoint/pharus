@@ -373,11 +373,11 @@ class DJConnector():
 
         # Check to see if the restriction has at least one matching attribute, if not raise an
         # error
-        if len(table_attributes & tuple_to_restrict_by.keys()) == 0:
+        if len(table_attributes & restriction.keys()) == 0:
             raise InvalidRestriction('Restriction is invalid: None of the attributes match')
 
         # Compute restriction
-        tuple_to_delete = getattr(schema_virtual_module, table_name) & tuple_to_restrict_by
+        tuple_to_delete = getattr(schema_virtual_module, table_name) & restriction
 
         # Check if there is only 1 tuple to delete otherwise raise error
         if len(tuple_to_delete) > 1:
