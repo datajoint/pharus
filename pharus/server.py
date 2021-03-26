@@ -318,9 +318,9 @@ def table(jwt_payload: dict) -> dict:
             return str(e), 500
 
 
-@app.route(f"{environ.get('PHARUS_PREFIX', '')}/fetch_tuples", methods=['POST'])
+@app.route(f"{environ.get('PHARUS_PREFIX', '')}/record", methods=['GET'])
 @protected_route
-def fetch_tuples(jwt_payload: dict) -> dict:
+def record(jwt_payload: dict) -> dict:
     ("""
     Handler for ``/fetch_tuple`` route.
 
@@ -416,8 +416,8 @@ def fetch_tuples(jwt_payload: dict) -> dict:
     try:
         table_tuples, total_count = DJConnector.fetch_tuples(
             jwt_payload=jwt_payload,
-            schema_name=request.json["schemaName"],
-            table_name=request.json["tableName"],
+            schema_name=request.args["schemaName"],
+            table_name=request.args["tableName"],
             **{k: (int(v) if k in ('limit', 'page')
                    else (v.split(',') if k == 'order' else loads(
                        b64decode(v.encode('utf-8')).decode('utf-8'))))
