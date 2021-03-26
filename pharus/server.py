@@ -181,18 +181,18 @@ def login() -> dict:
         return str(e), 500
 
 
-@app.route(f"{environ.get('PHARUS_PREFIX', '')}/list_schemas", methods=['GET'])
+@app.route(f"{environ.get('PHARUS_PREFIX', '')}/schema", methods=['GET'])
 @protected_route
-def list_schemas(jwt_payload: dict) -> dict:
+def schema(jwt_payload: dict) -> dict:
     """
-    Handler for ``/list_schemas`` route.
+    Handler for ``/schema`` route.
 
     :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
     :type jwt_payload: dict
     :return: If successful then sends back a list of schemas names otherwise returns error.
     :rtype: dict
 
-    .. http:get:: /list_schemas
+    .. http:get:: /schema
 
         Route to get list of schemas.
 
@@ -200,7 +200,7 @@ def list_schemas(jwt_payload: dict) -> dict:
 
         .. sourcecode:: http
 
-            GET /list_schemas HTTP/1.1
+            GET /schema HTTP/1.1
             Host: fakeservices.datajoint.io
 
         **Example successful response**:
@@ -234,12 +234,13 @@ def list_schemas(jwt_payload: dict) -> dict:
         :statuscode 200: No error.
         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
     """
-    # Get all the schemas
-    try:
-        schemas_name = DJConnector.list_schemas(jwt_payload)
-        return dict(schemaNames=schemas_name)
-    except Exception as e:
-        return str(e), 500
+    if request.method == 'GET':
+        # Get all the schemas
+        try:
+            schemas_name = DJConnector.list_schemas(jwt_payload)
+            return dict(schemaNames=schemas_name)
+        except Exception as e:
+            return str(e), 500
 
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/list_tables", methods=['POST'])
