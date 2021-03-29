@@ -14,10 +14,9 @@ def test_filters(token, client, Student):
     encoded_restriction = b64encode(dumps(restriction).encode('utf-8')).decode('utf-8')
     q = dict(limit=10, page=1, order='student_enroll_date DESC',
              restriction=encoded_restriction)
-    REST_records = client.post(f'/fetch_tuples?{urlencode(q)}',
-                               headers=dict(Authorization=f'Bearer {token}'),
-                               json=dict(schemaName=Student.database,
-                                         tableName='Student')).json['tuples']
+    REST_records = client.get(
+          f'/schema/{Student.database}/table/{"Student"}/record?{urlencode(q)}',
+          headers=dict(Authorization=f'Bearer {token}')).json['records']
     assert len(REST_records) == 10
     assert REST_records[0][3] == datetime(2021, 1, 16).timestamp()
     # 'equal' null
@@ -25,10 +24,9 @@ def test_filters(token, client, Student):
     encoded_restriction = b64encode(dumps(restriction).encode('utf-8')).decode('utf-8')
     q = dict(limit=10, page=2, order='student_id ASC',
              restriction=encoded_restriction)
-    REST_records = client.post(f'/fetch_tuples?{urlencode(q)}',
-                               headers=dict(Authorization=f'Bearer {token}'),
-                               json=dict(schemaName=Student.database,
-                                         tableName='Student')).json['tuples']
+    REST_records = client.get(
+          f'/schema/{Student.database}/table/{"Student"}/record?{urlencode(q)}',
+          headers=dict(Authorization=f'Bearer {token}')).json['records']
     assert len(REST_records) == 10
     assert all([r[5] is None for r in REST_records])
     assert REST_records[0][0] == 34
@@ -37,10 +35,9 @@ def test_filters(token, client, Student):
     encoded_restriction = b64encode(dumps(restriction).encode('utf-8')).decode('utf-8')
     q = dict(limit=10, page=1, order='student_id ASC',
              restriction=encoded_restriction)
-    REST_records = client.post(f'/fetch_tuples?{urlencode(q)}',
-                               headers=dict(Authorization=f'Bearer {token}'),
-                               json=dict(schemaName=Student.database,
-                                         tableName='Student')).json['tuples']
+    REST_records = client.get(
+          f'/schema/{Student.database}/table/{"Student"}/record?{urlencode(q)}',
+          headers=dict(Authorization=f'Bearer {token}')).json['records']
     assert len(REST_records) == 10
     assert all([r[0] != 2 for r in REST_records])
     assert REST_records[-1][0] == 10
@@ -50,10 +47,9 @@ def test_filters(token, client, Student):
     encoded_restriction = b64encode(dumps(restriction).encode('utf-8')).decode('utf-8')
     q = dict(limit=10, page=1, order='student_id ASC',
              restriction=encoded_restriction)
-    REST_records = client.post(f'/fetch_tuples?{urlencode(q)}',
-                               headers=dict(Authorization=f'Bearer {token}'),
-                               json=dict(schemaName=Student.database,
-                                         tableName='Student')).json['tuples']
+    REST_records = client.get(
+          f'/schema/{Student.database}/table/{"Student"}/record?{urlencode(q)}',
+          headers=dict(Authorization=f'Bearer {token}')).json['records']
     assert len(REST_records) == 1
     assert REST_records[0][1] == 'Norma Fisher'
     assert REST_records[0][6] == 0

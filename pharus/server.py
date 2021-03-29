@@ -317,7 +317,9 @@ def table(jwt_payload: dict, schema_name: str) -> dict:
             return str(e), 500
 
 
-@app.route(f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/record", methods=['GET'])
+@app.route(
+    f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/record",
+    methods=['GET'])
 @protected_route
 def get_record(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
     ("""
@@ -338,8 +340,8 @@ def get_record(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
         .. sourcecode:: http
 
             GET /record?schemaName=alpha_company&tableName=Computer&limit=2&page=1&"""
-     "order=computer_id%20DESC&restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49Iiw"
-     "gInZhbHVlIjogMzJ9XQo="
+     "order=computer_id%20DESC&restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLC"
+     "Aib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMzJ9XQo="
      """ HTTP/1.1
             Host: fakeservices.datajoint.io
             Accept: application/json
@@ -423,12 +425,15 @@ def get_record(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
                         b64decode(v.encode('utf-8')).decode('utf-8'))))
                    for k, v in request.args.items()},
                 )
-            return dict(recordHeader=record_header, records=table_tuples, totalCount=total_count)
+            return dict(recordHeader=record_header, records=table_tuples,
+                        totalCount=total_count)
         except Exception as e:
             return str(e), 500
 
 
-@app.route(f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/definition", methods=['GET'])
+@app.route(
+    f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/definition",
+    methods=['GET'])
 @protected_route
 def definition(jwt_payload: dict, schema_name: str, table_name: str) -> str:
     """
@@ -504,7 +509,9 @@ def definition(jwt_payload: dict, schema_name: str, table_name: str) -> str:
             return str(e), 500
 
 
-@app.route(f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/attribute", methods=['GET'])
+@app.route(
+    f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/attribute",
+    methods=['GET'])
 @protected_route
 def get_table_attributes(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
     """
@@ -647,7 +654,9 @@ def get_table_attributes(jwt_payload: dict, schema_name: str, table_name: str) -
             return str(e), 500
 
 
-@app.route(f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/record", methods=['POST'])
+@app.route(
+    f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/record",
+    methods=['POST'])
 @protected_route
 def post_record(jwt_payload: dict, schema_name: str, table_name: str) -> str:
     """
@@ -721,13 +730,15 @@ s
             DJConnector.insert_tuple(jwt_payload,
                                      schema_name,
                                      table_name,
-                                     request.json["record"])
+                                     request.json["records"])
             return "Insert Successful"
         except Exception as e:
             return str(e), 500
 
 
-@app.route(f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/dependency", methods=['GET'])
+@app.route(
+    f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/dependency",
+    methods=['GET'])
 @protected_route
 def record_dependency(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
     ("""
@@ -805,13 +816,16 @@ def record_dependency(jwt_payload: dict, schema_name: str, table_name: str) -> d
         try:
             dependencies = DJConnector.record_dependency(
                 jwt_payload, schema_name, table_name,
-                loads(b64decode(request.args.get('restriction').encode('utf-8')).decode('utf-8')))
+                loads(b64decode(
+                    request.args.get('restriction').encode('utf-8')).decode('utf-8')))
             return dict(dependencies=dependencies)
         except Exception as e:
             return str(e), 500
 
 
-@app.route(f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/record", methods=['PATCH'])
+@app.route(
+    f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/record",
+    methods=['PATCH'])
 @protected_route
 def patch_record(jwt_payload: dict, schema_name: str, table_name: str) -> str:
     """
@@ -891,7 +905,9 @@ def patch_record(jwt_payload: dict, schema_name: str, table_name: str) -> str:
             return str(e), 500
 
 
-@app.route(f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/record", methods=['DELETE'])
+@app.route(
+    f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/record",
+    methods=['DELETE'])
 @protected_route
 def delete_record(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
     """
@@ -977,7 +993,8 @@ def delete_record(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
                                      schema_name,
                                      table_name,
                                      **{k: loads(b64decode(v.encode('utf-8')).decode('utf-8'))
-                                        for k, v in request.args.items() if k == 'restriction'},
+                                        for k, v in request.args.items()
+                                        if k == 'restriction'},
                                      **{k: v.lower() == 'true'
                                         for k, v in request.args.items() if k == 'cascade'},)
             return "Delete Sucessful"

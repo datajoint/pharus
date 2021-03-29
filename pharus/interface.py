@@ -5,7 +5,7 @@ from datajoint.user_tables import UserTable
 from datajoint import VirtualModule
 import datetime
 import numpy as np
-from .error import InvalidDeleteRequest, InvalidRestriction, UnsupportedTableType
+from .error import InvalidDeleteRequest, UnsupportedTableType
 
 DAY = 24 * 60 * 60
 DEFAULT_FETCH_LIMIT = 1000  # Stop gap measure to deal with super large tables
@@ -224,7 +224,8 @@ class DJConnector():
                     attribute_info.autoincrement
                     ))
 
-        return dict(attributeHeader=['name', 'type', 'nullable', 'default', 'autoincrement'], attributes=table_attributes)
+        return dict(attributeHeader=['name', 'type', 'nullable', 'default', 'autoincrement'],
+                    attributes=table_attributes)
 
     @staticmethod
     def get_table_definition(jwt_payload: dict, schema_name: str, table_name: str) -> str:
@@ -292,7 +293,9 @@ class DJConnector():
         table = getattr(virtual_module, table_name)
         # Retrieve dependencies of related to retricted
         dependencies = [dict(schema=descendant.database, table=descendant.table_name,
-                             accessible=True, count=len(descendant & primary_restriction))
+                             accessible=True, count=len(descendant & dj.AndList([
+                                DJConnector.filter_to_restriction(f)
+                                for f in primary_restriction])))
                         for descendant in table().descendants(as_objects=True)]
         return dependencies
 
@@ -381,7 +384,7 @@ class DJConnector():
             operation = attribute_filter['operation']
         elif attribute_filter['value'] is None:
             operation = (' IS ' if attribute_filter['operation'] == '='
-                            else ' IS NOT ')
+                         else ' IS NOT ')
         else:
             operation = attribute_filter['operation']
 
@@ -390,7 +393,7 @@ class DJConnector():
             value = f"'{attribute_filter['value']}'"
         else:
             value = ('NULL' if attribute_filter['value'] is None
-                        else attribute_filter['value'])
+                     else attribute_filter['value'])
 
         return f"{attribute_filter['attributeName']}{operation}{value}"
 
