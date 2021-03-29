@@ -250,7 +250,7 @@ class DJConnector():
                     attribute_info.autoincrement
                     ))
 
-        return dict(attribute_header=['name', 'type', 'nullable', 'default', 'autoincrement'], attributes=table_attributes, table_definition=table.describe())
+        return dict(attributeHeader=['name', 'type', 'nullable', 'default', 'autoincrement'], attributes=table_attributes, tableDefinition=table.describe())
 
     # @staticmethod
     # def get_table_definition(jwt_payload: dict, schema_name: str, table_name: str) -> str:

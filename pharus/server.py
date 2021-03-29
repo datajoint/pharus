@@ -426,7 +426,7 @@ def get_record(jwt_payload: dict) -> dict:
                         b64decode(v.encode('utf-8')).decode('utf-8'))))
                    for k, v in request.args.items() if k not in ('schemaName', 'tableName')},
                 )
-            return dict(record_header=record_header, records=table_tuples, total_count=total_count)
+            return dict(recordHeader=record_header, records=table_tuples, totalCount=total_count)
         except Exception as e:
             return str(e), 500
 
@@ -989,9 +989,9 @@ def delete_record(jwt_payload: dict) -> dict:
         except IntegrityError as e:
             match = foreign_key_error_regexp.match(e.args[0])
             return dict(error=e.__class__.__name__,
-                        error_msg=str(e),
-                        child_schema=match.group('child').split('.')[0][1:-1],
-                        child_table=to_camel_case(match.group('child').split('.')[1][1:-1]),
+                        errorMessage=str(e),
+                        childSchema=match.group('child').split('.')[0][1:-1],
+                        childTable=to_camel_case(match.group('child').split('.')[1][1:-1]),
                         ), 409
         except Exception as e:
             return str(e), 500
