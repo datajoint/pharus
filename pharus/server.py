@@ -90,7 +90,7 @@ def api_version() -> str:
 
         :statuscode 200: No error.
     """
-    if request.method == 'GET':
+    if request.method in {'GET', 'HEAD'}:
         return dict(version=version)
 
 
@@ -236,7 +236,7 @@ def schema(jwt_payload: dict) -> dict:
         :statuscode 200: No error.
         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
     """
-    if request.method == 'GET':
+    if request.method in {'GET', 'HEAD'}:
         # Get all the schemas
         try:
             schemas_name = DJConnector.list_schemas(jwt_payload)
@@ -311,7 +311,7 @@ def table(jwt_payload: dict) -> dict:
         :statuscode 200: No error.
         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
     """
-    if request.method == 'GET':
+    if request.method in {'GET', 'HEAD'}:
         try:
             tables_dict_list = DJConnector.list_tables(jwt_payload,
                                                        request.args["schemaName"])
@@ -415,7 +415,7 @@ def get_record(jwt_payload: dict) -> dict:
         :statuscode 200: No error.
         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
     """)
-    if request.method == 'GET':
+    if request.method in {'GET', 'HEAD'}:
         try:
             record_header, table_tuples, total_count = DJConnector.fetch_tuples(
                 jwt_payload=jwt_payload,
@@ -643,7 +643,7 @@ def get_table_attributes(jwt_payload: dict) -> dict:
         :statuscode 200: No error.
         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
     """
-    if request.method == 'GET':
+    if request.method in {'GET', 'HEAD'}:
         try:
             return DJConnector.get_table_attributes(jwt_payload,
                                                     request.args["schemaName"],
@@ -805,7 +805,7 @@ def record_dependency(jwt_payload: dict) -> dict:
         :statuscode 200: No error.
         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
     """)
-    if request.method == 'GET':
+    if request.method in {'GET', 'HEAD'}:
         # Get dependencies
         try:
             dependencies = DJConnector.record_dependency(
