@@ -91,7 +91,7 @@ def api_version() -> str:
         :statuscode 200: No error.
     """
     if request.method == 'GET':
-        return version
+        return dict(version=version)
 
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/login", methods=['POST'])
@@ -315,7 +315,7 @@ def table(jwt_payload: dict) -> dict:
         try:
             tables_dict_list = DJConnector.list_tables(jwt_payload,
                                                        request.args["schemaName"])
-            return dict(tableTypeAndNames=tables_dict_list)
+            return dict(tableTypes=tables_dict_list)
         except Exception as e:
             return str(e), 500
 
@@ -417,7 +417,7 @@ def get_record(jwt_payload: dict) -> dict:
     """)
     if request.method == 'GET':
         try:
-            table_tuples, total_count = DJConnector.fetch_tuples(
+            record_header, table_tuples, total_count = DJConnector.fetch_tuples(
                 jwt_payload=jwt_payload,
                 schema_name=request.args["schemaName"],
                 table_name=request.args["tableName"],
@@ -426,88 +426,88 @@ def get_record(jwt_payload: dict) -> dict:
                         b64decode(v.encode('utf-8')).decode('utf-8'))))
                    for k, v in request.args.items() if k not in ('schemaName', 'tableName')},
                 )
-            return dict(tuples=table_tuples, total_count=total_count)
+            return dict(record_header=record_header, records=table_tuples, total_count=total_count)
         except Exception as e:
             return str(e), 500
 
 
-@app.route(f"{environ.get('PHARUS_PREFIX', '')}/get_table_definition", methods=['POST'])
-@protected_route
-def get_table_definition(jwt_payload: dict) -> str:
-    """
-    Handler for ``/get_table_definition`` route.
+# @app.route(f"{environ.get('PHARUS_PREFIX', '')}/get_table_definition", methods=['POST'])
+# @protected_route
+# def get_table_definition(jwt_payload: dict) -> str:
+#     """
+#     Handler for ``/get_table_definition`` route.
 
-    :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
-    :type jwt_payload: dict
-    :return: If successful then sends back definition for table otherwise returns error.
-    :rtype: dict
+#     :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
+#     :type jwt_payload: dict
+#     :return: If successful then sends back definition for table otherwise returns error.
+#     :rtype: dict
 
-    .. http:post:: /get_table_definition
+#     .. http:post:: /get_table_definition
 
-        Route to get DataJoint table definition.
+#         Route to get DataJoint table definition.
 
-        **Example request**:
+#         **Example request**:
 
-        .. sourcecode:: http
+#         .. sourcecode:: http
 
-            POST /get_table_definition HTTP/1.1
-            Host: fakeservices.datajoint.io
-            Accept: application/json
+#             POST /get_table_definition HTTP/1.1
+#             Host: fakeservices.datajoint.io
+#             Accept: application/json
 
-            {
-                "schemaName": "alpha_company",
-                "tableName": "Computer"
-            }
+#             {
+#                 "schemaName": "alpha_company",
+#                 "tableName": "Computer"
+#             }
 
-        **Example successful response**:
+#         **Example successful response**:
 
-        .. sourcecode:: http
+#         .. sourcecode:: http
 
-            HTTP/1.1 200 OK
-            Vary: Accept
-            Content-Type: text/plain
+#             HTTP/1.1 200 OK
+#             Vary: Accept
+#             Content-Type: text/plain
 
-            # Computers that belong to the company
-            computer_id          : uuid                     # unique id
-            ---
-            computer_serial      : varchar(9)               # manufacturer serial number
-            computer_brand       : enum('HP','Dell')        # manufacturer brand
-            computer_built       : date                     # manufactured date
-            computer_processor   : double                   # processing power in GHz
-            computer_memory      : int                      # RAM in GB
-            computer_weight      : float                    # weight in lbs
-            computer_cost        : decimal(6,2)             # purchased price
-            computer_preowned    : tinyint                  # purchased as new or used
-            computer_purchased   : datetime                 # purchased date and time
-            computer_updates=null : time                     # scheduled daily update timeslot
-
-
-        **Example unexpected response**:
-
-        .. sourcecode:: http
-
-            HTTP/1.1 500 Internal Server Error
-            Vary: Accept
-            Content-Type: text/plain
-
-            400 Bad Request: The browser (or proxy) sent a request that this server could not
-                understand.
-
-        :reqheader Authorization: Bearer <OAuth2_token>
-        :resheader Content-Type: text/plain
-        :statuscode 200: No error.
-        :statuscode 500: Unexpected error encountered. Returns the error message as a string.
-    """
-    try:
-        table_definition = DJConnector.get_table_definition(jwt_payload,
-                                                            request.json["schemaName"],
-                                                            request.json["tableName"])
-        return table_definition
-    except Exception as e:
-        return str(e), 500
+#             # Computers that belong to the company
+#             computer_id          : uuid                     # unique id
+#             ---
+#             computer_serial      : varchar(9)               # manufacturer serial number
+#             computer_brand       : enum('HP','Dell')        # manufacturer brand
+#             computer_built       : date                     # manufactured date
+#             computer_processor   : double                   # processing power in GHz
+#             computer_memory      : int                      # RAM in GB
+#             computer_weight      : float                    # weight in lbs
+#             computer_cost        : decimal(6,2)             # purchased price
+#             computer_preowned    : tinyint                  # purchased as new or used
+#             computer_purchased   : datetime                 # purchased date and time
+#             computer_updates=null : time                     # scheduled daily update timeslot
 
 
-@app.route(f"{environ.get('PHARUS_PREFIX', '')}/get_table_attributes", methods=['POST'])
+#         **Example unexpected response**:
+
+#         .. sourcecode:: http
+
+#             HTTP/1.1 500 Internal Server Error
+#             Vary: Accept
+#             Content-Type: text/plain
+
+#             400 Bad Request: The browser (or proxy) sent a request that this server could not
+#                 understand.
+
+#         :reqheader Authorization: Bearer <OAuth2_token>
+#         :resheader Content-Type: text/plain
+#         :statuscode 200: No error.
+#         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
+#     """
+#     try:
+#         table_definition = DJConnector.get_table_definition(jwt_payload,
+#                                                             request.json["schemaName"],
+#                                                             request.json["tableName"])
+#         return table_definition
+#     except Exception as e:
+#         return str(e), 500
+
+
+@app.route(f"{environ.get('PHARUS_PREFIX', '')}/attribute", methods=['GET'])
 @protected_route
 def get_table_attributes(jwt_payload: dict) -> dict:
     """
@@ -643,12 +643,13 @@ def get_table_attributes(jwt_payload: dict) -> dict:
         :statuscode 200: No error.
         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
     """
-    try:
-        return DJConnector.get_table_attributes(jwt_payload,
-                                                request.json["schemaName"],
-                                                request.json["tableName"])
-    except Exception as e:
-        return str(e), 500
+    if request.method == 'GET':
+        try:
+            return DJConnector.get_table_attributes(jwt_payload,
+                                                    request.args["schemaName"],
+                                                    request.args["tableName"])
+        except Exception as e:
+            return str(e), 500
 
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/record", methods=['POST'])

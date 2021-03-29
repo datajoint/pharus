@@ -88,16 +88,16 @@ class DJConnector():
             table_type = dj.diagram._get_tier(
                 '`' + schema_name + '`.`' + table_name + '`').__name__
             if table_type == 'Manual':
-                tables_dict_list['manual_tables'].append(dj.utils.to_camel_case(table_name))
+                tables_dict_list['manual'].append(dj.utils.to_camel_case(table_name))
             elif table_type == 'Lookup':
-                tables_dict_list['lookup_tables'].append(dj.utils.to_camel_case(table_name))
+                tables_dict_list['lookup'].append(dj.utils.to_camel_case(table_name))
             elif table_type == 'Computed':
-                tables_dict_list['computed_tables'].append(dj.utils.to_camel_case(table_name))
+                tables_dict_list['computed'].append(dj.utils.to_camel_case(table_name))
             elif table_type == 'Imported':
-                tables_dict_list['imported_tables'].append(dj.utils.to_camel_case(table_name))
+                tables_dict_list['imported'].append(dj.utils.to_camel_case(table_name))
             elif table_type == 'Part':
                 table_name_parts = table_name.split('__')
-                tables_dict_list['part_tables'].append(
+                tables_dict_list['part'].append(
                     to_camel_case(table_name_parts[-2]) + '.' +
                     to_camel_case(table_name_parts[-1]))
             else:
@@ -205,7 +205,7 @@ class DJConnector():
 
             # Add the row list to tuples
             rows.append(row)
-        return rows, len(query)
+        return table.heading.attributes.keys(), rows, len(query)
 
     @staticmethod
     def get_table_attributes(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
@@ -225,16 +225,16 @@ class DJConnector():
         :rtype: dict
         """
         DJConnector.set_datajoint_config(jwt_payload)
-
-        schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
+        local_values = locals()
+        local_values[schema_name] = dj.VirtualModule(schema_name, schema_name)
 
         # Get table object from name
-        table = DJConnector.get_table_object(schema_virtual_module, table_name)
+        table = DJConnector.get_table_object(local_values[schema_name], table_name)
 
-        table_attributes = dict(primary_attributes=[], secondary_attributes=[])
+        table_attributes = dict(primary=[], secondary=[])
         for attribute_name, attribute_info in table.heading.attributes.items():
             if attribute_info.in_key:
-                table_attributes['primary_attributes'].append((
+                table_attributes['primary'].append((
                     attribute_name,
                     attribute_info.type,
                     attribute_info.nullable,
@@ -242,7 +242,7 @@ class DJConnector():
                     attribute_info.autoincrement
                     ))
             else:
-                table_attributes['secondary_attributes'].append((
+                table_attributes['secondary'].append((
                     attribute_name,
                     attribute_info.type,
                     attribute_info.nullable,
@@ -250,28 +250,28 @@ class DJConnector():
                     attribute_info.autoincrement
                     ))
 
-        return table_attributes
+        return dict(attribute_header=['name', 'type', 'nullable', 'default', 'autoincrement'], attributes=table_attributes, table_definition=table.describe())
 
-    @staticmethod
-    def get_table_definition(jwt_payload: dict, schema_name: str, table_name: str) -> str:
-        """
-        Get the table definition.
+    # @staticmethod
+    # def get_table_definition(jwt_payload: dict, schema_name: str, table_name: str) -> str:
+    #     """
+    #     Get the table definition.
 
-        :param jwt_payload: Dictionary containing databaseAddress, username, and password
-            strings
-        :type jwt_payload: dict
-        :param schema_name: Name of schema to list all tables from
-        :type schema_name: str
-        :param table_name: Table name under the given schema; must be in camel case
-        :type table_name: str
-        :return: Definition of the table
-        :rtype: str
-        """
-        DJConnector.set_datajoint_config(jwt_payload)
+    #     :param jwt_payload: Dictionary containing databaseAddress, username, and password
+    #         strings
+    #     :type jwt_payload: dict
+    #     :param schema_name: Name of schema to list all tables from
+    #     :type schema_name: str
+    #     :param table_name: Table name under the given schema; must be in camel case
+    #     :type table_name: str
+    #     :return: Definition of the table
+    #     :rtype: str
+    #     """
+    #     DJConnector.set_datajoint_config(jwt_payload)
 
-        local_values = locals()
-        local_values[schema_name] = dj.VirtualModule(schema_name, schema_name)
-        return getattr(local_values[schema_name], table_name).describe()
+    #     local_values = locals()
+    #     local_values[schema_name] = dj.VirtualModule(schema_name, schema_name)
+    #     return getattr(local_values[schema_name], table_name).describe()
 
     @staticmethod
     def insert_tuple(jwt_payload: dict, schema_name: str, table_name: str,
