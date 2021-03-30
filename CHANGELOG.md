@@ -4,7 +4,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 
 ## [0.1.0] - 2021-03-31
 ### Changed
-- Update `datajoint` to newly released `0.13.0`.
+- Update `datajoint` to newly released `0.13.0`. PR #97
 
 ## [0.1.0b2] - 2021-03-12
 
