@@ -1,9 +1,10 @@
 """Exposed REST API."""
 from os import environ
-from .interface import DJConnector
+from .interface import _DJConnector
 from . import __version__ as version
 from typing import Callable
 from functools import wraps
+from typing import Union
 
 # Crypto libaries
 from cryptography.hazmat.primitives import serialization as crypto_serialization
@@ -42,7 +43,7 @@ def protected_route(function: Callable) -> Callable:
 
     :param function: Function to decorate, typically routes
     :type function: :class:`~typing.Callable`
-    :return: Function output if jwt authetication is successful, otherwise return error
+    :return: Function output if JWT authetication is successful, otherwise return error
         message
     :rtype: :class:`~typing.Callable`
     """
@@ -118,12 +119,12 @@ def login() -> dict:
 
     Handler for ``/login`` route.
 
-    :return: Function output is encoded jwt if successful, otherwise return error message
+    :return: Function output is an encoded JWT if successful, otherwise return error message
     :rtype: dict
 
     .. http:post:: /login
 
-        Route to get authentication token.
+        Route to generate an authentication token.
 
         **Example request**:
 
@@ -174,9 +175,9 @@ def login() -> dict:
 
         # Try to login in with the database connection info, if true then create jwt key
         try:
-            DJConnector.attempt_login(request.json['databaseAddress'],
-                                      request.json['username'],
-                                      request.json['password'])
+            _DJConnector._attempt_login(request.json['databaseAddress'],
+                                        request.json['username'],
+                                        request.json['password'])
             # Generate JWT key and send it back
             encoded_jwt = jwt.encode(request.json, environ['PHARUS_PRIVATE_KEY'],
                                      algorithm='RS256')
@@ -206,6 +207,7 @@ def schema(jwt_payload: dict) -> dict:
 
             GET /schema HTTP/1.1
             Host: fakeservices.datajoint.io
+            Authorization: Bearer <token>
 
         **Example successful response**:
 
@@ -220,7 +222,6 @@ def schema(jwt_payload: dict) -> dict:
                     "alpha_company"
                 ]
             }
-
 
         **Example unexpected response**:
 
@@ -241,7 +242,7 @@ def schema(jwt_payload: dict) -> dict:
     if request.method in {'GET', 'HEAD'}:
         # Get all the schemas
         try:
-            schemas_name = DJConnector.list_schemas(jwt_payload)
+            schemas_name = _DJConnector._list_schemas(jwt_payload)
             return dict(schemaNames=schemas_name)
         except Exception as e:
             return str(e), 500
@@ -251,14 +252,16 @@ def schema(jwt_payload: dict) -> dict:
 @protected_route
 def table(jwt_payload: dict, schema_name: str) -> dict:
     """
-    Handler for ``/table`` route.
+    Handler for ``/schema/{schema_name}/table`` route.
 
     :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
     :type jwt_payload: dict
-    :return: If successful then sends back a list of tables names otherwise returns error.
+    :param schema_name: Schema name.
+    :type schema_name: str
+    :return: If successful then sends back a list of table names otherwise returns error.
     :rtype: dict
 
-    .. http:get:: /table
+    .. http:get:: /schema/{schema_name}/table
 
         Route to get tables within a schema.
 
@@ -266,8 +269,9 @@ def table(jwt_payload: dict, schema_name: str) -> dict:
 
         .. sourcecode:: http
 
-            GET /table HTTP/1.1
+            GET /schema/alpha_company/table HTTP/1.1
             Host: fakeservices.datajoint.io
+            Authorization: Bearer <token>
 
         **Example successful response**:
 
@@ -291,7 +295,6 @@ def table(jwt_payload: dict, schema_name: str) -> dict:
                 }
             }
 
-
         **Example unexpected response**:
 
         .. sourcecode:: http
@@ -303,7 +306,7 @@ def table(jwt_payload: dict, schema_name: str) -> dict:
             400 Bad Request: The browser (or proxy) sent a request that this server could not
                 understand.
 
-        :query schemaName: Schema name.
+        :query schema_name: Schema name.
         :reqheader Authorization: Bearer <OAuth2_token>
         :resheader Content-Type: text/plain, application/json
         :statuscode 200: No error.
@@ -311,7 +314,7 @@ def table(jwt_payload: dict, schema_name: str) -> dict:
     """
     if request.method in {'GET', 'HEAD'}:
         try:
-            tables_dict_list = DJConnector.list_tables(jwt_payload, schema_name)
+            tables_dict_list = _DJConnector._list_tables(jwt_payload, schema_name)
             return dict(tableTypes=tables_dict_list)
         except Exception as e:
             return str(e), 500
@@ -319,19 +322,23 @@ def table(jwt_payload: dict, schema_name: str) -> dict:
 
 @app.route(
     f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/record",
-    methods=['GET'])
+    methods=['GET', 'POST', 'PATCH', 'DELETE'])
 @protected_route
-def get_record(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
+def record(jwt_payload: dict, schema_name: str, table_name: str) -> Union[dict, str, tuple]:
     ("""
-    Handler for ``/record`` route.
+    Handler for ``/schema/{schema_name}/table/{table_name}/record`` route.
 
     :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
     :type jwt_payload: dict
-    :return: If successful then sends back dict with records and total count from query
-        otherwise returns error.
-    :rtype: dict
+    :param schema_name: Schema name.
+    :type schema_name: str
+    :param table_name: Table name.
+    :type table_name: str
+    :return: If successful performs desired operation based on HTTP method, otherwise returns
+        error.
+    :rtype: :class:`~typing.Union[dict, str, tuple]`
 
-    .. http:get:: /record
+    .. http:get:: /schema/{schema_name}/table/{table_name}/record
 
         Route to fetch records.
 
@@ -339,17 +346,12 @@ def get_record(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
 
         .. sourcecode:: http
 
-            GET /record?schemaName=alpha_company&tableName=Computer&limit=2&page=1&"""
+            GET /schema/alpha_company/table/Computer/record?limit=1&page=2&"""
      "order=computer_id%20DESC&restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLC"
-     "Aib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMzJ9XQo="
+     "Aib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo="
      """ HTTP/1.1
             Host: fakeservices.datajoint.io
-            Accept: application/json
-
-            {
-                "schemaName": "alpha_company",
-                "tableName": "Computer"
-            }
+            Authorization: Bearer <token>
 
         **Example successful response**:
 
@@ -360,35 +362,37 @@ def get_record(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
             Content-Type: application/json
 
             {
-                "total_count": 4,
-                "tuples": [
+                "recordHeader": [
+                    "computer_id",
+                    "computer_serial",
+                    "computer_brand",
+                    "computer_built",
+                    "computer_processor",
+                    "computer_memory",
+                    "computer_weight",
+                    "computer_cost",
+                    "computer_preowned",
+                    "computer_purchased",
+                    "computer_updates",
+                    "computer_accessories"
+                ],
+                "records": [
                     [
-                        "eee3491a-86d5-4af7-a013-89bde75528bd",
-                        "ABCDEFJHE",
+                        "4e41491a-86d5-4af7-a013-89bde75528bd",
+                        "DJS1JA17G",
                         "Dell",
-                        1611705600,
+                        1590364800,
                         2.2,
-                        32,
-                        11.5,
-                        "1100.93",
-                        5,
-                        1614265209,
-                        0
-                    ],
-                    [
-                        "ddd1491a-86d5-4af7-a013-89bde75528bd",
-                        "ABCDEFJHI",
-                        "Dell",
-                        1614556800,
-                        2.8,
-                        64,
-                        13.5,
-                        "1200.99",
-                        2,
-                        1614564122,
-                        null
+                        16,
+                        4.4,
+                        "700.99",
+                        0,
+                        1603181061,
+                        null,
+                        "=BLOB="
                     ]
-                ]
+                ],
+                "totalCount": 2
             }
 
         **Example unexpected response**:
@@ -402,301 +406,51 @@ def get_record(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
             400 Bad Request: The browser (or proxy) sent a request that this server could not
                 understand.
 
+        :query schema_name: Schema name.
+        :query table_name: Table name.
         :query limit: Limit of how many records per page. Defaults to ``1000``.
         :query page: Page requested. Defaults to ``1``.
         :query order: Sort order. Defaults to ``KEY ASC``.
         :query restriction: Base64-encoded ``AND`` sequence of restrictions. For example, you
-            could restrict as ``[{"attributeName": "computer_memory">=", "value": 32}]`` with
-            this param set as ``""" "W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl"
-     """cmF0aW9uIjo``-``gIj49IiwgInZhbHVlIjogMzJ9XQo=``. Defaults to no restriction.
+            could restrict as ``[{"attributeName": "computer_memory", "operation": ">=",``-
+            ``"value": 16}]`` with this param set as
+            ``W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl``-
+            ``cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=``. Defaults to no restriction.
         :reqheader Authorization: Bearer <OAuth2_token>
         :resheader Content-Type: text/plain, application/json
         :statuscode 200: No error.
         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
-    """)
-    if request.method in {'GET', 'HEAD'}:
-        try:
-            record_header, table_tuples, total_count = DJConnector.fetch_tuples(
-                jwt_payload=jwt_payload,
-                schema_name=schema_name,
-                table_name=table_name,
-                **{k: (int(v) if k in ('limit', 'page')
-                       else (v.split(',') if k == 'order' else loads(
-                        b64decode(v.encode('utf-8')).decode('utf-8'))))
-                   for k, v in request.args.items()},
-                )
-            return dict(recordHeader=record_header, records=table_tuples,
-                        totalCount=total_count)
-        except Exception as e:
-            return str(e), 500
 
+    .. http:post:: /schema/{schema_name}/table/{table_name}/record
 
-@app.route(
-    f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/definition",
-    methods=['GET'])
-@protected_route
-def definition(jwt_payload: dict, schema_name: str, table_name: str) -> str:
-    """
-    Handler for ``/get_table_definition`` route.
-
-    :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
-    :type jwt_payload: dict
-    :return: If successful then sends back definition for table otherwise returns error.
-    :rtype: dict
-
-    .. http:post:: /get_table_definition
-
-        Route to get DataJoint table definition.
+        Route to insert a record. Omitted attributes utilize the default if set.
 
         **Example request**:
 
         .. sourcecode:: http
 
-            POST /get_table_definition HTTP/1.1
+            POST /schema/alpha_company/table/Computer/record HTTP/1.1
             Host: fakeservices.datajoint.io
             Accept: application/json
+            Authorization: Bearer <token>
 
             {
-                "schemaName": "alpha_company",
-                "tableName": "Computer"
-            }
-
-        **Example successful response**:
-
-        .. sourcecode:: http
-
-            HTTP/1.1 200 OK
-            Vary: Accept
-            Content-Type: text/plain
-
-            # Computers that belong to the company
-            computer_id          : uuid                     # unique id
-            ---
-            computer_serial      : varchar(9)               # manufacturer serial number
-            computer_brand       : enum('HP','Dell')        # manufacturer brand
-            computer_built       : date                     # manufactured date
-            computer_processor   : double                   # processing power in GHz
-            computer_memory      : int                      # RAM in GB
-            computer_weight      : float                    # weight in lbs
-            computer_cost        : decimal(6,2)             # purchased price
-            computer_preowned    : tinyint                  # purchased as new or used
-            computer_purchased   : datetime                 # purchased date and time
-            computer_updates=null : time                     # scheduled daily update timeslot
-
-
-        **Example unexpected response**:
-
-        .. sourcecode:: http
-
-            HTTP/1.1 500 Internal Server Error
-            Vary: Accept
-            Content-Type: text/plain
-
-            400 Bad Request: The browser (or proxy) sent a request that this server could not
-                understand.
-
-        :reqheader Authorization: Bearer <OAuth2_token>
-        :resheader Content-Type: text/plain
-        :statuscode 200: No error.
-        :statuscode 500: Unexpected error encountered. Returns the error message as a string.
-    """
-    if request.method in {'GET', 'HEAD'}:
-        try:
-            table_definition = DJConnector.get_table_definition(jwt_payload, schema_name,
-                                                                table_name)
-            return table_definition
-        except Exception as e:
-            return str(e), 500
-
-
-@app.route(
-    f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/attribute",
-    methods=['GET'])
-@protected_route
-def get_table_attributes(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
-    """
-    Handler for ``/get_table_attributes`` route.
-
-    :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
-    :type jwt_payload: dict
-    :return: If successful then sends back dict of table attributes otherwise returns error.
-    :rtype: dict
-
-    .. http:post:: /get_table_attributes
-
-        Route to get metadata on table attributes.
-
-        **Example request**:
-
-        .. sourcecode:: http
-
-            POST /get_table_attributes HTTP/1.1
-            Host: fakeservices.datajoint.io
-            Accept: application/json
-
-            {
-                "schemaName": "alpha_company",
-                "tableName": "Computer"
-            }
-
-        **Example successful response**:
-
-        .. sourcecode:: http
-
-            HTTP/1.1 200 OK
-            Vary: Accept
-            Content-Type: application/json
-
-            {
-                "primary_attributes": [
-                    [
-                        "computer_id",
-                        "uuid",
-                        false,
-                        null,
-                        false
-                    ]
-                ],
-                "secondary_attributes": [
-                    [
-                        "computer_serial",
-                        "varchar(9)",
-                        false,
-                        null,
-                        false
-                    ],
-                    [
-                        "computer_brand",
-                        "enum('HP','Dell')",
-                        false,
-                        null,
-                        false
-                    ],
-                    [
-                        "computer_built",
-                        "date",
-                        false,
-                        null,
-                        false
-                    ],
-                    [
-                        "computer_processor",
-                        "double",
-                        false,
-                        null,
-                        false
-                    ],
-                    [
-                        "computer_memory",
-                        "int",
-                        false,
-                        null,
-                        false
-                    ],
-                    [
-                        "computer_weight",
-                        "float",
-                        false,
-                        null,
-                        false
-                    ],
-                    [
-                        "computer_cost",
-                        "decimal(6,2)",
-                        false,
-                        null,
-                        false
-                    ],
-                    [
-                        "computer_preowned",
-                        "tinyint",
-                        false,
-                        null,
-                        false
-                    ],
-                    [
-                        "computer_purchased",
-                        "datetime",
-                        false,
-                        null,
-                        false
-                    ],
-                    [
-                        "computer_updates",
-                        "time",
-                        true,
-                        "null",
-                        false
-                    ]
+                "records": [
+                    {
+                        "computer_id": "ffffffff-86d5-4af7-a013-89bde75528bd",
+                        "computer_serial": "ZYXWVEISJ",
+                        "computer_brand": "HP",
+                        "computer_built": "2021-01-01",
+                        "computer_processor": 2.7,
+                        "computer_memory": 32,
+                        "computer_weight": 3.7,
+                        "computer_cost": 599.99,
+                        "computer_preowned": 0,
+                        "computer_purchased": "2021-02-01 13:00:00",
+                        "computer_updates": 0
+                    }
                 ]
             }
-
-        **Example unexpected response**:
-
-        .. sourcecode:: http
-
-            HTTP/1.1 500 Internal Server Error
-            Vary: Accept
-            Content-Type: text/plain
-
-            400 Bad Request: The browser (or proxy) sent a request that this server could not
-                understand.
-
-        :reqheader Authorization: Bearer <OAuth2_token>
-        :resheader Content-Type: text/plain, application/json
-        :statuscode 200: No error.
-        :statuscode 500: Unexpected error encountered. Returns the error message as a string.
-    """
-    if request.method in {'GET', 'HEAD'}:
-        try:
-            return DJConnector.get_table_attributes(jwt_payload, schema_name, table_name)
-        except Exception as e:
-            return str(e), 500
-
-
-@app.route(
-    f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/record",
-    methods=['POST'])
-@protected_route
-def post_record(jwt_payload: dict, schema_name: str, table_name: str) -> str:
-    """
-    Handler for ``/insert_tuple`` route.
-
-    :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
-    :type jwt_payload: dict
-    :return: If successful then returns ``Insert Successful`` otherwise returns error.
-    :rtype: dict
-
-    .. http:post:: /insert_tuple
-
-        Route to insert a record.
-
-        **Example request**:
-
-        .. sourcecode:: http
-
-            POST /insert_tuple HTTP/1.1
-            Host: fakeservices.datajoint.io
-            Accept: application/json
-
-            {
-                "schemaName": "alpha_company",
-                "tableName": "Computer",
-                "tuple": {
-                    "computer_id": "ffffffff-86d5-4af7-a013-89bde75528bd",
-                    "computer_serial": "ZYXWVEISJ",
-                    "computer_brand": "HP",
-                    "computer_built": "2021-01-01",
-                    "computer_processor": 2.7,
-                    "computer_memory": 32,
-                    "computer_weight": 3.7,
-                    "computer_cost": 599.99,
-                    "computer_preowned": 0,
-                    "computer_purchased": "2021-02-01 13:00:00",
-                    "computer_updates": 0
-                }
-            }
-
 
         **Example successful response**:
 
@@ -718,154 +472,42 @@ def post_record(jwt_payload: dict, schema_name: str, table_name: str) -> str:
 
             400 Bad Request: The browser (or proxy) sent a request that this server could not
                 understand.
-s
+
         :reqheader Authorization: Bearer <OAuth2_token>
         :resheader Content-Type: text/plain
         :statuscode 200: No error.
         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
-    """
-    if request.method == 'POST':
-        try:
-            # Attempt to insert
-            DJConnector.insert_tuple(jwt_payload,
-                                     schema_name,
-                                     table_name,
-                                     request.json["records"])
-            return "Insert Successful"
-        except Exception as e:
-            return str(e), 500
 
+    .. http:patch:: /schema/{schema_name}/table/{table_name}/record
 
-@app.route(
-    f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/dependency",
-    methods=['GET'])
-@protected_route
-def record_dependency(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
-    ("""
-    Handler for ``/record/dependency`` route.
-
-    :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
-    :type jwt_payload: dict
-    :return: If sucessfuly sends back a list of dependencies otherwise returns error.
-    :rtype: dict
-
-    .. http:get:: /record/dependency
-
-        Route to get the metadata in relation to the dependent records associated with a """
-        """restricted subset of a table.
+        Route to update a record. Omitted attributes utilize the default if set.
 
         **Example request**:
 
         .. sourcecode:: http
 
-            GET /fetch_tuples?schemaName=alpha_company&tableName=Computer&"""
-     "restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49Iiw"
-     "gInZhbHVlIjogMzJ9XQo="
-     """ HTTP/1.1
+            PATCH /schema/alpha_company/table/Computer/record HTTP/1.1
             Host: fakeservices.datajoint.io
-
-        **Example successful response**:
-
-        .. sourcecode:: http
-
-            HTTP/1.1 200 OK
-            Vary: Accept
-            Content-Type: application/json
+            Accept: application/json
+            Authorization: Bearer <token>
 
             {
-                "dependencies": [
+                "records": [
                     {
-                        "accessible": true,
-                        "count": 7,
-                        "schema": "alpha_company",
-                        "table": "computer"
-                    },
-                    {
-                        "accessible": true,
-                        "count": 2,
-                        "schema": "alpha_company",
-                        "table": "#employee"
+                        "computer_id": "ffffffff-86d5-4af7-a013-89bde75528bd",
+                        "computer_serial": "ZYXWVEISJ",
+                        "computer_brand": "HP",
+                        "computer_built": "2021-01-01",
+                        "computer_processor": 2.7,
+                        "computer_memory": 32,
+                        "computer_weight": 3.7,
+                        "computer_cost": 601.01,
+                        "computer_preowned": 0,
+                        "computer_purchased": "2021-02-01 13:00:00",
+                        "computer_updates": 0
                     }
                 ]
             }
-
-        **Example unexpected response**:
-
-        .. sourcecode:: http
-
-            HTTP/1.1 500 Internal Server Error
-            Vary: Accept
-            Content-Type: text/plain
-
-            400 Bad Request: The browser (or proxy) sent a request that this server could not
-                understand.
-
-        :query schemaName: Schema name.
-        :query tableName: Table name.
-        :query restriction: Base64-encoded ``AND`` sequence of restrictions. For example, you
-            could restrict as ``[{"attributeName": "computer_memory">=", "value": 32}]`` with
-            this param set as ``""" "W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl"
-     """cmF0aW9uIjo``-``gIj49IiwgInZhbHVlIjogMzJ9XQo=``.
-        :reqheader Authorization: Bearer <OAuth2_token>
-        :resheader Content-Type: text/plain, application/json
-        :statuscode 200: No error.
-        :statuscode 500: Unexpected error encountered. Returns the error message as a string.
-    """)
-    if request.method in {'GET', 'HEAD'}:
-        # Get dependencies
-        try:
-            dependencies = DJConnector.record_dependency(
-                jwt_payload, schema_name, table_name,
-                loads(b64decode(
-                    request.args.get('restriction').encode('utf-8')).decode('utf-8')))
-            return dict(dependencies=dependencies)
-        except Exception as e:
-            return str(e), 500
-
-
-@app.route(
-    f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/record",
-    methods=['PATCH'])
-@protected_route
-def patch_record(jwt_payload: dict, schema_name: str, table_name: str) -> str:
-    """
-    Handler for ``/update_tuple`` route.
-
-    :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
-    :type jwt_payload: dict
-    :return: If successful then returns ``Update Successful`` otherwise returns error.
-    :rtype: dict
-
-    .. http:post:: /update_tuple
-
-        Route to update a record.
-
-        **Example request**:
-
-        .. sourcecode:: http
-
-            POST /update_tuple HTTP/1.1
-            Host: fakeservices.datajoint.io
-            Accept: application/json
-
-            {
-                "schemaName": "alpha_company",
-                "tableName": "Computer",
-                "tuple": {
-                    "computer_id": "ffffffff-86d5-4af7-a013-89bde75528bd",
-                    "computer_serial": "ZYXWVEISJ",
-                    "computer_brand": "HP",
-                    "computer_built": "2021-01-01",
-                    "computer_processor": 2.7,
-                    "computer_memory": 32,
-                    "computer_weight": 3.7,
-                    "computer_cost": 399.99,
-                    "computer_preowned": 0,
-                    "computer_purchased": "2021-02-01 13:00:00",
-                    "computer_updates": 0
-                }
-            }
-
 
         **Example successful response**:
 
@@ -892,33 +534,8 @@ def patch_record(jwt_payload: dict, schema_name: str, table_name: str) -> str:
         :resheader Content-Type: text/plain
         :statuscode 200: No error.
         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
-    """
-    if request.method == 'PATCH':
-        try:
-            # Attempt to insert
-            DJConnector.update_tuple(jwt_payload,
-                                     schema_name,
-                                     table_name,
-                                     request.json["records"])
-            return "Update Successful"
-        except Exception as e:
-            return str(e), 500
 
-
-@app.route(
-    f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/record",
-    methods=['DELETE'])
-@protected_route
-def delete_record(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
-    """
-    Handler for ``/delete_tuple`` route.
-
-    :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
-    :type jwt_payload: dict
-    :return: If successful returns ``Delete Successful`` otherwise returns error.
-    :rtype: dict
-
-    .. http:post:: /delete_tuple
+    .. http:delete:: /schema/{schema_name}/table/{table_name}/record
 
         Route to delete a specific record.
 
@@ -926,17 +543,12 @@ def delete_record(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
 
         .. sourcecode:: http
 
-            POST /delete_tuple HTTP/1.1
+            DELETE /schema/alpha_company/table/Computer/record?cascade=false&"""
+     "restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49Iiw"
+     "gInZhbHVlIjogMTZ9XQo="
+     """ HTTP/1.1
             Host: fakeservices.datajoint.io
-            Accept: application/json
-
-            {
-                "schemaName": "alpha_company",
-                "tableName": "Computer",
-                "restrictionTuple": {
-                    "computer_id": "4e41491a-86d5-4af7-a013-89bde75528bd"
-                }
-            }
+            Authorization: Bearer <token>
 
         **Example successful response**:
 
@@ -979,24 +591,66 @@ def delete_record(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
 
         :query cascade: Enable cascading delete. Accepts ``true`` or ``false``.
             Defaults to ``false``.
+        :query restriction: Base64-encoded ``AND`` sequence of restrictions. For example, you
+            could restrict as ``[{"attributeName": "computer_memory", "operation": ">=",``-
+            ``"value": 16}]`` with this param set as
+            ``W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl``-
+            ``cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=``. Defaults to no restriction.
         :reqheader Authorization: Bearer <OAuth2_token>
         :resheader Content-Type: text/plain, application/json
         :statuscode 200: No error.
         :statuscode 409: Attempting to delete a record with dependents while ``cascade`` set
             to ``false``.
         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
-    """
-    if request.method == 'DELETE':
+    """)
+    if request.method in {'GET', 'HEAD'}:
+        try:
+            record_header, table_tuples, total_count = _DJConnector._fetch_records(
+                jwt_payload=jwt_payload,
+                schema_name=schema_name,
+                table_name=table_name,
+                **{k: (int(v) if k in ('limit', 'page')
+                       else (v.split(',') if k == 'order' else loads(
+                        b64decode(v.encode('utf-8')).decode('utf-8'))))
+                   for k, v in request.args.items()},
+                )
+            return dict(recordHeader=record_header, records=table_tuples,
+                        totalCount=total_count)
+        except Exception as e:
+            return str(e), 500
+    elif request.method == 'POST':
+        try:
+            # Attempt to insert
+            _DJConnector._insert_tuple(jwt_payload,
+                                       schema_name,
+                                       table_name,
+                                       request.json["records"])
+            return "Insert Successful"
+        except Exception as e:
+            return str(e), 500
+    elif request.method == 'PATCH':
+        try:
+            # Attempt to insert
+            _DJConnector._update_tuple(jwt_payload,
+                                       schema_name,
+                                       table_name,
+                                       request.json["records"])
+            return "Update Successful"
+        except Exception as e:
+            return str(e), 500
+    elif request.method == 'DELETE':
         try:
             # Attempt to delete tuple
-            DJConnector.delete_tuple(jwt_payload,
-                                     schema_name,
-                                     table_name,
-                                     **{k: loads(b64decode(v.encode('utf-8')).decode('utf-8'))
-                                        for k, v in request.args.items()
-                                        if k == 'restriction'},
-                                     **{k: v.lower() == 'true'
-                                        for k, v in request.args.items() if k == 'cascade'},)
+            _DJConnector._delete_records(jwt_payload,
+                                         schema_name,
+                                         table_name,
+                                         **{k: loads(b64decode(
+                                               v.encode('utf-8')).decode('utf-8'))
+                                            for k, v in request.args.items()
+                                            if k == 'restriction'},
+                                         **{k: v.lower() == 'true'
+                                            for k, v in request.args.items()
+                                            if k == 'cascade'})
             return "Delete Sucessful"
         except IntegrityError as e:
             match = foreign_key_error_regexp.match(e.args[0])
@@ -1005,6 +659,338 @@ def delete_record(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
                         childSchema=match.group('child').split('.')[0][1:-1],
                         childTable=to_camel_case(match.group('child').split('.')[1][1:-1]),
                         ), 409
+        except Exception as e:
+            return str(e), 500
+
+
+@app.route(
+    f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/definition",
+    methods=['GET'])
+@protected_route
+def definition(jwt_payload: dict, schema_name: str, table_name: str) -> str:
+    """
+    Handler for ``/schema/{schema_name}/table/{table_name}/definition`` route.
+
+    :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
+    :type jwt_payload: dict
+    :param schema_name: Schema name.
+    :type schema_name: str
+    :param table_name: Table name.
+    :type table_name: str
+    :return: If successful then sends back definition for table otherwise returns error.
+    :rtype: str
+
+    .. http:get:: /schema/{schema_name}/table/{table_name}/definition
+
+        Route to get DataJoint table definition.
+
+        **Example request**:
+
+        .. sourcecode:: http
+
+            GET /schema/alpha_company/table/Computer/definition HTTP/1.1
+            Host: fakeservices.datajoint.io
+            Authorization: Bearer <token>
+
+        **Example successful response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/plain
+
+            # Computers that belong to the company
+            computer_id          : uuid                      # unique id
+            ---
+            computer_serial="ABC101" : varchar(9)            # manufacturer serial number
+            computer_brand       : enum('HP','Dell')         # manufacturer brand
+            computer_built       : date                      # manufactured date
+            computer_processor   : double                    # processing power in GHz
+            computer_memory      : int                       # RAM in GB
+            computer_weight      : float                     # weight in lbs
+            computer_cost        : decimal(6,2)              # purchased price
+            computer_preowned    : tinyint                   # purchased as new or used
+            computer_purchased   : datetime                  # purchased date and time
+            computer_updates=null : time                     # scheduled daily update timeslot
+            computer_accessories=null : longblob             # included additional accessories
+
+        **Example unexpected response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 500 Internal Server Error
+            Vary: Accept
+            Content-Type: text/plain
+
+            400 Bad Request: The browser (or proxy) sent a request that this server could not
+                understand.
+
+        :reqheader Authorization: Bearer <OAuth2_token>
+        :resheader Content-Type: text/plain
+        :statuscode 200: No error.
+        :statuscode 500: Unexpected error encountered. Returns the error message as a string.
+    """
+    if request.method in {'GET', 'HEAD'}:
+        try:
+            table_definition = _DJConnector._get_table_definition(jwt_payload, schema_name,
+                                                                  table_name)
+            return table_definition
+        except Exception as e:
+            return str(e), 500
+
+
+@app.route(
+    f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/attribute",
+    methods=['GET'])
+@protected_route
+def attribute(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
+    """
+    Handler for ``/schema/{schema_name}/table/{table_name}/attribute`` route.
+
+    :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
+    :type jwt_payload: dict
+    :param schema_name: Schema name.
+    :type schema_name: str
+    :param table_name: Table name.
+    :type table_name: str
+    :return: If successful then sends back dict of table attributes otherwise returns error.
+    :rtype: dict
+
+    .. http:GET:: /schema/{schema_name}/table/{table_name}/attribute
+
+        Route to get metadata on table attributes.
+
+        **Example request**:
+
+        .. sourcecode:: http
+
+            GET /schema/alpha_company/table/Computer/attribute HTTP/1.1
+            Host: fakeservices.datajoint.io
+            Authorization: Bearer <token>
+
+        **Example successful response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
+
+            {
+                "attributeHeader": [
+                    "name",
+                    "type",
+                    "nullable",
+                    "default",
+                    "autoincrement"
+                ],
+                "attributes": {
+                    "primary": [
+                        [
+                            "computer_id",
+                            "uuid",
+                            false,
+                            null,
+                            false
+                        ]
+                    ],
+                    "secondary": [
+                        [
+                            "computer_serial",
+                            "varchar(9)",
+                            false,
+                            "\"ABC101\"",
+                            false
+                        ],
+                        [
+                            "computer_brand",
+                            "enum('HP','Dell')",
+                            false,
+                            null,
+                            false
+                        ],
+                        [
+                            "computer_built",
+                            "date",
+                            false,
+                            null,
+                            false
+                        ],
+                        [
+                            "computer_processor",
+                            "double",
+                            false,
+                            null,
+                            false
+                        ],
+                        [
+                            "computer_memory",
+                            "int",
+                            false,
+                            null,
+                            false
+                        ],
+                        [
+                            "computer_weight",
+                            "float",
+                            false,
+                            null,
+                            false
+                        ],
+                        [
+                            "computer_cost",
+                            "decimal(6,2)",
+                            false,
+                            null,
+                            false
+                        ],
+                        [
+                            "computer_preowned",
+                            "tinyint",
+                            false,
+                            null,
+                            false
+                        ],
+                        [
+                            "computer_purchased",
+                            "datetime",
+                            false,
+                            null,
+                            false
+                        ],
+                        [
+                            "computer_updates",
+                            "time",
+                            true,
+                            "null",
+                            false
+                        ],
+                        [
+                            "computer_accessories",
+                            "longblob",
+                            true,
+                            "null",
+                            false
+                        ]
+                    ]
+                }
+            }
+
+        **Example unexpected response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 500 Internal Server Error
+            Vary: Accept
+            Content-Type: text/plain
+
+            400 Bad Request: The browser (or proxy) sent a request that this server could not
+                understand.
+
+        :reqheader Authorization: Bearer <OAuth2_token>
+        :resheader Content-Type: text/plain, application/json
+        :statuscode 200: No error.
+        :statuscode 500: Unexpected error encountered. Returns the error message as a string.
+    """
+    if request.method in {'GET', 'HEAD'}:
+        try:
+            attributes_meta = _DJConnector._get_table_attributes(jwt_payload, schema_name,
+                                                                 table_name)
+            return dict(attributeHeaders=attributes_meta['attribute_headers'],
+                        attributes=attributes_meta['attributes'])
+        except Exception as e:
+            return str(e), 500
+
+
+@app.route(
+    f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/dependency",
+    methods=['GET'])
+@protected_route
+def dependency(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
+    ("""
+    Handler for ``/schema/{schema_name}/table/{table_name}/dependency`` route.
+
+    :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
+    :type jwt_payload: dict
+    :param schema_name: Schema name.
+    :type schema_name: str
+    :param table_name: Table name.
+    :type table_name: str
+    :return: If sucessfuly sends back a list of dependencies otherwise returns error.
+    :rtype: dict
+
+    .. http:get:: /schema/{schema_name}/table/{table_name}/dependency
+
+        Route to get the metadata in relation to the dependent records associated with a """
+        """restricted subset of a table.
+
+        **Example request**:
+
+        .. sourcecode:: http
+
+            GET /schema/alpha_company/table/Computer/dependency?restriction=W3siYXR0cmlidXR"""
+     "lTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo="
+     """ HTTP/1.1
+            Host: fakeservices.datajoint.io
+            Authorization: Bearer <token>
+
+        **Example successful response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
+
+            {
+                "dependencies": [
+                    {
+                        "accessible": true,
+                        "count": 2,
+                        "schema": "alpha_company",
+                        "table": "computer"
+                    },
+                    {
+                        "accessible": true,
+                        "count": 2,
+                        "schema": "alpha_company",
+                        "table": "#employee"
+                    }
+                ]
+            }
+
+        **Example unexpected response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 500 Internal Server Error
+            Vary: Accept
+            Content-Type: text/plain
+
+            400 Bad Request: The browser (or proxy) sent a request that this server could not
+                understand.
+
+        :query schema_name: Schema name.
+        :query table_name: Table name.
+        :query restriction: Base64-encoded ``AND`` sequence of restrictions. For example, you
+            could restrict as ``[{"attributeName": "computer_memory", "operation": ">=",``-
+            ``"value": 16}]`` with this param set as
+            ``W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl``-
+            ``cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=``. Defaults to no restriction.
+        :reqheader Authorization: Bearer <OAuth2_token>
+        :resheader Content-Type: text/plain, application/json
+        :statuscode 200: No error.
+        :statuscode 500: Unexpected error encountered. Returns the error message as a string.
+    """)
+    if request.method in {'GET', 'HEAD'}:
+        # Get dependencies
+        try:
+            dependencies = _DJConnector._record_dependency(
+                jwt_payload, schema_name, table_name,
+                loads(b64decode(
+                    request.args.get('restriction').encode('utf-8')).decode('utf-8')))
+            return dict(dependencies=dependencies)
         except Exception as e:
             return str(e), 500
 

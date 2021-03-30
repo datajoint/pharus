@@ -11,6 +11,13 @@ x-net: &net
   networks:
       - main
 services:
+  local-db:
+    <<: *net
+    image: datajoint/mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=pharus
+    volumes:
+      - ./tests/init/init.sql:/docker-entrypoint-initdb.d/init.sql
   pharus:
     <<: *net
     extends:
@@ -21,6 +28,9 @@ services:
     volumes:
       - ./pharus:/opt/conda/lib/python3.8/site-packages/pharus
     command: pharus
+    depends_on:
+      local-db:
+        condition: service_healthy
   fakeservices.datajoint.io:
     <<: *net
     image: datajoint/nginx:v0.0.16

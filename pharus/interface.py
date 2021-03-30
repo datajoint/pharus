@@ -11,11 +11,11 @@ DAY = 24 * 60 * 60
 DEFAULT_FETCH_LIMIT = 1000  # Stop gap measure to deal with super large tables
 
 
-class DJConnector():
+class _DJConnector():
     """Primary connector that communicates with a DataJoint database server."""
 
     @staticmethod
-    def attempt_login(database_address: str, username: str, password: str):
+    def _attempt_login(database_address: str, username: str, password: str):
         """
         Attempts to authenticate against database with given username and address.
 
@@ -34,7 +34,7 @@ class DJConnector():
         dj.conn(reset=True)
 
     @staticmethod
-    def list_schemas(jwt_payload: dict) -> list:
+    def _list_schemas(jwt_payload: dict) -> list:
         """
         List all schemas under the database.
 
@@ -45,7 +45,7 @@ class DJConnector():
             ``sys``, ``performance_schema``, ``mysql``)
         :rtype: list
         """
-        DJConnector.set_datajoint_config(jwt_payload)
+        _DJConnector._set_datajoint_config(jwt_payload)
 
         # Attempt to connect return true if successful, false is failed
         return [row[0] for row in dj.conn().query("""
@@ -55,7 +55,7 @@ class DJConnector():
         """)]
 
     @staticmethod
-    def list_tables(jwt_payload: dict, schema_name: str) -> dict:
+    def _list_tables(jwt_payload: dict, schema_name: str) -> dict:
         """
         List all tables and their type given a schema.
 
@@ -68,7 +68,7 @@ class DJConnector():
             table names
         :rtype: dict
         """
-        DJConnector.set_datajoint_config(jwt_payload)
+        _DJConnector._set_datajoint_config(jwt_payload)
 
         # Get list of tables names
         tables_name = dj.Schema(schema_name, create_schema=False).list_tables()
@@ -98,16 +98,16 @@ class DJConnector():
         return tables_dict_list
 
     @staticmethod
-    def fetch_tuples(jwt_payload: dict, schema_name: str, table_name: str,
-                     restriction: list = [], limit: int = 1000, page: int = 1,
-                     order=['KEY ASC']) -> tuple:
+    def _fetch_records(jwt_payload: dict, schema_name: str, table_name: str,
+                       restriction: list = [], limit: int = 1000, page: int = 1,
+                       order=['KEY ASC']) -> tuple:
         """
-        Get records as tuples from table.
+        Get records from table.
 
         :param jwt_payload: Dictionary containing databaseAddress, username, and password
             strings
         :type jwt_payload: dict
-        :param schema_name: Name of schema to list all tables from
+        :param schema_name: Name of schema
         :type schema_name: str
         :param table_name: Table name under the given schema; must be in camel case
         :type table_name: str
@@ -121,19 +121,20 @@ class DJConnector():
         :param order: Sequence to order records, defaults to ``['KEY ASC']``. See
             :class:`~datajoint.fetch.Fetch` for more info.
         :type order: list, optional
-        :return: Records in dict form and the total number of records that can be paged
+        :return: Attribute headers, records in dict form, and the total number of records that
+            can be paged
         :rtype: tuple
         """
-        DJConnector.set_datajoint_config(jwt_payload)
+        _DJConnector._set_datajoint_config(jwt_payload)
 
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
 
         # Get table object from name
-        table = DJConnector.get_table_object(schema_virtual_module, table_name)
+        table = _DJConnector._get_table_object(schema_virtual_module, table_name)
 
         # Fetch tuples without blobs as dict to be used to create a
         #   list of tuples for returning
-        query = table & dj.AndList([DJConnector.filter_to_restriction(f)
+        query = table & dj.AndList([_DJConnector._filter_to_restriction(f)
                                     for f in restriction])
         non_blobs_rows = query.fetch(*table.heading.non_blobs, as_dict=True, limit=limit,
                                      offset=(page-1)*limit, order_by=order)
@@ -182,7 +183,7 @@ class DJConnector():
         return list(table.heading.attributes.keys()), rows, len(query)
 
     @staticmethod
-    def get_table_attributes(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
+    def _get_table_attributes(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
         """
         Method to get primary and secondary attributes of a table.
 
@@ -193,17 +194,18 @@ class DJConnector():
         :type schema_name: str
         :param table_name: Table name under the given schema; must be in camel case
         :type table_name: str
-        :return: Dict with keys ``primary_attributes``, ``secondary_attributes`` containing a
+        :return: Dict with keys ``attribute_headers`` and ``attributes`` containing
+            ``primary_attributes``, ``secondary_attributes`` which each contain a
             ``list`` of ``tuples`` specifying: ``attribute_name``, ``type``, ``nullable``,
             ``default``, ``autoincrement``.
         :rtype: dict
         """
-        DJConnector.set_datajoint_config(jwt_payload)
+        _DJConnector._set_datajoint_config(jwt_payload)
         local_values = locals()
         local_values[schema_name] = dj.VirtualModule(schema_name, schema_name)
 
         # Get table object from name
-        table = DJConnector.get_table_object(local_values[schema_name], table_name)
+        table = _DJConnector._get_table_object(local_values[schema_name], table_name)
 
         table_attributes = dict(primary=[], secondary=[])
         for attribute_name, attribute_info in table.heading.attributes.items():
@@ -224,54 +226,55 @@ class DJConnector():
                     attribute_info.autoincrement
                     ))
 
-        return dict(attributeHeader=['name', 'type', 'nullable', 'default', 'autoincrement'],
+        return dict(attribute_headers=['name', 'type', 'nullable',
+                                       'default', 'autoincrement'],
                     attributes=table_attributes)
 
     @staticmethod
-    def get_table_definition(jwt_payload: dict, schema_name: str, table_name: str) -> str:
+    def _get_table_definition(jwt_payload: dict, schema_name: str, table_name: str) -> str:
         """
         Get the table definition.
 
         :param jwt_payload: Dictionary containing databaseAddress, username, and password
             strings
         :type jwt_payload: dict
-        :param schema_name: Name of schema to list all tables from
+        :param schema_name: Name of schema
         :type schema_name: str
         :param table_name: Table name under the given schema; must be in camel case
         :type table_name: str
         :return: Definition of the table
         :rtype: str
         """
-        DJConnector.set_datajoint_config(jwt_payload)
+        _DJConnector._set_datajoint_config(jwt_payload)
 
         local_values = locals()
         local_values[schema_name] = dj.VirtualModule(schema_name, schema_name)
         return getattr(local_values[schema_name], table_name).describe()
 
     @staticmethod
-    def insert_tuple(jwt_payload: dict, schema_name: str, table_name: str,
-                     tuple_to_insert: dict):
+    def _insert_tuple(jwt_payload: dict, schema_name: str, table_name: str,
+                      tuple_to_insert: dict):
         """
         Insert record as tuple into table.
 
         :param jwt_payload: Dictionary containing databaseAddress, username, and password
             strings
         :type jwt_payload: dict
-        :param schema_name: Name of schema to list all tables from
+        :param schema_name: Name of schema
         :type schema_name: str
         :param table_name: Table name under the given schema; must be in camel case
         :type table_name: str
         :param tuple_to_insert: Record to be inserted
         :type tuple_to_insert: dict
         """
-        DJConnector.set_datajoint_config(jwt_payload)
+        _DJConnector._set_datajoint_config(jwt_payload)
 
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
         getattr(schema_virtual_module, table_name).insert(tuple_to_insert)
 
     @staticmethod
-    def record_dependency(jwt_payload: dict, schema_name: str, table_name: str,
-                          primary_restriction: dict) -> list:
+    def _record_dependency(jwt_payload: dict, schema_name: str, table_name: str,
+                           restriction: list = []) -> list:
         """
         Return summary of dependencies associated with a restricted table. Will only show
         dependencies that user has access to.
@@ -283,74 +286,77 @@ class DJConnector():
         :type schema_name: str
         :param table_name: Table name under the given schema; must be in camel case
         :type table_name: str
-        :param primary_restriction: Restriction to be applied to table
-        :type primary_restriction: dict
+        :param restriction: Sequence of filters as ``dict`` with ``attributeName``,
+            ``operation``, ``value`` keys defined, defaults to ``[]``
+        :type restriction: list
         :return: Tables that are dependent on specific records.
         :rtype: list
         """
-        DJConnector.set_datajoint_config(jwt_payload)
+        _DJConnector._set_datajoint_config(jwt_payload)
         virtual_module = dj.VirtualModule(schema_name, schema_name)
         table = getattr(virtual_module, table_name)
         # Retrieve dependencies of related to retricted
         dependencies = [dict(schema=descendant.database, table=descendant.table_name,
-                             accessible=True, count=len(descendant & dj.AndList([
-                                DJConnector.filter_to_restriction(f)
-                                for f in primary_restriction])))
+                             accessible=True, count=len(
+                                (table if descendant.full_table_name == table.full_table_name
+                                 else descendant * table) & dj.AndList([
+                                    _DJConnector._filter_to_restriction(f)
+                                    for f in restriction])))
                         for descendant in table().descendants(as_objects=True)]
         return dependencies
 
     @staticmethod
-    def update_tuple(jwt_payload: dict, schema_name: str, table_name: str,
-                     tuple_to_update: dict):
+    def _update_tuple(jwt_payload: dict, schema_name: str, table_name: str,
+                      tuple_to_update: dict):
         """
         Update record as tuple into table.
 
         :param jwt_payload: Dictionary containing databaseAddress, username, and password
             strings
         :type jwt_payload: dict
-        :param schema_name: Name of schema to list all tables from
+        :param schema_name: Name of schema
         :type schema_name: str
         :param table_name: Table name under the given schema; must be in camel case
         :type table_name: str
         :param tuple_to_update: Record to be updated
         :type tuple_to_update: dict
         """
-        DJConnector.set_datajoint_config(jwt_payload)
+        conn = _DJConnector._set_datajoint_config(jwt_payload)
 
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
-        [getattr(schema_virtual_module, table_name).update1(t) for t in tuple_to_update]
+        with conn.transaction:
+            [getattr(schema_virtual_module, table_name).update1(t) for t in tuple_to_update]
 
     @staticmethod
-    def delete_tuple(jwt_payload: dict, schema_name: str, table_name: str,
-                     restriction: list = [], cascade: bool = False):
+    def _delete_records(jwt_payload: dict, schema_name: str, table_name: str,
+                        restriction: list = [], cascade: bool = False):
         """
-        Delete a specific record based on the restriction given (supports only deleting one at
-        a time).
+        Delete a specific record based on the restriction given.
 
         :param jwt_payload: Dictionary containing databaseAddress, username, and password
             strings
         :type jwt_payload: dict
-        :param schema_name: Name of schema to list all tables from
+        :param schema_name: Name of schema
         :type schema_name: str
         :param table_name: Table name under the given schema; must be in camel case
         :type table_name: str
-        :param tuple_to_restrict_by: Record to restrict the table by to delete
-        :type tuple_to_restrict_by: dict
+        :param restriction: Sequence of filters as ``dict`` with ``attributeName``,
+            ``operation``, ``value`` keys defined, defaults to ``[]``
+        :type restriction: list, optional
         :param cascade: Allow for cascading delete, defaults to ``False``
-        :type cascade: bool
+        :type cascade: bool, optional
         """
-        DJConnector.set_datajoint_config(jwt_payload)
+        _DJConnector._set_datajoint_config(jwt_payload)
 
         schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
 
         # Get table object from name
-        table = DJConnector.get_table_object(schema_virtual_module, table_name)
+        table = _DJConnector._get_table_object(schema_virtual_module, table_name)
 
-        restrictions = [DJConnector.filter_to_restriction(f) for f in restriction]
+        restrictions = [_DJConnector._filter_to_restriction(f) for f in restriction]
 
         # Compute restriction
         query = table & dj.AndList(restrictions)
-
         # Check if there is only 1 tuple to delete otherwise raise error
         if len(query) == 0:
             raise InvalidDeleteRequest('Nothing to delete')
@@ -359,7 +365,7 @@ class DJConnector():
         query.delete(safemode=False) if cascade else query.delete_quick()
 
     @staticmethod
-    def get_table_object(schema_virtual_module: VirtualModule, table_name: str) -> UserTable:
+    def _get_table_object(schema_virtual_module: VirtualModule, table_name: str) -> UserTable:
         """
         Helper method for getting the table object based on the table name provided.
 
@@ -379,7 +385,16 @@ class DJConnector():
             return getattr(schema_virtual_module, table_name_parts[0])
 
     @staticmethod
-    def filter_to_restriction(attribute_filter: dict) -> str:
+    def _filter_to_restriction(attribute_filter: dict) -> str:
+        """
+        Convert attribute filter to a restriction.
+
+        :param attribute_filter: A filter as ``dict`` with ``attributeName``, ``operation``,
+            ``value`` keys defined, defaults to ``[]``
+        :type attribute_filter: dict
+        :return: DataJoint-compatible restriction
+        :rtype: str
+        """
         if attribute_filter['operation'] in ('>', '<', '>=', '<='):
             operation = attribute_filter['operation']
         elif attribute_filter['value'] is None:
@@ -394,19 +409,20 @@ class DJConnector():
         else:
             value = ('NULL' if attribute_filter['value'] is None
                      else attribute_filter['value'])
-
         return f"{attribute_filter['attributeName']}{operation}{value}"
 
     @staticmethod
-    def set_datajoint_config(jwt_payload: dict):
+    def _set_datajoint_config(jwt_payload: dict) -> dj.connection.Connection:
         """
         Method to set credentials for database.
 
         :param jwt_payload: Dictionary containing databaseAddress, username, and password
             strings
         :type jwt_payload: dict
+        :return: DataJoint connection object.
+        :rtype: :class:`~datajoint.connection.Connection`
         """
         dj.config['database.host'] = jwt_payload['databaseAddress']
         dj.config['database.user'] = jwt_payload['username']
         dj.config['database.password'] = jwt_payload['password']
-        dj.conn(reset=True)
+        return dj.conn(reset=True)
