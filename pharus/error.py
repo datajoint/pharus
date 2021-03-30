@@ -6,6 +6,6 @@ class UnsupportedTableType(Exception):
     pass
 
 
-class InvalidDeleteRequest(Exception):
-    """Exception raised when attempting to delete 0 records."""
+class InvalidRestriction(Exception):
+    """Exception raised when restrictions result in no records when expected at least one."""
     pass

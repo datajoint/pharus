@@ -5,7 +5,7 @@ from datajoint.user_tables import UserTable
 from datajoint import VirtualModule
 import datetime
 import numpy as np
-from .error import InvalidDeleteRequest, UnsupportedTableType
+from .error import InvalidRestriction, UnsupportedTableType
 
 DAY = 24 * 60 * 60
 DEFAULT_FETCH_LIMIT = 1000  # Stop gap measure to deal with super large tables
@@ -359,7 +359,7 @@ class _DJConnector():
         query = table & dj.AndList(restrictions)
         # Check if there is only 1 tuple to delete otherwise raise error
         if len(query) == 0:
-            raise InvalidDeleteRequest('Nothing to delete')
+            raise InvalidRestriction('Nothing to delete')
 
         # All check pass thus proceed to delete
         query.delete(safemode=False) if cascade else query.delete_quick()
