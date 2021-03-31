@@ -2,9 +2,21 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
-## [Unreleased]
+## [0.1.0] - 2021-03-31
+### Added
+- Local database instance pre-populated with sample data for `dev` Docker Compose environment. PR #99
+- Capability to insert multiple, update multiple, and delete multiple. PR #99
+- Allow dependency restriction to include secondary attributes from parent table. PR #99
+
 ### Changed
-- Update `datajoint` to newly released `0.13.0`.
+- Update `datajoint` to newly released `0.13.0`. PR #97
+- Rename service `pharus` to `pharus-docs` in `docs` Docker Compose environment to allow simulataneous development. PR #99
+- Update NGINX reverse proxy image reference. PR #99
+- Refactored API design to align with common REST resource naming convention. (#38) PR #99
+- Hide classes and methods that are internal and subject to change. PR #99
+
+### Removed
+- `InvalidDeleteRequest` exception is no longer available as it is now allowed to delete more than 1 record at a time. PR #99
 
 ## [0.1.0b2] - 2021-03-12
 
@@ -54,7 +66,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
-[Unreleased]: https://github.com/datajoint/pharus/compare/0.1.0b2...HEAD
+[0.1.0]: https://github.com/datajoint/pharus/compare/0.1.0b2...0.1.0
 [0.1.0b2]: https://github.com/datajoint/pharus/compare/0.1.0b0...0.1.0b2
 [0.1.0b0]: https://github.com/datajoint/pharus/compare/0.1.0a5...0.1.0b0
 [0.1.0a5]: https://github.com/datajoint/pharus/releases/tag/0.1.0a5

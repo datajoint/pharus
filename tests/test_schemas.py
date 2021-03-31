@@ -4,7 +4,7 @@ import datajoint as dj
 
 
 def test_schemas(token, client, connection, schemas_simple):
-    REST_schemas = client.get('/list_schemas',
+    REST_schemas = client.get('/schema',
                               headers=dict(
                                   Authorization=f'Bearer {token}')).json['schemaNames']
     assert set(REST_schemas) == set(

@@ -7,12 +7,24 @@ from uuid import UUID
 
 
 def validate(table, inserted_value, expected_type, expected_value, client, token):
-    table.insert([(1, inserted_value)])
-    _, REST_value = client.post('/fetch_tuples',
+    REST_records = client.get(f'/schema/{table.database}/table/{table.__name__}/record',
+                              headers=dict(Authorization=f'Bearer {token}')
+                              ).json['records']
+    assert len(REST_records) == 0
+    REST_response = client.post(f'/schema/{table.database}/table/{table.__name__}/record',
                                 headers=dict(Authorization=f'Bearer {token}'),
-                                json=dict(schemaName=table.database,
-                                          tableName=table.__name__)).json['tuples'][0]
-    assert isinstance(REST_value, expected_type) and REST_value == expected_value
+                                json=dict(records=[{
+                                    'id': 1,
+                                    f'{table.__name__.lower()}_attribute': (
+                                        inserted_value if isinstance(inserted_value, bool)
+                                        else str(inserted_value))}]))
+    assert REST_response.status_code == 200
+    REST_records = client.get(f'/schema/{table.database}/table/{table.__name__}/record',
+                              headers=dict(Authorization=f'Bearer {token}')
+                              ).json['records']
+    assert len(REST_records) == 1
+    assert isinstance(REST_records[0][1], expected_type) and \
+        REST_records[0][1] == expected_value
 
 
 def test_int(token, client, Int):
@@ -153,19 +165,17 @@ def test_part_table(token, client, ParentPart):
     ProcessScanData.populate()
 
     # Test Parent
-    REST_value = client.post('/fetch_tuples',
-                             headers=dict(Authorization=f'Bearer {token}'),
-                             json=dict(schemaName=ScanData.database,
-                                       tableName=ProcessScanData.__name__)).json['tuples'][0]
+    REST_value = client.get(
+        f'/schema/{ScanData.database}/table/{ProcessScanData.__name__}/record',
+        headers=dict(Authorization=f'Bearer {token}')).json['records'][0]
 
     assert REST_value == [0, 5]
 
     # Test Child
-    REST_value = client.post(
-        '/fetch_tuples',
-        headers=dict(Authorization=f'Bearer {token}'),
-        json=dict(schemaName=ProcessScanData.database,
-                  tableName=(ProcessScanData.__name__ + '.' +
-                             ProcessScanData.ProcessScanDataPart.__name__))).json['tuples'][0]
+    REST_value = client.get(
+        f"""/schema/{ProcessScanData.database}/table/{
+            ProcessScanData.__name__ + '.' +
+            ProcessScanData.ProcessScanDataPart.__name__}/record""",
+        headers=dict(Authorization=f'Bearer {token}')).json['records'][0]
 
     assert REST_value == [0, 10]

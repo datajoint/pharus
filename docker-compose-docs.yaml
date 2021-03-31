@@ -1,9 +1,9 @@
-# PY_VER=3.8 IMAGE=djtest DISTRO=alpine HOST_UID=$(id -u) docker-compose -f docker-compose-docs.yaml up --exit-code-from pharus --build
+# PY_VER=3.8 IMAGE=djtest DISTRO=alpine HOST_UID=$(id -u) docker-compose -f docker-compose-docs.yaml up --exit-code-from pharus-docs --build
 #
 # Used to build documentation artifacts.
 version: "2.4"
 services:
-  pharus:
+  pharus-docs:
     image: datajoint/${IMAGE}:py${PY_VER}-${DISTRO}
     user: ${HOST_UID}:anaconda
     volumes:

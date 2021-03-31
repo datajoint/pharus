@@ -42,7 +42,7 @@ jobs:
         run: |
           export PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
           export HOST_UID=$(id -u)
-          docker-compose -f docker-compose-docs.yaml up --exit-code-from pharus --build
+          docker-compose -f docker-compose-docs.yaml up --exit-code-from pharus-docs --build
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
       - name: Add docs static artifacts
         uses: actions/upload-artifact@v2
