@@ -18,6 +18,9 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 ### Removed
 - `InvalidDeleteRequest` exception is no longer available as it is now allowed to delete more than 1 record at a time. PR #99
 
+### Fixed
+- `uuid` types not properly restricted on `GET /record`, `DELETE /record`, and `GET /dependency`. PR #102
+
 ## [0.1.0b2] - 2021-03-12
 
 ### Fixed
