@@ -1,5 +1,6 @@
 import pytest
 from pharus.server import app
+from uuid import UUID
 from os import getenv
 import datajoint as dj
 from datetime import date
@@ -134,6 +135,22 @@ def Student(schema_main):
                      bool(getrandbits(1))) for i in range(100)]
     yield Student
     Student.drop()
+
+
+@pytest.fixture
+def Computer(schema_main):
+    """Computer table for testing."""
+    @schema_main
+    class Computer(dj.Lookup):
+        definition = """
+        computer_id: uuid
+        ---
+        computer_brand: enum('HP', 'DELL')
+        """
+        contents = [(UUID('ffffffff-86d5-4af7-a013-89bde75528bd'), 'HP'),
+                    (UUID('aaaaaaaa-86d5-4af7-a013-89bde75528bd'), 'DELL')]
+    yield Computer
+    Computer.drop()
 
 
 @pytest.fixture

@@ -131,11 +131,12 @@ class _DJConnector():
 
         # Get table object from name
         table = _DJConnector._get_table_object(schema_virtual_module, table_name)
-
+        attributes = table.heading.attributes
         # Fetch tuples without blobs as dict to be used to create a
         #   list of tuples for returning
-        query = table & dj.AndList([_DJConnector._filter_to_restriction(f)
-                                    for f in restriction])
+        query = table & dj.AndList([
+            _DJConnector._filter_to_restriction(f, attributes[f['attributeName']].type)
+            for f in restriction])
         non_blobs_rows = query.fetch(*table.heading.non_blobs, as_dict=True, limit=limit,
                                      offset=(page-1)*limit, order_by=order)
 
@@ -149,7 +150,7 @@ class _DJConnector():
             row = []
             # Loop through each attributes, append to the tuple_to_return with specific
             #   modification based on data type
-            for attribute_name, attribute_info in table.heading.attributes.items():
+            for attribute_name, attribute_info in attributes.items():
                 if not attribute_info.is_blob:
                     if non_blobs_row[attribute_name] is None:
                         # If it is none then just append None
@@ -180,7 +181,7 @@ class _DJConnector():
 
             # Add the row list to tuples
             rows.append(row)
-        return list(table.heading.attributes.keys()), rows, len(query)
+        return list(attributes.keys()), rows, len(query)
 
     @staticmethod
     def _get_table_attributes(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
@@ -295,12 +296,14 @@ class _DJConnector():
         _DJConnector._set_datajoint_config(jwt_payload)
         virtual_module = dj.VirtualModule(schema_name, schema_name)
         table = getattr(virtual_module, table_name)
+        attributes = table.heading.attributes
         # Retrieve dependencies of related to retricted
         dependencies = [dict(schema=descendant.database, table=descendant.table_name,
                              accessible=True, count=len(
                                 (table if descendant.full_table_name == table.full_table_name
                                  else descendant * table) & dj.AndList([
-                                    _DJConnector._filter_to_restriction(f)
+                                    _DJConnector._filter_to_restriction(
+                                        f, attributes[f['attributeName']].type)
                                     for f in restriction])))
                         for descendant in table().descendants(as_objects=True)]
         return dependencies
@@ -352,8 +355,10 @@ class _DJConnector():
 
         # Get table object from name
         table = _DJConnector._get_table_object(schema_virtual_module, table_name)
-
-        restrictions = [_DJConnector._filter_to_restriction(f) for f in restriction]
+        attributes = table.heading.attributes
+        restrictions = [
+            _DJConnector._filter_to_restriction(f, attributes[f['attributeName']].type)
+            for f in restriction]
 
         # Compute restriction
         query = table & dj.AndList(restrictions)
@@ -385,13 +390,15 @@ class _DJConnector():
             return getattr(schema_virtual_module, table_name_parts[0])
 
     @staticmethod
-    def _filter_to_restriction(attribute_filter: dict) -> str:
+    def _filter_to_restriction(attribute_filter: dict, attribute_type: str) -> str:
         """
         Convert attribute filter to a restriction.
 
         :param attribute_filter: A filter as ``dict`` with ``attributeName``, ``operation``,
             ``value`` keys defined, defaults to ``[]``
         :type attribute_filter: dict
+        :param attribute_type: Attribute type
+        :type attribute_type: str
         :return: DataJoint-compatible restriction
         :rtype: str
         """
@@ -405,7 +412,8 @@ class _DJConnector():
 
         if (isinstance(attribute_filter['value'], str) and
                 not attribute_filter['value'].isnumeric()):
-            value = f"'{attribute_filter['value']}'"
+            value = (f"X'{attribute_filter['value'].replace('-', '')}'"
+                     if attribute_type == 'uuid' else f"'{attribute_filter['value']}'")
         else:
             value = ('NULL' if attribute_filter['value'] is None
                      else attribute_filter['value'])
