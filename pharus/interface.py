@@ -195,7 +195,7 @@ class _DJConnector():
         :param table_name: Table name under the given schema; must be in camel case
         :type table_name: str
         :return: Dict with keys ``attribute_headers`` and ``attributes`` containing
-            ``primary_attributes``, ``secondary_attributes`` which each contain a
+            ``primary``, ``secondary`` which each contain a
             ``list`` of ``tuples`` specifying: ``attribute_name``, ``type``, ``nullable``,
             ``default``, ``autoincrement``.
         :rtype: dict
