@@ -160,76 +160,12 @@
    <h1>HTTP Routing Table</h1>
 
    <div class="modindex-jumpbox">
-   <a href="#cap-/delete_tuple"><strong>/delete_tuple</strong></a> | 
-   <a href="#cap-/fetch_tuple"><strong>/fetch_tuple</strong></a> | 
-   <a href="#cap-/get_table_attributes"><strong>/get_table_attributes</strong></a> | 
-   <a href="#cap-/get_table_definition"><strong>/get_table_definition</strong></a> | 
-   <a href="#cap-/insert_tuple"><strong>/insert_tuple</strong></a> | 
-   <a href="#cap-/list_schemas"><strong>/list_schemas</strong></a> | 
-   <a href="#cap-/list_tables"><strong>/list_tables</strong></a> | 
    <a href="#cap-/login"><strong>/login</strong></a> | 
-   <a href="#cap-/record"><strong>/record</strong></a> | 
-   <a href="#cap-/update_tuple"><strong>/update_tuple</strong></a> | 
+   <a href="#cap-/schema"><strong>/schema</strong></a> | 
    <a href="#cap-/version"><strong>/version</strong></a>
    </div>
 
    <table class="indextable modindextable">
-     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
-     <tr class="cap" id="cap-/delete_tuple"><td></td><td>
-       <strong>/delete_tuple</strong></td><td></td></tr>
-     <tr>
-       <td></td>
-       <td>
-       <a href="pharus.html#post--delete_tuple"><code class="xref">POST /delete_tuple</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
-     <tr class="cap" id="cap-/fetch_tuple"><td></td><td>
-       <strong>/fetch_tuple</strong></td><td></td></tr>
-     <tr>
-       <td></td>
-       <td>
-       <a href="pharus.html#post--fetch_tuple"><code class="xref">POST /fetch_tuple</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
-     <tr class="cap" id="cap-/get_table_attributes"><td></td><td>
-       <strong>/get_table_attributes</strong></td><td></td></tr>
-     <tr>
-       <td></td>
-       <td>
-       <a href="pharus.html#post--get_table_attributes"><code class="xref">POST /get_table_attributes</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
-     <tr class="cap" id="cap-/get_table_definition"><td></td><td>
-       <strong>/get_table_definition</strong></td><td></td></tr>
-     <tr>
-       <td></td>
-       <td>
-       <a href="pharus.html#post--get_table_definition"><code class="xref">POST /get_table_definition</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
-     <tr class="cap" id="cap-/insert_tuple"><td></td><td>
-       <strong>/insert_tuple</strong></td><td></td></tr>
-     <tr>
-       <td></td>
-       <td>
-       <a href="pharus.html#post--insert_tuple"><code class="xref">POST /insert_tuple</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
-     <tr class="cap" id="cap-/list_schemas"><td></td><td>
-       <strong>/list_schemas</strong></td><td></td></tr>
-     <tr>
-       <td></td>
-       <td>
-       <a href="pharus.html#get--list_schemas"><code class="xref">GET /list_schemas</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
-     <tr class="cap" id="cap-/list_tables"><td></td><td>
-       <strong>/list_tables</strong></td><td></td></tr>
-     <tr>
-       <td></td>
-       <td>
-       <a href="pharus.html#post--list_tables"><code class="xref">POST /list_tables</code></a></td><td>
-       <em></em></td></tr>
      <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
      <tr class="cap" id="cap-/login"><td></td><td>
        <strong>/login</strong></td><td></td></tr>
@@ -239,20 +175,52 @@
        <a href="pharus.html#post--login"><code class="xref">POST /login</code></a></td><td>
        <em></em></td></tr>
      <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
-     <tr class="cap" id="cap-/record"><td></td><td>
-       <strong>/record</strong></td><td></td></tr>
+     <tr class="cap" id="cap-/schema"><td></td><td>
+       <strong>/schema</strong></td><td></td></tr>
      <tr>
        <td></td>
        <td>
-       <a href="pharus.html#get--record-dependency"><code class="xref">GET /record/dependency</code></a></td><td>
+       <a href="pharus.html#get--schema"><code class="xref">GET /schema</code></a></td><td>
        <em></em></td></tr>
-     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
-     <tr class="cap" id="cap-/update_tuple"><td></td><td>
-       <strong>/update_tuple</strong></td><td></td></tr>
      <tr>
        <td></td>
        <td>
-       <a href="pharus.html#post--update_tuple"><code class="xref">POST /update_tuple</code></a></td><td>
+       <a href="pharus.html#get--schema-schema_name-table"><code class="xref">GET /schema/{schema_name}/table</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="pharus.html#get--schema-schema_name-table-table_name-attribute"><code class="xref">GET /schema/{schema_name}/table/{table_name}/attribute</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="pharus.html#get--schema-schema_name-table-table_name-definition"><code class="xref">GET /schema/{schema_name}/table/{table_name}/definition</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="pharus.html#get--schema-schema_name-table-table_name-dependency"><code class="xref">GET /schema/{schema_name}/table/{table_name}/dependency</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="pharus.html#get--schema-schema_name-table-table_name-record"><code class="xref">GET /schema/{schema_name}/table/{table_name}/record</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="pharus.html#post--schema-schema_name-table-table_name-record"><code class="xref">POST /schema/{schema_name}/table/{table_name}/record</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="pharus.html#delete--schema-schema_name-table-table_name-record"><code class="xref">DELETE /schema/{schema_name}/table/{table_name}/record</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="pharus.html#patch--schema-schema_name-table-table_name-record"><code class="xref">PATCH /schema/{schema_name}/table/{table_name}/record</code></a></td><td>
        <em></em></td></tr>
      <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
      <tr class="cap" id="cap-/version"><td></td><td>

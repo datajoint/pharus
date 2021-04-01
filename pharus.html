@@ -177,13 +177,6 @@
 <span id="pharus-error-module"></span><h2>pharus.error module<a class="headerlink" href="#module-pharus.error" title="Permalink to this headline">¶</a></h2>
 <p>Error class library.</p>
 <dl class="py exception">
-<dt id="pharus.error.InvalidDeleteRequest">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-prename descclassname"><span class="pre">pharus.error.</span></code><code class="sig-name descname"><span class="pre">InvalidDeleteRequest</span></code><a class="headerlink" href="#pharus.error.InvalidDeleteRequest" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
-<p>Exception raised when attempting to delete &gt;1 or &lt;1 records.</p>
-</dd></dl>
-
-<dl class="py exception">
 <dt id="pharus.error.InvalidRestriction">
 <em class="property"><span class="pre">exception</span> </em><code class="sig-prename descclassname"><span class="pre">pharus.error.</span></code><code class="sig-name descname"><span class="pre">InvalidRestriction</span></code><a class="headerlink" href="#pharus.error.InvalidRestriction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
@@ -201,259 +194,6 @@
 <div class="section" id="module-pharus.interface">
 <span id="pharus-interface-module"></span><h2>pharus.interface module<a class="headerlink" href="#module-pharus.interface" title="Permalink to this headline">¶</a></h2>
 <p>Library for interfaces into DataJoint pipelines.</p>
-<dl class="py class">
-<dt id="pharus.interface.DJConnector">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pharus.interface.</span></code><code class="sig-name descname"><span class="pre">DJConnector</span></code><a class="headerlink" href="#pharus.interface.DJConnector" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Primary connector that communicates with a DataJoint database server.</p>
-<dl class="py method">
-<dt id="pharus.interface.DJConnector.attempt_login">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">attempt_login</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">database_address</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#pharus.interface.DJConnector.attempt_login" title="Permalink to this definition">¶</a></dt>
-<dd><p>Attempts to authenticate against database with given username and address.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>database_address</strong> (<em>str</em>) – Address of database</p></li>
-<li><p><strong>username</strong> (<em>str</em>) – Username of user</p></li>
-<li><p><strong>password</strong> (<em>str</em>) – Password of user</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Dictionary with keys: result (<code class="docutils literal notranslate"><span class="pre">True</span></code> | <code class="docutils literal notranslate"><span class="pre">False</span></code>), and error (if
-applicable)</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="pharus.interface.DJConnector.delete_tuple">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">delete_tuple</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tuple_to_restrict_by</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cascade</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pharus.interface.DJConnector.delete_tuple" title="Permalink to this definition">¶</a></dt>
-<dd><p>Delete a specific record based on the restriction given (supports only deleting one at
-a time).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password
-strings</p></li>
-<li><p><strong>schema_name</strong> (<em>str</em>) – Name of schema to list all tables from</p></li>
-<li><p><strong>table_name</strong> (<em>str</em>) – Table name under the given schema; must be in camel case</p></li>
-<li><p><strong>tuple_to_restrict_by</strong> (<em>dict</em>) – Record to restrict the table by to delete</p></li>
-<li><p><strong>cascade</strong> (<em>bool</em>) – Allow for cascading delete, defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="pharus.interface.DJConnector.fetch_tuples">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">fetch_tuples</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restriction</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['KEY</span> <span class="pre">ASC']</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">tuple</span><a class="headerlink" href="#pharus.interface.DJConnector.fetch_tuples" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get records as tuples from table.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password
-strings</p></li>
-<li><p><strong>schema_name</strong> (<em>str</em>) – Name of schema to list all tables from</p></li>
-<li><p><strong>table_name</strong> (<em>str</em>) – Table name under the given schema; must be in camel case</p></li>
-<li><p><strong>restriction</strong> (<em>list</em><em>, </em><em>optional</em>) – Sequence of filters as <code class="docutils literal notranslate"><span class="pre">dict</span></code> with <code class="docutils literal notranslate"><span class="pre">attributeName</span></code>,
-<code class="docutils literal notranslate"><span class="pre">operation</span></code>, <code class="docutils literal notranslate"><span class="pre">value</span></code> keys defined, defaults to <code class="docutils literal notranslate"><span class="pre">[]</span></code></p></li>
-<li><p><strong>limit</strong> (<em>int</em><em>, </em><em>optional</em>) – Max number of records to return, defaults to <code class="docutils literal notranslate"><span class="pre">1000</span></code></p></li>
-<li><p><strong>page</strong> (<em>int</em><em>, </em><em>optional</em>) – Page number to return, defaults to <code class="docutils literal notranslate"><span class="pre">1</span></code></p></li>
-<li><p><strong>order</strong> (<em>list</em><em>, </em><em>optional</em>) – Sequence to order records, defaults to <code class="docutils literal notranslate"><span class="pre">['KEY</span> <span class="pre">ASC']</span></code>. See
-<code class="xref py py-class docutils literal notranslate"><span class="pre">Fetch</span></code> for more info.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Records in dict form and the total number of records that can be paged</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>tuple</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="pharus.interface.DJConnector.get_table_attributes">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_table_attributes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#pharus.interface.DJConnector.get_table_attributes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method to get primary and secondary attributes of a table.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password
-strings</p></li>
-<li><p><strong>schema_name</strong> (<em>str</em>) – Name of schema to list all tables from</p></li>
-<li><p><strong>table_name</strong> (<em>str</em>) – Table name under the given schema; must be in camel case</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Dict with keys <code class="docutils literal notranslate"><span class="pre">primary_attributes</span></code>, <code class="docutils literal notranslate"><span class="pre">secondary_attributes</span></code> containing a
-<code class="docutils literal notranslate"><span class="pre">list</span></code> of <code class="docutils literal notranslate"><span class="pre">tuples</span></code> specifying: <code class="docutils literal notranslate"><span class="pre">attribute_name</span></code>, <code class="docutils literal notranslate"><span class="pre">type</span></code>, <code class="docutils literal notranslate"><span class="pre">nullable</span></code>,
-<code class="docutils literal notranslate"><span class="pre">default</span></code>, <code class="docutils literal notranslate"><span class="pre">autoincrement</span></code>.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="pharus.interface.DJConnector.get_table_definition">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_table_definition</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#pharus.interface.DJConnector.get_table_definition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the table definition.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password
-strings</p></li>
-<li><p><strong>schema_name</strong> (<em>str</em>) – Name of schema to list all tables from</p></li>
-<li><p><strong>table_name</strong> (<em>str</em>) – Table name under the given schema; must be in camel case</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Definition of the table</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="pharus.interface.DJConnector.get_table_object">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_table_object</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema_virtual_module</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">datajoint.schemas.VirtualModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">datajoint.user_tables.UserTable</span><a class="headerlink" href="#pharus.interface.DJConnector.get_table_object" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper method for getting the table object based on the table name provided.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>schema_virtual_module</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualModule</span></code>) – Virtual module for accesing the schema</p></li>
-<li><p><strong>table_name</strong> (<em>str</em>) – Name of the table; for part it should be <code class="docutils literal notranslate"><span class="pre">Parent.Part</span></code></p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>DataJoint table object.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">UserTable</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="pharus.interface.DJConnector.insert_tuple">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">insert_tuple</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tuple_to_insert</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pharus.interface.DJConnector.insert_tuple" title="Permalink to this definition">¶</a></dt>
-<dd><p>Insert record as tuple into table.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password
-strings</p></li>
-<li><p><strong>schema_name</strong> (<em>str</em>) – Name of schema to list all tables from</p></li>
-<li><p><strong>table_name</strong> (<em>str</em>) – Table name under the given schema; must be in camel case</p></li>
-<li><p><strong>tuple_to_insert</strong> (<em>dict</em>) – Record to be inserted</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="pharus.interface.DJConnector.list_schemas">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">list_schemas</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">list</span><a class="headerlink" href="#pharus.interface.DJConnector.list_schemas" title="Permalink to this definition">¶</a></dt>
-<dd><p>List all schemas under the database.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password
-strings</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>List of schemas names in alphabetical order (excludes <code class="docutils literal notranslate"><span class="pre">information_schema</span></code>,
-<code class="docutils literal notranslate"><span class="pre">sys</span></code>, <code class="docutils literal notranslate"><span class="pre">performance_schema</span></code>, <code class="docutils literal notranslate"><span class="pre">mysql</span></code>)</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="pharus.interface.DJConnector.list_tables">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">list_tables</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#pharus.interface.DJConnector.list_tables" title="Permalink to this definition">¶</a></dt>
-<dd><p>List all tables and their type given a schema.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password
-strings</p></li>
-<li><p><strong>schema_name</strong> (<em>str</em>) – Name of schema to list all tables from</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Contains a key for each table type where values are the respective list of
-table names</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="pharus.interface.DJConnector.record_dependency">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">record_dependency</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_restriction</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">list</span><a class="headerlink" href="#pharus.interface.DJConnector.record_dependency" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return summary of dependencies associated with a restricted table. Will only show
-dependencies that user has access to.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password
-strings</p></li>
-<li><p><strong>schema_name</strong> (<em>str</em>) – Name of schema</p></li>
-<li><p><strong>table_name</strong> (<em>str</em>) – Table name under the given schema; must be in camel case</p></li>
-<li><p><strong>primary_restriction</strong> (<em>dict</em>) – Restriction to be applied to table</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Tables that are dependent on specific records.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="pharus.interface.DJConnector.set_datajoint_config">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">set_datajoint_config</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pharus.interface.DJConnector.set_datajoint_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method to set credentials for database.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password
-strings</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="pharus.interface.DJConnector.update_tuple">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">update_tuple</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tuple_to_update</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pharus.interface.DJConnector.update_tuple" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update record as tuple into table.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password
-strings</p></li>
-<li><p><strong>schema_name</strong> (<em>str</em>) – Name of schema to list all tables from</p></li>
-<li><p><strong>table_name</strong> (<em>str</em>) – Table name under the given schema; must be in camel case</p></li>
-<li><p><strong>tuple_to_update</strong> (<em>dict</em>) – Record to be updated</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 </div>
 <div class="section" id="module-pharus.server">
 <span id="pharus-server-module"></span><h2>pharus.server module<a class="headerlink" href="#module-pharus.server" title="Permalink to this headline">¶</a></h2>
@@ -482,9 +222,11 @@ strings</p></li>
 <p><strong>Example response</strong>:</p>
 <div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
 <span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
-<span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/plain</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
 
-0.1.0
+<span class="p">{</span>
+    <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.1.0&quot;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -499,218 +241,16 @@ strings</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pharus.server.delete_tuple">
-<code class="sig-prename descclassname"><span class="pre">pharus.server.</span></code><code class="sig-name descname"><span class="pre">delete_tuple</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#pharus.server.delete_tuple" title="Permalink to this definition">¶</a></dt>
-<dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/delete_tuple</span></code> route.</p>
+<dt id="pharus.server.attribute">
+<code class="sig-prename descclassname"><span class="pre">pharus.server.</span></code><code class="sig-name descname"><span class="pre">attribute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#pharus.server.attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/schema/{schema_name}/table/{table_name}/attribute</span></code> route.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password strings.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>If successful returns <code class="docutils literal notranslate"><span class="pre">Delete</span> <span class="pre">Successful</span></code> otherwise returns error.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-<dl class="http post">
-<dt id="post--delete_tuple">
-<code class="sig-name descname"><span class="pre">POST</span> </code><code class="sig-name descname"><span class="pre">/delete_tuple</span></code><a class="headerlink" href="#post--delete_tuple" title="Permalink to this definition">¶</a></dt>
-<dd><p>Route to delete a specific record.</p>
-<p><strong>Example request</strong>:</p>
-<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/delete_tuple</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
-<span class="na">Host</span><span class="o">:</span> <span class="l">fakeservices.datajoint.io</span>
-<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
-
-{
-    &quot;schemaName&quot;: &quot;alpha_company&quot;,
-    &quot;tableName&quot;: &quot;Computer&quot;,
-    &quot;restrictionTuple&quot;: {
-        &quot;computer_id&quot;: &quot;4e41491a-86d5-4af7-a013-89bde75528bd&quot;
-    }
-}
-</pre></div>
-</div>
-<p><strong>Example successful response</strong>:</p>
-<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
-<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
-<span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/plain</span>
-
-Delete Successful
-</pre></div>
-</div>
-<p><strong>Example conflict response</strong>:</p>
-<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">409</span> <span class="ne">Conflict</span>
-<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
-<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
-
-<span class="p">{</span>
-    <span class="nt">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;IntegrityError&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;error_msg&quot;</span><span class="p">:</span> <span class="s2">&quot;Cannot delete or update a parent row: a foreign key constraint</span>
-<span class="s2">        fails (`alpha_company`.`#employee`, CONSTRAINT `#employee_ibfk_1` FOREIGN</span>
-<span class="s2">        KEY (`computer_id`) REFERENCES `computer` (`computer_id`) ON DELETE</span>
-<span class="s2">        RESTRICT ON UPDATE CASCADE&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;child_schema&quot;</span><span class="p">:</span> <span class="s2">&quot;alpha_company&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;child_table&quot;</span><span class="p">:</span> <span class="s2">&quot;Employee&quot;</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p><strong>Example unexpected response</strong>:</p>
-<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">500</span> <span class="ne">Internal Server Error</span>
-<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
-<span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/plain</span>
-
-400 Bad Request: The browser (or proxy) sent a request that this server could not
-    understand.
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Query Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cascade</strong> – Enable cascading delete. Accepts <code class="docutils literal notranslate"><span class="pre">true</span></code> or <code class="docutils literal notranslate"><span class="pre">false</span></code>.
-Defaults to <code class="docutils literal notranslate"><span class="pre">false</span></code>.</p></li>
+<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password strings.</p></li>
+<li><p><strong>schema_name</strong> (<em>str</em>) – Schema name.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – Table name.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Request Headers</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a> – Bearer &lt;OAuth2_token&gt;</p></li>
-</ul>
-</dd>
-<dt class="field-odd">Response Headers</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a> – text/plain, application/json</p></li>
-</ul>
-</dd>
-<dt class="field-even">Status Codes</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – No error.</p></li>
-<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.10">409 Conflict</a> – Attempting to delete a record with dependents while <code class="docutils literal notranslate"><span class="pre">cascade</span></code> set
-to <code class="docutils literal notranslate"><span class="pre">false</span></code>.</p></li>
-<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a> – Unexpected error encountered. Returns the error message as a string.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py function">
-<dt id="pharus.server.fetch_tuples">
-<code class="sig-prename descclassname"><span class="pre">pharus.server.</span></code><code class="sig-name descname"><span class="pre">fetch_tuples</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#pharus.server.fetch_tuples" title="Permalink to this definition">¶</a></dt>
-<dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/fetch_tuple</span></code> route.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password strings.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>If successful then sends back dict with records and total count from query
-otherwise returns error.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-<dl class="http post">
-<dt id="post--fetch_tuple">
-<code class="sig-name descname"><span class="pre">POST</span> </code><code class="sig-name descname"><span class="pre">/fetch_tuple</span></code><a class="headerlink" href="#post--fetch_tuple" title="Permalink to this definition">¶</a></dt>
-<dd><p>Route to fetch records.</p>
-<p><strong>Example request</strong>:</p>
-<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/fetch_tuples?limit=2&amp;page=1&amp;order=computer_id%20DESC&amp;restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMzJ9XQo=</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
-<span class="na">Host</span><span class="o">:</span> <span class="l">fakeservices.datajoint.io</span>
-<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
-
-{
-    &quot;schemaName&quot;: &quot;alpha_company&quot;,
-    &quot;tableName&quot;: &quot;Computer&quot;
-}
-</pre></div>
-</div>
-<p><strong>Example successful response</strong>:</p>
-<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
-<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
-<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
-
-<span class="p">{</span>
-    <span class="nt">&quot;total_count&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
-    <span class="nt">&quot;tuples&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="p">[</span>
-            <span class="s2">&quot;eee3491a-86d5-4af7-a013-89bde75528bd&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ABCDEFJHE&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Dell&quot;</span><span class="p">,</span>
-            <span class="mi">1611705600</span><span class="p">,</span>
-            <span class="mf">2.2</span><span class="p">,</span>
-            <span class="mi">32</span><span class="p">,</span>
-            <span class="mf">11.5</span><span class="p">,</span>
-            <span class="s2">&quot;1100.93&quot;</span><span class="p">,</span>
-            <span class="mi">5</span><span class="p">,</span>
-            <span class="mi">1614265209</span><span class="p">,</span>
-            <span class="mi">0</span>
-        <span class="p">],</span>
-        <span class="p">[</span>
-            <span class="s2">&quot;ddd1491a-86d5-4af7-a013-89bde75528bd&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ABCDEFJHI&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Dell&quot;</span><span class="p">,</span>
-            <span class="mi">1614556800</span><span class="p">,</span>
-            <span class="mf">2.8</span><span class="p">,</span>
-            <span class="mi">64</span><span class="p">,</span>
-            <span class="mf">13.5</span><span class="p">,</span>
-            <span class="s2">&quot;1200.99&quot;</span><span class="p">,</span>
-            <span class="mi">2</span><span class="p">,</span>
-            <span class="mi">1614564122</span><span class="p">,</span>
-            <span class="kc">null</span>
-        <span class="p">]</span>
-    <span class="p">]</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p><strong>Example unexpected response</strong>:</p>
-<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">500</span> <span class="ne">Internal Server Error</span>
-<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
-<span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/plain</span>
-
-400 Bad Request: The browser (or proxy) sent a request that this server could not
-    understand.
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Query Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>limit</strong> – Limit of how many records per page. Defaults to <code class="docutils literal notranslate"><span class="pre">1000</span></code>.</p></li>
-<li><p><strong>page</strong> – Page requested. Defaults to <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p></li>
-<li><p><strong>order</strong> – Sort order. Defaults to <code class="docutils literal notranslate"><span class="pre">KEY</span> <span class="pre">ASC</span></code>.</p></li>
-<li><p><strong>restriction</strong> – Base64-encoded <code class="docutils literal notranslate"><span class="pre">AND</span></code> sequence of restrictions. For example, you
-could restrict as <code class="docutils literal notranslate"><span class="pre">[{&quot;attributeName&quot;:</span> <span class="pre">&quot;computer_memory&quot;&gt;=&quot;,</span> <span class="pre">&quot;value&quot;:</span> <span class="pre">32}]</span></code> with
-this param set as <code class="docutils literal notranslate"><span class="pre">W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjo</span></code>-<code class="docutils literal notranslate"><span class="pre">gIj49IiwgInZhbHVlIjogMzJ9XQo=</span></code>. Defaults to no restriction.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Request Headers</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a> – Bearer &lt;OAuth2_token&gt;</p></li>
-</ul>
-</dd>
-<dt class="field-odd">Response Headers</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a> – text/plain, application/json</p></li>
-</ul>
-</dd>
-<dt class="field-even">Status Codes</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – No error.</p></li>
-<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a> – Unexpected error encountered. Returns the error message as a string.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py function">
-<dt id="pharus.server.get_table_attributes">
-<code class="sig-prename descclassname"><span class="pre">pharus.server.</span></code><code class="sig-name descname"><span class="pre">get_table_attributes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#pharus.server.get_table_attributes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/get_table_attributes</span></code> route.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password strings.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>If successful then sends back dict of table attributes otherwise returns error.</p>
@@ -719,109 +259,120 @@ this param set as <code class="docutils literal notranslate"><span class="pre">W
 <dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
-<dl class="http post">
-<dt id="post--get_table_attributes">
-<code class="sig-name descname"><span class="pre">POST</span> </code><code class="sig-name descname"><span class="pre">/get_table_attributes</span></code><a class="headerlink" href="#post--get_table_attributes" title="Permalink to this definition">¶</a></dt>
+<dl class="http get">
+<dt id="get--schema-schema_name-table-table_name-attribute">
+<code class="sig-name descname"><span class="pre">GET</span> </code><code class="sig-name descname"><span class="pre">/schema/{schema_name}/table/{table_name}/attribute</span></code><a class="headerlink" href="#get--schema-schema_name-table-table_name-attribute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Route to get metadata on table attributes.</p>
 <p><strong>Example request</strong>:</p>
-<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/get_table_attributes</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/schema/alpha_company/table/Computer/attribute</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Host</span><span class="o">:</span> <span class="l">fakeservices.datajoint.io</span>
-<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
-
-{
-    &quot;schemaName&quot;: &quot;alpha_company&quot;,
-    &quot;tableName&quot;: &quot;Computer&quot;
-}
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Bearer &lt;token&gt;</span>
 </pre></div>
 </div>
 <p><strong>Example successful response</strong>:</p>
-<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
-<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
-<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span>HTTP/1.1 200 OK
+Vary: Accept
+Content-Type: application/json
 
-<span class="p">{</span>
-    <span class="nt">&quot;primary_attributes&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="p">[</span>
-            <span class="s2">&quot;computer_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
-            <span class="kc">false</span><span class="p">,</span>
-            <span class="kc">null</span><span class="p">,</span>
-            <span class="kc">false</span>
-        <span class="p">]</span>
-    <span class="p">],</span>
-    <span class="nt">&quot;secondary_attributes&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="p">[</span>
-            <span class="s2">&quot;computer_serial&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;varchar(9)&quot;</span><span class="p">,</span>
-            <span class="kc">false</span><span class="p">,</span>
-            <span class="kc">null</span><span class="p">,</span>
-            <span class="kc">false</span>
-        <span class="p">],</span>
-        <span class="p">[</span>
-            <span class="s2">&quot;computer_brand&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;enum(&#39;HP&#39;,&#39;Dell&#39;)&quot;</span><span class="p">,</span>
-            <span class="kc">false</span><span class="p">,</span>
-            <span class="kc">null</span><span class="p">,</span>
-            <span class="kc">false</span>
-        <span class="p">],</span>
-        <span class="p">[</span>
-            <span class="s2">&quot;computer_built&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;date&quot;</span><span class="p">,</span>
-            <span class="kc">false</span><span class="p">,</span>
-            <span class="kc">null</span><span class="p">,</span>
-            <span class="kc">false</span>
-        <span class="p">],</span>
-        <span class="p">[</span>
-            <span class="s2">&quot;computer_processor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;double&quot;</span><span class="p">,</span>
-            <span class="kc">false</span><span class="p">,</span>
-            <span class="kc">null</span><span class="p">,</span>
-            <span class="kc">false</span>
-        <span class="p">],</span>
-        <span class="p">[</span>
-            <span class="s2">&quot;computer_memory&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;int&quot;</span><span class="p">,</span>
-            <span class="kc">false</span><span class="p">,</span>
-            <span class="kc">null</span><span class="p">,</span>
-            <span class="kc">false</span>
-        <span class="p">],</span>
-        <span class="p">[</span>
-            <span class="s2">&quot;computer_weight&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;float&quot;</span><span class="p">,</span>
-            <span class="kc">false</span><span class="p">,</span>
-            <span class="kc">null</span><span class="p">,</span>
-            <span class="kc">false</span>
-        <span class="p">],</span>
-        <span class="p">[</span>
-            <span class="s2">&quot;computer_cost&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;decimal(6,2)&quot;</span><span class="p">,</span>
-            <span class="kc">false</span><span class="p">,</span>
-            <span class="kc">null</span><span class="p">,</span>
-            <span class="kc">false</span>
-        <span class="p">],</span>
-        <span class="p">[</span>
-            <span class="s2">&quot;computer_preowned&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tinyint&quot;</span><span class="p">,</span>
-            <span class="kc">false</span><span class="p">,</span>
-            <span class="kc">null</span><span class="p">,</span>
-            <span class="kc">false</span>
-        <span class="p">],</span>
-        <span class="p">[</span>
-            <span class="s2">&quot;computer_purchased&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;datetime&quot;</span><span class="p">,</span>
-            <span class="kc">false</span><span class="p">,</span>
-            <span class="kc">null</span><span class="p">,</span>
-            <span class="kc">false</span>
-        <span class="p">],</span>
-        <span class="p">[</span>
-            <span class="s2">&quot;computer_updates&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;time&quot;</span><span class="p">,</span>
-            <span class="kc">true</span><span class="p">,</span>
-            <span class="s2">&quot;null&quot;</span><span class="p">,</span>
-            <span class="kc">false</span>
-        <span class="p">]</span>
-    <span class="p">]</span>
-<span class="p">}</span>
+{
+    &quot;attributeHeader&quot;: [
+        &quot;name&quot;,
+        &quot;type&quot;,
+        &quot;nullable&quot;,
+        &quot;default&quot;,
+        &quot;autoincrement&quot;
+    ],
+    &quot;attributes&quot;: {
+        &quot;primary&quot;: [
+            [
+                &quot;computer_id&quot;,
+                &quot;uuid&quot;,
+                false,
+                null,
+                false
+            ]
+        ],
+        &quot;secondary&quot;: [
+            [
+                &quot;computer_serial&quot;,
+                &quot;varchar(9)&quot;,
+                false,
+                &quot;&quot;ABC101&quot;&quot;,
+                false
+            ],
+            [
+                &quot;computer_brand&quot;,
+                &quot;enum(&#39;HP&#39;,&#39;Dell&#39;)&quot;,
+                false,
+                null,
+                false
+            ],
+            [
+                &quot;computer_built&quot;,
+                &quot;date&quot;,
+                false,
+                null,
+                false
+            ],
+            [
+                &quot;computer_processor&quot;,
+                &quot;double&quot;,
+                false,
+                null,
+                false
+            ],
+            [
+                &quot;computer_memory&quot;,
+                &quot;int&quot;,
+                false,
+                null,
+                false
+            ],
+            [
+                &quot;computer_weight&quot;,
+                &quot;float&quot;,
+                false,
+                null,
+                false
+            ],
+            [
+                &quot;computer_cost&quot;,
+                &quot;decimal(6,2)&quot;,
+                false,
+                null,
+                false
+            ],
+            [
+                &quot;computer_preowned&quot;,
+                &quot;tinyint&quot;,
+                false,
+                null,
+                false
+            ],
+            [
+                &quot;computer_purchased&quot;,
+                &quot;datetime&quot;,
+                false,
+                null,
+                false
+            ],
+            [
+                &quot;computer_updates&quot;,
+                &quot;time&quot;,
+                true,
+                &quot;null&quot;,
+                false
+            ],
+            [
+                &quot;computer_accessories&quot;,
+                &quot;longblob&quot;,
+                true,
+                &quot;null&quot;,
+                false
+            ]
+        ]
+    }
+}
 </pre></div>
 </div>
 <p><strong>Example unexpected response</strong>:</p>
@@ -856,33 +407,32 @@ this param set as <code class="docutils literal notranslate"><span class="pre">W
 </dd></dl>
 
 <dl class="py function">
-<dt id="pharus.server.get_table_definition">
-<code class="sig-prename descclassname"><span class="pre">pharus.server.</span></code><code class="sig-name descname"><span class="pre">get_table_definition</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#pharus.server.get_table_definition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/get_table_definition</span></code> route.</p>
+<dt id="pharus.server.definition">
+<code class="sig-prename descclassname"><span class="pre">pharus.server.</span></code><code class="sig-name descname"><span class="pre">definition</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#pharus.server.definition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/schema/{schema_name}/table/{table_name}/definition</span></code> route.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password strings.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password strings.</p></li>
+<li><p><strong>schema_name</strong> (<em>str</em>) – Schema name.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – Table name.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>If successful then sends back definition for table otherwise returns error.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
-<dl class="http post">
-<dt id="post--get_table_definition">
-<code class="sig-name descname"><span class="pre">POST</span> </code><code class="sig-name descname"><span class="pre">/get_table_definition</span></code><a class="headerlink" href="#post--get_table_definition" title="Permalink to this definition">¶</a></dt>
+<dl class="http get">
+<dt id="get--schema-schema_name-table-table_name-definition">
+<code class="sig-name descname"><span class="pre">GET</span> </code><code class="sig-name descname"><span class="pre">/schema/{schema_name}/table/{table_name}/definition</span></code><a class="headerlink" href="#get--schema-schema_name-table-table_name-definition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Route to get DataJoint table definition.</p>
 <p><strong>Example request</strong>:</p>
-<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/get_table_definition</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/schema/alpha_company/table/Computer/definition</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Host</span><span class="o">:</span> <span class="l">fakeservices.datajoint.io</span>
-<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
-
-{
-    &quot;schemaName&quot;: &quot;alpha_company&quot;,
-    &quot;tableName&quot;: &quot;Computer&quot;
-}
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Bearer &lt;token&gt;</span>
 </pre></div>
 </div>
 <p><strong>Example successful response</strong>:</p>
@@ -891,18 +441,19 @@ this param set as <code class="docutils literal notranslate"><span class="pre">W
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/plain</span>
 
 # Computers that belong to the company
-computer_id          : uuid                     # unique id
+computer_id          : uuid                      # unique id
 ---
-computer_serial      : varchar(9)               # manufacturer serial number
-computer_brand       : enum(&#39;HP&#39;,&#39;Dell&#39;)        # manufacturer brand
-computer_built       : date                     # manufactured date
-computer_processor   : double                   # processing power in GHz
-computer_memory      : int                      # RAM in GB
-computer_weight      : float                    # weight in lbs
-computer_cost        : decimal(6,2)             # purchased price
-computer_preowned    : tinyint                  # purchased as new or used
-computer_purchased   : datetime                 # purchased date and time
+computer_serial=&quot;ABC101&quot; : varchar(9)            # manufacturer serial number
+computer_brand       : enum(&#39;HP&#39;,&#39;Dell&#39;)         # manufacturer brand
+computer_built       : date                      # manufactured date
+computer_processor   : double                    # processing power in GHz
+computer_memory      : int                       # RAM in GB
+computer_weight      : float                     # weight in lbs
+computer_cost        : decimal(6,2)              # purchased price
+computer_preowned    : tinyint                   # purchased as new or used
+computer_purchased   : datetime                  # purchased date and time
 computer_updates=null : time                     # scheduled daily update timeslot
+computer_accessories=null : longblob             # included additional accessories
 </pre></div>
 </div>
 <p><strong>Example unexpected response</strong>:</p>
@@ -937,109 +488,32 @@ computer_updates=null : time                     # scheduled daily update timesl
 </dd></dl>
 
 <dl class="py function">
-<dt id="pharus.server.insert_tuple">
-<code class="sig-prename descclassname"><span class="pre">pharus.server.</span></code><code class="sig-name descname"><span class="pre">insert_tuple</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#pharus.server.insert_tuple" title="Permalink to this definition">¶</a></dt>
-<dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/insert_tuple</span></code> route.</p>
+<dt id="pharus.server.dependency">
+<code class="sig-prename descclassname"><span class="pre">pharus.server.</span></code><code class="sig-name descname"><span class="pre">dependency</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#pharus.server.dependency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/schema/{schema_name}/table/{table_name}/dependency</span></code> route.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password strings.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password strings.</p></li>
+<li><p><strong>schema_name</strong> (<em>str</em>) – Schema name.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – Table name.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>If successful then returns <code class="docutils literal notranslate"><span class="pre">Insert</span> <span class="pre">Successful</span></code> otherwise returns error.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-<dl class="http post">
-<dt id="post--insert_tuple">
-<code class="sig-name descname"><span class="pre">POST</span> </code><code class="sig-name descname"><span class="pre">/insert_tuple</span></code><a class="headerlink" href="#post--insert_tuple" title="Permalink to this definition">¶</a></dt>
-<dd><p>Route to insert a record.</p>
-<p><strong>Example request</strong>:</p>
-<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/insert_tuple</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
-<span class="na">Host</span><span class="o">:</span> <span class="l">fakeservices.datajoint.io</span>
-<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
-
-{
-    &quot;schemaName&quot;: &quot;alpha_company&quot;,
-    &quot;tableName&quot;: &quot;Computer&quot;,
-    &quot;tuple&quot;: {
-        &quot;computer_id&quot;: &quot;ffffffff-86d5-4af7-a013-89bde75528bd&quot;,
-        &quot;computer_serial&quot;: &quot;ZYXWVEISJ&quot;,
-        &quot;computer_brand&quot;: &quot;HP&quot;,
-        &quot;computer_built&quot;: &quot;2021-01-01&quot;,
-        &quot;computer_processor&quot;: 2.7,
-        &quot;computer_memory&quot;: 32,
-        &quot;computer_weight&quot;: 3.7,
-        &quot;computer_cost&quot;: 599.99,
-        &quot;computer_preowned&quot;: 0,
-        &quot;computer_purchased&quot;: &quot;2021-02-01 13:00:00&quot;,
-        &quot;computer_updates&quot;: 0
-    }
-}
-</pre></div>
-</div>
-<p><strong>Example successful response</strong>:</p>
-<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
-<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
-<span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/plain</span>
-
-Insert Successful
-</pre></div>
-</div>
-<p><strong>Example unexpected response</strong>:</p>
-<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">500</span> <span class="ne">Internal Server Error</span>
-<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
-<span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/plain</span>
-
-400 Bad Request: The browser (or proxy) sent a request that this server could not
-    understand.
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Request Headers</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a> – Bearer &lt;OAuth2_token&gt;</p></li>
-</ul>
-</dd>
-<dt class="field-even">Response Headers</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a> – text/plain</p></li>
-</ul>
-</dd>
-<dt class="field-odd">Status Codes</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – No error.</p></li>
-<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a> – Unexpected error encountered. Returns the error message as a string.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py function">
-<dt id="pharus.server.list_schemas">
-<code class="sig-prename descclassname"><span class="pre">pharus.server.</span></code><code class="sig-name descname"><span class="pre">list_schemas</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#pharus.server.list_schemas" title="Permalink to this definition">¶</a></dt>
-<dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/list_schemas</span></code> route.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password strings.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>If successful then sends back a list of schemas names otherwise returns error.</p>
+<dd class="field-even"><p>If sucessfuly sends back a list of dependencies otherwise returns error.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 <dl class="http get">
-<dt id="get--list_schemas">
-<code class="sig-name descname"><span class="pre">GET</span> </code><code class="sig-name descname"><span class="pre">/list_schemas</span></code><a class="headerlink" href="#get--list_schemas" title="Permalink to this definition">¶</a></dt>
-<dd><p>Route to get list of schemas.</p>
+<dt id="get--schema-schema_name-table-table_name-dependency">
+<code class="sig-name descname"><span class="pre">GET</span> </code><code class="sig-name descname"><span class="pre">/schema/{schema_name}/table/{table_name}/dependency</span></code><a class="headerlink" href="#get--schema-schema_name-table-table_name-dependency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Route to get the metadata in relation to the dependent records associated with a restricted subset of a table.</p>
 <p><strong>Example request</strong>:</p>
-<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/list_schemas</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/schema/alpha_company/table/Computer/dependency?restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Host</span><span class="o">:</span> <span class="l">fakeservices.datajoint.io</span>
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Bearer &lt;token&gt;</span>
 </pre></div>
 </div>
 <p><strong>Example successful response</strong>:</p>
@@ -1048,8 +522,19 @@ Insert Successful
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
 
 <span class="p">{</span>
-    <span class="nt">&quot;schemaNames&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">&quot;alpha_company&quot;</span>
+    <span class="nt">&quot;dependencies&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;accessible&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+            <span class="nt">&quot;count&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="nt">&quot;schema&quot;</span><span class="p">:</span> <span class="s2">&quot;alpha_company&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;table&quot;</span><span class="p">:</span> <span class="s2">&quot;computer&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;accessible&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+            <span class="nt">&quot;count&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="nt">&quot;schema&quot;</span><span class="p">:</span> <span class="s2">&quot;alpha_company&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;table&quot;</span><span class="p">:</span> <span class="s2">&quot;#employee&quot;</span>
+        <span class="p">}</span>
     <span class="p">]</span>
 <span class="p">}</span>
 </pre></div>
@@ -1064,98 +549,29 @@ Insert Successful
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Request Headers</dt>
+<dt class="field-odd">Query Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>schema_name</strong> – Schema name.</p></li>
+<li><p><strong>table_name</strong> – Table name.</p></li>
+<li><p><strong>restriction</strong> – Base64-encoded <code class="docutils literal notranslate"><span class="pre">AND</span></code> sequence of restrictions. For example, you
+could restrict as <code class="docutils literal notranslate"><span class="pre">[{&quot;attributeName&quot;:</span> <span class="pre">&quot;computer_memory&quot;,</span> <span class="pre">&quot;operation&quot;:</span> <span class="pre">&quot;&gt;=&quot;,</span></code>-
+<code class="docutils literal notranslate"><span class="pre">&quot;value&quot;:</span> <span class="pre">16}]</span></code> with this param set as
+<code class="docutils literal notranslate"><span class="pre">W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl</span></code>-
+<code class="docutils literal notranslate"><span class="pre">cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=</span></code>. Defaults to no restriction.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
 <li><p><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a> – Bearer &lt;OAuth2_token&gt;</p></li>
 </ul>
 </dd>
-<dt class="field-even">Response Headers</dt>
-<dd class="field-even"><ul class="simple">
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a> – text/plain, application/json</p></li>
 </ul>
 </dd>
-<dt class="field-odd">Status Codes</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – No error.</p></li>
-<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a> – Unexpected error encountered. Returns the error message as a string.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py function">
-<dt id="pharus.server.list_tables">
-<code class="sig-prename descclassname"><span class="pre">pharus.server.</span></code><code class="sig-name descname"><span class="pre">list_tables</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#pharus.server.list_tables" title="Permalink to this definition">¶</a></dt>
-<dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/list_tables</span></code> route.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password strings.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>If successful then sends back a list of tables names otherwise returns error.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-<dl class="http post">
-<dt id="post--list_tables">
-<code class="sig-name descname"><span class="pre">POST</span> </code><code class="sig-name descname"><span class="pre">/list_tables</span></code><a class="headerlink" href="#post--list_tables" title="Permalink to this definition">¶</a></dt>
-<dd><p>Route to get tables within a schema.</p>
-<p><strong>Example request</strong>:</p>
-<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/list_tables</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
-<span class="na">Host</span><span class="o">:</span> <span class="l">fakeservices.datajoint.io</span>
-<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
-
-{
-    &quot;schemaName&quot;: &quot;alpha_company&quot;
-}
-</pre></div>
-</div>
-<p><strong>Example successful response</strong>:</p>
-<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
-<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
-<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
-
-<span class="p">{</span>
-    <span class="nt">&quot;tableTypeAndNames&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;computed_tables&quot;</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="nt">&quot;imported_tables&quot;</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="nt">&quot;lookup_tables&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="s2">&quot;Employee&quot;</span>
-        <span class="p">],</span>
-        <span class="nt">&quot;manual_tables&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="s2">&quot;Computer&quot;</span>
-        <span class="p">],</span>
-        <span class="nt">&quot;part_tables&quot;</span><span class="p">:</span> <span class="p">[]</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p><strong>Example unexpected response</strong>:</p>
-<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">500</span> <span class="ne">Internal Server Error</span>
-<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
-<span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/plain</span>
-
-400 Bad Request: The browser (or proxy) sent a request that this server could not
-    understand.
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Request Headers</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a> – Bearer &lt;OAuth2_token&gt;</p></li>
-</ul>
-</dd>
-<dt class="field-even">Response Headers</dt>
+<dt class="field-even">Status Codes</dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a> – text/plain, application/json</p></li>
-</ul>
-</dd>
-<dt class="field-odd">Status Codes</dt>
-<dd class="field-odd"><ul class="simple">
 <li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – No error.</p></li>
 <li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a> – Unexpected error encountered. Returns the error message as a string.</p></li>
 </ul>
@@ -1187,7 +603,7 @@ to the above strategy is currently being tracked in
 <p>Handler for <code class="docutils literal notranslate"><span class="pre">/login</span></code> route.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Function output is encoded jwt if successful, otherwise return error message</p>
+<dd class="field-odd"><p>Function output is an encoded JWT if successful, otherwise return error message</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>dict</p>
@@ -1196,7 +612,7 @@ to the above strategy is currently being tracked in
 <dl class="http post">
 <dt id="post--login">
 <code class="sig-name descname"><span class="pre">POST</span> </code><code class="sig-name descname"><span class="pre">/login</span></code><a class="headerlink" href="#post--login" title="Permalink to this definition">¶</a></dt>
-<dd><p>Route to get authentication token.</p>
+<dd><p>Route to generate an authentication token.</p>
 <p><strong>Example request</strong>:</p>
 <div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/login</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Host</span><span class="o">:</span> <span class="l">fakeservices.datajoint.io</span>
@@ -1254,7 +670,7 @@ to the above strategy is currently being tracked in
 <dd class="field-odd"><p><strong>function</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code>) – Function to decorate, typically routes</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Function output if jwt authetication is successful, otherwise return error
+<dd class="field-even"><p>Function output if JWT authetication is successful, otherwise return error
 message</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -1264,27 +680,33 @@ message</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pharus.server.record_dependency">
-<code class="sig-prename descclassname"><span class="pre">pharus.server.</span></code><code class="sig-name descname"><span class="pre">record_dependency</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#pharus.server.record_dependency" title="Permalink to this definition">¶</a></dt>
-<dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/record/dependency</span></code> route.</p>
+<dt id="pharus.server.record">
+<code class="sig-prename descclassname"><span class="pre">pharus.server.</span></code><code class="sig-name descname"><span class="pre">record</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#pharus.server.record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/schema/{schema_name}/table/{table_name}/record</span></code> route.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password strings.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password strings.</p></li>
+<li><p><strong>schema_name</strong> (<em>str</em>) – Schema name.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – Table name.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>If sucessfuly sends back a list of dependencies otherwise returns error.</p>
+<dd class="field-even"><p>If successful performs desired operation based on HTTP method, otherwise returns
+error.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Union[dict,</span> <span class="pre">str,</span> <span class="pre">tuple]</span></code></p>
 </dd>
 </dl>
 <dl class="http get">
-<dt id="get--record-dependency">
-<code class="sig-name descname"><span class="pre">GET</span> </code><code class="sig-name descname"><span class="pre">/record/dependency</span></code><a class="headerlink" href="#get--record-dependency" title="Permalink to this definition">¶</a></dt>
-<dd><p>Route to get the metadata in relation to the dependent records associated with a restricted subset of a table.</p>
+<dt id="get--schema-schema_name-table-table_name-record">
+<code class="sig-name descname"><span class="pre">GET</span> </code><code class="sig-name descname"><span class="pre">/schema/{schema_name}/table/{table_name}/record</span></code><a class="headerlink" href="#get--schema-schema_name-table-table_name-record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Route to fetch records.</p>
 <p><strong>Example request</strong>:</p>
-<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/fetch_tuples?schemaName=alpha_company&amp;tableName=Computer&amp;restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMzJ9XQo=</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/schema/alpha_company/table/Computer/record?limit=1&amp;page=2&amp;order=computer_id%20DESC&amp;restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Host</span><span class="o">:</span> <span class="l">fakeservices.datajoint.io</span>
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Bearer &lt;token&gt;</span>
 </pre></div>
 </div>
 <p><strong>Example successful response</strong>:</p>
@@ -1293,20 +715,37 @@ message</p>
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
 
 <span class="p">{</span>
-    <span class="nt">&quot;dependencies&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="p">{</span>
-            <span class="nt">&quot;accessible&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-            <span class="nt">&quot;count&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
-            <span class="nt">&quot;schema&quot;</span><span class="p">:</span> <span class="s2">&quot;alpha_company&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;table&quot;</span><span class="p">:</span> <span class="s2">&quot;computer&quot;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="nt">&quot;accessible&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-            <span class="nt">&quot;count&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-            <span class="nt">&quot;schema&quot;</span><span class="p">:</span> <span class="s2">&quot;alpha_company&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;table&quot;</span><span class="p">:</span> <span class="s2">&quot;#employee&quot;</span>
-        <span class="p">}</span>
-    <span class="p">]</span>
+    <span class="nt">&quot;recordHeader&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;computer_id&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;computer_serial&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;computer_brand&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;computer_built&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;computer_processor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;computer_memory&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;computer_weight&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;computer_cost&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;computer_preowned&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;computer_purchased&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;computer_updates&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;computer_accessories&quot;</span>
+    <span class="p">],</span>
+    <span class="nt">&quot;records&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;4e41491a-86d5-4af7-a013-89bde75528bd&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;DJS1JA17G&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Dell&quot;</span><span class="p">,</span>
+            <span class="mi">1590364800</span><span class="p">,</span>
+            <span class="mf">2.2</span><span class="p">,</span>
+            <span class="mi">16</span><span class="p">,</span>
+            <span class="mf">4.4</span><span class="p">,</span>
+            <span class="s2">&quot;700.99&quot;</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="mi">1603181061</span><span class="p">,</span>
+            <span class="kc">null</span><span class="p">,</span>
+            <span class="s2">&quot;=BLOB=&quot;</span>
+        <span class="p">]</span>
+    <span class="p">],</span>
+    <span class="nt">&quot;totalCount&quot;</span><span class="p">:</span> <span class="mi">2</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -1322,11 +761,16 @@ message</p>
 <dl class="field-list simple">
 <dt class="field-odd">Query Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>schemaName</strong> – Schema name.</p></li>
-<li><p><strong>tableName</strong> – Table name.</p></li>
+<li><p><strong>schema_name</strong> – Schema name.</p></li>
+<li><p><strong>table_name</strong> – Table name.</p></li>
+<li><p><strong>limit</strong> – Limit of how many records per page. Defaults to <code class="docutils literal notranslate"><span class="pre">1000</span></code>.</p></li>
+<li><p><strong>page</strong> – Page requested. Defaults to <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p></li>
+<li><p><strong>order</strong> – Sort order. Defaults to <code class="docutils literal notranslate"><span class="pre">KEY</span> <span class="pre">ASC</span></code>.</p></li>
 <li><p><strong>restriction</strong> – Base64-encoded <code class="docutils literal notranslate"><span class="pre">AND</span></code> sequence of restrictions. For example, you
-could restrict as <code class="docutils literal notranslate"><span class="pre">[{&quot;attributeName&quot;:</span> <span class="pre">&quot;computer_memory&quot;&gt;=&quot;,</span> <span class="pre">&quot;value&quot;:</span> <span class="pre">32}]</span></code> with
-this param set as <code class="docutils literal notranslate"><span class="pre">W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjo</span></code>-<code class="docutils literal notranslate"><span class="pre">gIj49IiwgInZhbHVlIjogMzJ9XQo=</span></code>.</p></li>
+could restrict as <code class="docutils literal notranslate"><span class="pre">[{&quot;attributeName&quot;:</span> <span class="pre">&quot;computer_memory&quot;,</span> <span class="pre">&quot;operation&quot;:</span> <span class="pre">&quot;&gt;=&quot;,</span></code>-
+<code class="docutils literal notranslate"><span class="pre">&quot;value&quot;:</span> <span class="pre">16}]</span></code> with this param set as
+<code class="docutils literal notranslate"><span class="pre">W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl</span></code>-
+<code class="docutils literal notranslate"><span class="pre">cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=</span></code>. Defaults to no restriction.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Request Headers</dt>
@@ -1348,54 +792,98 @@ this param set as <code class="docutils literal notranslate"><span class="pre">W
 </dl>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="py function">
-<dt id="pharus.server.run">
-<code class="sig-prename descclassname"><span class="pre">pharus.server.</span></code><code class="sig-name descname"><span class="pre">run</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pharus.server.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>Starts API server.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="pharus.server.update_tuple">
-<code class="sig-prename descclassname"><span class="pre">pharus.server.</span></code><code class="sig-name descname"><span class="pre">update_tuple</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#pharus.server.update_tuple" title="Permalink to this definition">¶</a></dt>
-<dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/update_tuple</span></code> route.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password strings.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>If successful then returns <code class="docutils literal notranslate"><span class="pre">Update</span> <span class="pre">Successful</span></code> otherwise returns error.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
 <dl class="http post">
-<dt id="post--update_tuple">
-<code class="sig-name descname"><span class="pre">POST</span> </code><code class="sig-name descname"><span class="pre">/update_tuple</span></code><a class="headerlink" href="#post--update_tuple" title="Permalink to this definition">¶</a></dt>
-<dd><p>Route to update a record.</p>
+<dt id="post--schema-schema_name-table-table_name-record">
+<code class="sig-name descname"><span class="pre">POST</span> </code><code class="sig-name descname"><span class="pre">/schema/{schema_name}/table/{table_name}/record</span></code><a class="headerlink" href="#post--schema-schema_name-table-table_name-record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Route to insert a record. Omitted attributes utilize the default if set.</p>
 <p><strong>Example request</strong>:</p>
-<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/update_tuple</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/schema/alpha_company/table/Computer/record</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Host</span><span class="o">:</span> <span class="l">fakeservices.datajoint.io</span>
 <span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Bearer &lt;token&gt;</span>
 
 {
-    &quot;schemaName&quot;: &quot;alpha_company&quot;,
-    &quot;tableName&quot;: &quot;Computer&quot;,
-    &quot;tuple&quot;: {
-        &quot;computer_id&quot;: &quot;ffffffff-86d5-4af7-a013-89bde75528bd&quot;,
-        &quot;computer_serial&quot;: &quot;ZYXWVEISJ&quot;,
-        &quot;computer_brand&quot;: &quot;HP&quot;,
-        &quot;computer_built&quot;: &quot;2021-01-01&quot;,
-        &quot;computer_processor&quot;: 2.7,
-        &quot;computer_memory&quot;: 32,
-        &quot;computer_weight&quot;: 3.7,
-        &quot;computer_cost&quot;: 399.99,
-        &quot;computer_preowned&quot;: 0,
-        &quot;computer_purchased&quot;: &quot;2021-02-01 13:00:00&quot;,
-        &quot;computer_updates&quot;: 0
-    }
+    &quot;records&quot;: [
+        {
+            &quot;computer_id&quot;: &quot;ffffffff-86d5-4af7-a013-89bde75528bd&quot;,
+            &quot;computer_serial&quot;: &quot;ZYXWVEISJ&quot;,
+            &quot;computer_brand&quot;: &quot;HP&quot;,
+            &quot;computer_built&quot;: &quot;2021-01-01&quot;,
+            &quot;computer_processor&quot;: 2.7,
+            &quot;computer_memory&quot;: 32,
+            &quot;computer_weight&quot;: 3.7,
+            &quot;computer_cost&quot;: 599.99,
+            &quot;computer_preowned&quot;: 0,
+            &quot;computer_purchased&quot;: &quot;2021-02-01 13:00:00&quot;,
+            &quot;computer_updates&quot;: 0
+        }
+    ]
+}
+</pre></div>
+</div>
+<p><strong>Example successful response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/plain</span>
+
+Insert Successful
+</pre></div>
+</div>
+<p><strong>Example unexpected response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">500</span> <span class="ne">Internal Server Error</span>
+<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/plain</span>
+
+400 Bad Request: The browser (or proxy) sent a request that this server could not
+    understand.
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Request Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a> – Bearer &lt;OAuth2_token&gt;</p></li>
+</ul>
+</dd>
+<dt class="field-even">Response Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a> – text/plain</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Status Codes</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – No error.</p></li>
+<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a> – Unexpected error encountered. Returns the error message as a string.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="http patch">
+<dt id="patch--schema-schema_name-table-table_name-record">
+<code class="sig-name descname"><span class="pre">PATCH</span> </code><code class="sig-name descname"><span class="pre">/schema/{schema_name}/table/{table_name}/record</span></code><a class="headerlink" href="#patch--schema-schema_name-table-table_name-record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Route to update a record. Omitted attributes utilize the default if set.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">PATCH</span> <span class="nn">/schema/alpha_company/table/Computer/record</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">fakeservices.datajoint.io</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Bearer &lt;token&gt;</span>
+
+{
+    &quot;records&quot;: [
+        {
+            &quot;computer_id&quot;: &quot;ffffffff-86d5-4af7-a013-89bde75528bd&quot;,
+            &quot;computer_serial&quot;: &quot;ZYXWVEISJ&quot;,
+            &quot;computer_brand&quot;: &quot;HP&quot;,
+            &quot;computer_built&quot;: &quot;2021-01-01&quot;,
+            &quot;computer_processor&quot;: 2.7,
+            &quot;computer_memory&quot;: 32,
+            &quot;computer_weight&quot;: 3.7,
+            &quot;computer_cost&quot;: 601.01,
+            &quot;computer_preowned&quot;: 0,
+            &quot;computer_purchased&quot;: &quot;2021-02-01 13:00:00&quot;,
+            &quot;computer_updates&quot;: 0
+        }
+    ]
 }
 </pre></div>
 </div>
@@ -1429,6 +917,240 @@ Update Successful
 </dd>
 <dt class="field-odd">Status Codes</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – No error.</p></li>
+<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a> – Unexpected error encountered. Returns the error message as a string.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="http delete">
+<dt id="delete--schema-schema_name-table-table_name-record">
+<code class="sig-name descname"><span class="pre">DELETE</span> </code><code class="sig-name descname"><span class="pre">/schema/{schema_name}/table/{table_name}/record</span></code><a class="headerlink" href="#delete--schema-schema_name-table-table_name-record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Route to delete a specific record.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">DELETE</span> <span class="nn">/schema/alpha_company/table/Computer/record?cascade=false&amp;restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">fakeservices.datajoint.io</span>
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Bearer &lt;token&gt;</span>
+</pre></div>
+</div>
+<p><strong>Example successful response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/plain</span>
+
+Delete Successful
+</pre></div>
+</div>
+<p><strong>Example conflict response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">409</span> <span class="ne">Conflict</span>
+<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;IntegrityError&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;error_msg&quot;</span><span class="p">:</span> <span class="s2">&quot;Cannot delete or update a parent row: a foreign key constraint</span>
+<span class="s2">        fails (`alpha_company`.`#employee`, CONSTRAINT `#employee_ibfk_1` FOREIGN</span>
+<span class="s2">        KEY (`computer_id`) REFERENCES `computer` (`computer_id`) ON DELETE</span>
+<span class="s2">        RESTRICT ON UPDATE CASCADE&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;child_schema&quot;</span><span class="p">:</span> <span class="s2">&quot;alpha_company&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;child_table&quot;</span><span class="p">:</span> <span class="s2">&quot;Employee&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example unexpected response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">500</span> <span class="ne">Internal Server Error</span>
+<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/plain</span>
+
+400 Bad Request: The browser (or proxy) sent a request that this server could not
+    understand.
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Query Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cascade</strong> – Enable cascading delete. Accepts <code class="docutils literal notranslate"><span class="pre">true</span></code> or <code class="docutils literal notranslate"><span class="pre">false</span></code>.
+Defaults to <code class="docutils literal notranslate"><span class="pre">false</span></code>.</p></li>
+<li><p><strong>restriction</strong> – Base64-encoded <code class="docutils literal notranslate"><span class="pre">AND</span></code> sequence of restrictions. For example, you
+could restrict as <code class="docutils literal notranslate"><span class="pre">[{&quot;attributeName&quot;:</span> <span class="pre">&quot;computer_memory&quot;,</span> <span class="pre">&quot;operation&quot;:</span> <span class="pre">&quot;&gt;=&quot;,</span></code>-
+<code class="docutils literal notranslate"><span class="pre">&quot;value&quot;:</span> <span class="pre">16}]</span></code> with this param set as
+<code class="docutils literal notranslate"><span class="pre">W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl</span></code>-
+<code class="docutils literal notranslate"><span class="pre">cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=</span></code>. Defaults to no restriction.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a> – Bearer &lt;OAuth2_token&gt;</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a> – text/plain, application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – No error.</p></li>
+<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.10">409 Conflict</a> – Attempting to delete a record with dependents while <code class="docutils literal notranslate"><span class="pre">cascade</span></code> set
+to <code class="docutils literal notranslate"><span class="pre">false</span></code>.</p></li>
+<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a> – Unexpected error encountered. Returns the error message as a string.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="pharus.server.run">
+<code class="sig-prename descclassname"><span class="pre">pharus.server.</span></code><code class="sig-name descname"><span class="pre">run</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pharus.server.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts API server.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pharus.server.schema">
+<code class="sig-prename descclassname"><span class="pre">pharus.server.</span></code><code class="sig-name descname"><span class="pre">schema</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#pharus.server.schema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/schema</span></code> route.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password strings.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If successful then sends back a list of schemas names otherwise returns error.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<dl class="http get">
+<dt id="get--schema">
+<code class="sig-name descname"><span class="pre">GET</span> </code><code class="sig-name descname"><span class="pre">/schema</span></code><a class="headerlink" href="#get--schema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Route to get list of schemas.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/schema</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">fakeservices.datajoint.io</span>
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Bearer &lt;token&gt;</span>
+</pre></div>
+</div>
+<p><strong>Example successful response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;schemaNames&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;alpha_company&quot;</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example unexpected response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">500</span> <span class="ne">Internal Server Error</span>
+<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/plain</span>
+
+400 Bad Request: The browser (or proxy) sent a request that this server could not
+    understand.
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Request Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a> – Bearer &lt;OAuth2_token&gt;</p></li>
+</ul>
+</dd>
+<dt class="field-even">Response Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a> – text/plain, application/json</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Status Codes</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – No error.</p></li>
+<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a> – Unexpected error encountered. Returns the error message as a string.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="pharus.server.table">
+<code class="sig-prename descclassname"><span class="pre">pharus.server.</span></code><code class="sig-name descname"><span class="pre">table</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#pharus.server.table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/schema/{schema_name}/table</span></code> route.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password strings.</p></li>
+<li><p><strong>schema_name</strong> (<em>str</em>) – Schema name.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If successful then sends back a list of table names otherwise returns error.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<dl class="http get">
+<dt id="get--schema-schema_name-table">
+<code class="sig-name descname"><span class="pre">GET</span> </code><code class="sig-name descname"><span class="pre">/schema/{schema_name}/table</span></code><a class="headerlink" href="#get--schema-schema_name-table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Route to get tables within a schema.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/schema/alpha_company/table</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">fakeservices.datajoint.io</span>
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Bearer &lt;token&gt;</span>
+</pre></div>
+</div>
+<p><strong>Example successful response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;tableTypes&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;computed&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="nt">&quot;imported&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="nt">&quot;lookup&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;Employee&quot;</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;manual&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;Computer&quot;</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;part&quot;</span><span class="p">:</span> <span class="p">[]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example unexpected response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">500</span> <span class="ne">Internal Server Error</span>
+<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/plain</span>
+
+400 Bad Request: The browser (or proxy) sent a request that this server could not
+    understand.
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Query Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>schema_name</strong> – Schema name.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a> – Bearer &lt;OAuth2_token&gt;</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a> – text/plain, application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
 <li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – No error.</p></li>
 <li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a> – Unexpected error encountered. Returns the error message as a string.</p></li>
 </ul>

@@ -163,10 +163,6 @@
             
   <div class="section" id="user-documentation">
 <h1>User Documentation<a class="headerlink" href="#user-documentation" title="Permalink to this headline">¶</a></h1>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The Pharus project is still early in its life and the maintainers are currently actively developing with a priority of addressing first critical issues directly related to the deliveries of <a class="reference external" href="https://github.com/datajoint/pharus/milestone/1">Alpha</a> and <a class="reference external" href="https://github.com/datajoint/pharus/milestone/2">Beta</a> milestones. Please be advised that while working through our milestones, we may restructure/refactor the codebase without warning until we issue our <a class="reference external" href="https://github.com/datajoint/pharus/milestone/3">Official Release</a> currently planned as <code class="docutils literal notranslate"><span class="pre">0.1.0</span></code> on <code class="docutils literal notranslate"><span class="pre">2021-03-31</span></code>.</p>
-</div>
 <p><code class="docutils literal notranslate"><span class="pre">pharus</span></code> is a generic REST API server backend for <a class="reference external" href="https://datajoint.io">DataJoint</a> pipelines built on top of <code class="docutils literal notranslate"><span class="pre">flask</span></code>, <code class="docutils literal notranslate"><span class="pre">datajoint</span></code>, and <code class="docutils literal notranslate"><span class="pre">pyjwt</span></code>.</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://datajoint.github.io/pharus">Documentation</a></p></li>
@@ -191,13 +187,13 @@
 <h2>Running the API server<a class="headerlink" href="#running-the-api-server" title="Permalink to this headline">¶</a></h2>
 <p>To start the API server, use the command:</p>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">PHARUS_VERSION</span><span class="o">=</span><span class="m">0</span>.1.0b2 docker-compose -f docker-compose-deploy.yaml up -d
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">PHARUS_VERSION</span><span class="o">=</span><span class="m">0</span>.1.0 docker-compose -f docker-compose-deploy.yaml up -d
 </pre></div>
 </div>
 </div></blockquote>
 <p>To stop the API server, use the command:</p>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">PHARUS_VERSION</span><span class="o">=</span><span class="m">0</span>.1.0b2 docker-compose -f docker-compose-deploy.yaml down
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">PHARUS_VERSION</span><span class="o">=</span><span class="m">0</span>.1.0 docker-compose -f docker-compose-deploy.yaml down
 </pre></div>
 </div>
 </div></blockquote>

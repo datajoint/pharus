@@ -1,10 +1,6 @@
 User Documentation
 ==================
 
-.. warning::
-
-    The Pharus project is still early in its life and the maintainers are currently actively developing with a priority of addressing first critical issues directly related to the deliveries of `Alpha <https://github.com/datajoint/pharus/milestone/1>`_ and `Beta <https://github.com/datajoint/pharus/milestone/2>`_ milestones. Please be advised that while working through our milestones, we may restructure/refactor the codebase without warning until we issue our `Official Release <https://github.com/datajoint/pharus/milestone/3>`_ currently planned as ``0.1.0`` on ``2021-03-31``.
-
 ``pharus`` is a generic REST API server backend for `DataJoint <https://datajoint.io>`_ pipelines built on top of ``flask``, ``datajoint``, and ``pyjwt``.
 
 - `Documentation <https://datajoint.github.io/pharus>`_
@@ -33,13 +29,13 @@ To start the API server, use the command:
 
     .. code-block:: bash
 
-        PHARUS_VERSION=0.1.0b2 docker-compose -f docker-compose-deploy.yaml up -d
+        PHARUS_VERSION=0.1.0 docker-compose -f docker-compose-deploy.yaml up -d
 
 To stop the API server, use the command:
 
     .. code-block:: bash
 
-        PHARUS_VERSION=0.1.0b2 docker-compose -f docker-compose-deploy.yaml down
+        PHARUS_VERSION=0.1.0 docker-compose -f docker-compose-deploy.yaml down
 
 References
 ----------
