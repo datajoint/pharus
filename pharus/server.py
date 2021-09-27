@@ -20,6 +20,7 @@ from datajoint.table import foreign_key_error_regexp
 from datajoint.utils import to_camel_case
 
 app = Flask(__name__)
+from . import dynamic_api
 # Check if PRIVATE_KEY and PUBIC_KEY is set, if not generate them.
 # NOTE: For web deployment, please set the these enviorment variable to be the same between
 # the instance

@@ -2,9 +2,9 @@ ARG PY_VER
 ARG DISTRO
 ARG IMAGE
 FROM datajoint/${IMAGE}:py${PY_VER}-${DISTRO}
-COPY --chown=dja:anaconda ./README.rst ./requirements.txt ./setup.py \
+COPY --chown=anaconda:anaconda ./README.rst ./requirements.txt ./setup.py \
     /main/
-COPY --chown=dja:anaconda ./pharus/*.py /main/pharus/
+COPY --chown=anaconda:anaconda ./pharus/*.py /main/pharus/
 RUN \
     cd /main && \
     pip install . && \
@@ -23,4 +23,4 @@ WORKDIR /main
 # CMD ["pharus"]
 
 # production service
-CMD ["sh", "-lc", "gunicorn --bind 0.0.0.0:${PHARUS_PORT} pharus.server:app"]
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PHARUS_PORT} pharus.server:app"]
