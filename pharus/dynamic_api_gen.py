@@ -1,5 +1,4 @@
 import yaml
-from os import path
 
 # Exits the script without killing the python interpreter
 def populate_api():
@@ -10,12 +9,13 @@ def populate_api():
     valuesYaml = yaml.load(y, Loader=yaml.FullLoader)
     f.write(
 """
-from .server import app
+from .server import app, protected_route
+from .interface import _DJConnector
 
 @app.route('/test', methods=['GET'])
-def test():
-
-    return '{field}'
+@protected_route
+def test(jwt_payload: dict) -> dict:
+    return str(_DJConnector._list_schemas(jwt_payload))
 """.format(field=valuesYaml['Test'])
     )
     f.close()

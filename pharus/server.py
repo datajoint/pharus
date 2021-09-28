@@ -21,10 +21,6 @@ from datajoint.utils import to_camel_case
 
 app = Flask(__name__)
 
-try: 
-    from . import dynamic_api 
-except ImportError: 
-    pass
 
 # Check if PRIVATE_KEY and PUBIC_KEY is set, if not generate them.
 # NOTE: For web deployment, please set the these enviorment variable to be the same between
@@ -65,6 +61,10 @@ def protected_route(function: Callable) -> Callable:
     wrapper.__name__ = function.__name__
     return wrapper
 
+try: 
+    from . import dynamic_api 
+except ImportError: 
+    pass
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/version", methods=['GET'])
 def api_version() -> str:
