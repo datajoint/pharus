@@ -1,6 +1,6 @@
 import yaml
 from textwrap import indent
-# Exits the script without killing the python interpreter
+
 def populate_api():
     
     f = open('pharus//dynamic_api.py', 'w')
@@ -18,14 +18,14 @@ from .interface import _DJConnector, dj
 
 @app.route('{route}', methods=['GET'])
 @protected_route
-def test(jwt_payload: dict) -> list:
+def test(jwt_payload: dict) -> dict:
     
 {query}
 
     djconn = _DJConnector._set_datajoint_config(jwt_payload)
     vm_dict = {{s: dj.VirtualModule(s, s, connection=djconn) for s in dj.list_schemas()}}
-
-    return dj_query(**vm_dict)
+    query, fetch_args = dj_query(vm_dict)
+    return str(query.fetch(**fetch_args))
 """
 
     valuesYaml = yaml.load(y, Loader=yaml.FullLoader)
