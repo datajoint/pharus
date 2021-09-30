@@ -18,7 +18,7 @@ from .interface import _DJConnector, dj
 
 @app.route('{route}', methods=['GET'])
 @protected_route
-def test(jwt_payload: dict) -> dict:
+def {method_name}(jwt_payload: dict) -> dict:
     
 {query}
 
@@ -29,11 +29,14 @@ def test(jwt_payload: dict) -> dict:
 """
 
     valuesYaml = yaml.load(y, Loader=yaml.FullLoader)
-    f.write(route_template.format(
-        route=valuesYaml['SciViz']['pages']
-        ['page2']['grids']['grid1']['components']['component1']['route'],
-        query=indent(valuesYaml['SciViz']['pages']
-        ['page2']['grids']['grid1']['components']['component1']['dj_query'], '    ')
-        )
-    )
+    pages = valuesYaml['SciViz']['pages']
+    
+    # Crawl through the yaml file for the routes in the components
+    for grids in pages.values():
+        for grid in grids['grids'].values():
+            for comp in grid['components'].values():
+                f.write(route_template.format(route=comp['route'],
+                    method_name=comp['route'].replace('/', ''),
+                    query=indent(comp['dj_query'], '    ')))
+
     f.close()
