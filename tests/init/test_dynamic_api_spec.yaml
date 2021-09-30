@@ -25,7 +25,7 @@ SciViz: # top level tab
               dj_query: >
                 def dj_query(vms):
                     TableA, TableB = (vms['test_group1_simple'].TableA, vms['test_group1_simple'].TableB)
-                    return TableA * TableB, dict(order_by='a_name')
+                    return TableA * TableB, dict(order_by='b_number')
         grid1:
           components:
             component1:
@@ -39,7 +39,7 @@ SciViz: # top level tab
               dj_query: >
                 def dj_query(vms):
                     TableA, TableB = (vms['test_group1_simple'].TableA, vms['test_group1_simple'].TableB)
-                    return TableA * TableB, dict(order_by='a_name')
+                    return TableA * TableB, dict(order_by='b_number')
           
     page1:
       route: /session2 # dev, be careful of name collisions
@@ -65,7 +65,7 @@ SciViz: # top level tab
               dj_query: >
                 def dj_query(vms):
                     TableA, TableB = (vms['test_group1_simple'].TableA, vms['test_group1_simple'].TableB)
-                    return TableA * TableB, dict(order_by='a_name')
+                    return TableA * TableB, dict(order_by='b_number')
             component2:
               route: /query4
               row_span: 0
@@ -77,7 +77,7 @@ SciViz: # top level tab
               dj_query: >
                 def dj_query(vms):
                     TableA, TableB = (vms['test_group1_simple'].TableA, vms['test_group1_simple'].TableB)
-                    return TableA * TableB, dict(order_by='a_name')
+                    return TableA * TableB, dict(order_by='b_number')
               diff_checker: >
                 def diff_checker(**args):
                   return TrainingStatsPlotly.proj(hash='trial_mean_hash')
