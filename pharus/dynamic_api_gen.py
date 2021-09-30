@@ -1,10 +1,13 @@
 import yaml
 from textwrap import indent
+from pathlib import Path
+import os
 
 def populate_api():
-    
-    f = open('pharus//dynamic_api.py', 'w')
-    y = open('pharus//dynamic_api_spec.yaml', 'r')
+    spec_path = os.environ.get('API_SPEC_PATH')
+    api_path = 'pharus/dynamic_api.py'
+    f = open(Path(api_path), 'w')
+    y = open(Path(spec_path), 'r')
     
     header_template = """
 # Auto-generated rest api

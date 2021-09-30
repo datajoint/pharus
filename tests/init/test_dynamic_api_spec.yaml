@@ -1,0 +1,83 @@
+version: 'v0.0.0'
+LabBook: null
+Test: "hello world"
+SciViz: # top level tab
+  auth:
+    mode: database # reuse from DJ LabBook
+  pages: # individual pages
+    page2:
+      route: /session1 # dev, be careful of name collisions
+      args:
+        - subject_name
+        - session_number
+      hidden: true
+      grids:
+        grid2:
+          components:
+            component1:
+              route: /query1
+              row_span: 0
+              column_span: 0
+              type: plot:png
+              restriction: >
+                def restriction(**args):
+                  return dict(**args)
+              dj_query: >
+                def dj_query(vms):
+                    TableA, TableB = (vms['test_group1_simple'].TableA, vms['test_group1_simple'].TableB)
+                    return TableA * TableB, dict(order_by='a_name')
+        grid1:
+          components:
+            component1:
+              route: /query2
+              row_span: 0
+              column_span: 0
+              type: plot:png
+              restriction: >
+                def restriction(**args):
+                  return dict(**args)
+              dj_query: >
+                def dj_query(vms):
+                    TableA, TableB = (vms['test_group1_simple'].TableA, vms['test_group1_simple'].TableB)
+                    return TableA * TableB, dict(order_by='a_name')
+          
+    page1:
+      route: /session2 # dev, be careful of name collisions
+      args:
+        - subject_name
+        - session_number
+      hidden: true
+      grids:
+        grid1:
+          type: fixed
+          max_component_per_page: 20
+          rows: 1
+          columns: 3
+          components:
+            component1:
+              route: /query3
+              row_span: 0
+              column_span: 0
+              type: plot:png
+              restriction: >
+                def restriction(**args):
+                  return dict(**args)
+              dj_query: >
+                def dj_query(vms):
+                    TableA, TableB = (vms['test_group1_simple'].TableA, vms['test_group1_simple'].TableB)
+                    return TableA * TableB, dict(order_by='a_name')
+            component2:
+              route: /query4
+              row_span: 0
+              column_span: 1
+              type: plot:plotly1
+              restriction: >
+                def restriction(**args):
+                  return dict(**args)
+              dj_query: >
+                def dj_query(vms):
+                    TableA, TableB = (vms['test_group1_simple'].TableA, vms['test_group1_simple'].TableB)
+                    return TableA * TableB, dict(order_by='a_name')
+              diff_checker: >
+                def diff_checker(**args):
+                  return TrainingStatsPlotly.proj(hash='trial_mean_hash')
