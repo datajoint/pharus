@@ -10,6 +10,14 @@ def populate_api():
 from .server import app, protected_route
 from .interface import _DJConnector, dj
 import json
+import numpy as np
+
+
+class NumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
 """
     route_template = """
 
@@ -21,7 +29,7 @@ def {method_name}(jwt_payload: dict) -> dict:
     djconn = _DJConnector._set_datajoint_config(jwt_payload)
     vm_dict = {{s: dj.VirtualModule(s, s, connection=djconn) for s in dj.list_schemas()}}
     query, fetch_args = dj_query(vm_dict)
-    return json.dumps(query.fetch(**fetch_args).tolist())
+    return json.dumps(query.fetch(**fetch_args), cls=NumpyEncoder)
 """
 
     spec_path = os.environ.get('API_SPEC_PATH')
