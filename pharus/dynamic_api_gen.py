@@ -15,7 +15,6 @@ def populate_api():
 from .server import app, protected_route
 from .interface import _DJConnector, dj
 import json
-
 """
     f.write(header_template)
 
@@ -26,7 +25,6 @@ import json
 def {method_name}(jwt_payload: dict) -> dict:
 
 {query}
-
     djconn = _DJConnector._set_datajoint_config(jwt_payload)
     vm_dict = {{s: dj.VirtualModule(s, s, connection=djconn) for s in dj.list_schemas()}}
     query, fetch_args = dj_query(vm_dict)

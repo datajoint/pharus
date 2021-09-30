@@ -61,10 +61,13 @@ def protected_route(function: Callable) -> Callable:
     wrapper.__name__ = function.__name__
     return wrapper
 
-try: 
-    from . import dynamic_api 
-except ImportError: 
+
+try:
+    from . import dynamic_api
+    dynamic_api
+except ImportError:
     pass
+
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/version", methods=['GET'])
 def api_version() -> str:
