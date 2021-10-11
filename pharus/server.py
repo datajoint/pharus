@@ -62,13 +62,6 @@ def protected_route(function: Callable) -> Callable:
     return wrapper
 
 
-try:
-    # pylint: disable=unused-import
-    from . import dynamic_api
-except ImportError:
-    pass
-
-
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/version", methods=['GET'])
 def api_version() -> str:
     """
