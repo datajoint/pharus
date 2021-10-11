@@ -64,7 +64,6 @@ def protected_route(function: Callable) -> Callable:
 
 try:
     from . import dynamic_api
-    dynamic_api
 except ImportError:
     pass
 

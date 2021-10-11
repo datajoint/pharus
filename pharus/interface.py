@@ -289,8 +289,7 @@ class _DJConnector():
         :type table_name: str
         :param restriction: Sequence of filters as ``dict`` with ``attributeName``,
             ``operation``, ``value`` keys defined, defaults to
-            ``[]`HomeCage * ModuleEvent * EventType, ,
-            dict(order_by=['KEY DESC', 'mouse_id'], limit=15)`
+            ``[]``
         :type restriction: list
         :return: Tables that are dependent on specific records.
         :rtype: list
