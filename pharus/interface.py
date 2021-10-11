@@ -288,8 +288,7 @@ class _DJConnector():
         :param table_name: Table name under the given schema; must be in camel case
         :type table_name: str
         :param restriction: Sequence of filters as ``dict`` with ``attributeName``,
-            ``operation``, ``value`` keys defined, defaults to
-            ``[]``
+            ``operation``, ``value`` keys defined, defaults to ``[]``
         :type restriction: list
         :return: Tables that are dependent on specific records.
         :rtype: list

@@ -3,13 +3,13 @@ import json
 
 
 def test_auto_generated_route(token, client, schemas_simple):
-    # verify crawling over multiple grids
-    # verify crawling over multiple components
 
-    REST_response1 = client.get(f'/query1', headers=dict(Authorization=f'Bearer {token}'))
-    REST_response2 = client.get(f'/query2', headers=dict(Authorization=f'Bearer {token}'))
-    REST_response3 = client.get(f'/query3', headers=dict(Authorization=f'Bearer {token}'))
-    REST_response4 = client.get(f'/query4', headers=dict(Authorization=f'Bearer {token}'))
+    # verify crawling over multiple grids
+    REST_response1 = client.get('/query1', headers=dict(Authorization=f'Bearer {token}'))
+    REST_response2 = client.get('/query2', headers=dict(Authorization=f'Bearer {token}'))
+    # verify crawling over multiple components
+    REST_response3 = client.get('/query3', headers=dict(Authorization=f'Bearer {token}'))
+    REST_response4 = client.get('/query4', headers=dict(Authorization=f'Bearer {token}'))
 
     expected_json = (
         '[[0, 11, "Raphael", -1.21], [1, 21, "Bernie", 7.77], [0, 10, "Raphael", 22.12]]')
