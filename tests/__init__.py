@@ -1,5 +1,5 @@
 import pytest
-from pharus.server import app
+from pharus.dynamic_api import app
 from uuid import UUID
 from os import getenv
 import datajoint as dj
