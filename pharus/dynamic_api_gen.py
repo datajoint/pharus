@@ -18,6 +18,29 @@ class NumpyEncoder(json.JSONEncoder):
         if isinstance(obj, np.ndarray):
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
+
+# Helper method for getting the attributes of a query
+def _get_attributes(query) -> dict:
+    query_attributes = dict(primary=[], secondary=[])
+    for attribute_name, attribute_info in query.heading.attributes.items():
+        if attribute_info.in_key:
+            query_attributes['primary'].append((
+                attribute_name,
+                attribute_info.type,
+                attribute_info.nullable,
+                attribute_info.default,
+                attribute_info.autoincrement
+                ))
+        else:
+            query_attributes['secondary'].append((
+                attribute_name,
+                attribute_info.type,
+                attribute_info.nullable,
+                attribute_info.default,
+                attribute_info.autoincrement
+                ))
+    return dict(attribute_headers=['name', 'type', 'nullable', 'default',
+                                   'autoincrement'], attributes=query_attributes)
 """
     route_template = """
 
@@ -40,27 +63,7 @@ def {method_name}_attributes(jwt_payload: dict) -> dict:
     djconn = _DJConnector._set_datajoint_config(jwt_payload)
     vm_dict = {{s: dj.VirtualModule(s, s, connection=djconn) for s in dj.list_schemas()}}
     query, fetch_args = dj_query(vm_dict)
-
-    query_attributes = dict(primary=[], secondary=[])
-    for attribute_name, attribute_info in query.heading.attributes.items():
-        if attribute_info.in_key:
-            query_attributes['primary'].append((
-                attribute_name,
-                attribute_info.type,
-                attribute_info.nullable,
-                attribute_info.default,
-                attribute_info.autoincrement
-                ))
-        else:
-            query_attributes['secondary'].append((
-                attribute_name,
-                attribute_info.type,
-                attribute_info.nullable,
-                attribute_info.default,
-                attribute_info.autoincrement
-                ))
-    attributes_meta = dict(attribute_headers=['name', 'type', 'nullable', 'default',
-                           'autoincrement'], attributes=query_attributes)
+    attributes_meta = _get_attributes(query)
 
     return dict(attributeHeaders=attributes_meta['attribute_headers'],
                 attributes=attributes_meta['attributes'])
