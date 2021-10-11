@@ -20,3 +20,19 @@ def test_auto_generated_route(token, client, schemas_simple):
     assert expected_json == json.dumps(REST_response2.get_json(force=True), sort_keys=True)
     assert expected_json == json.dumps(REST_response3.get_json(force=True), sort_keys=True)
     assert expected_json == json.dumps(REST_response4.get_json(force=True), sort_keys=True)
+
+
+def test_get_attributes(token, client, schemas_simple):
+    REST_response1 = client.get('/query1/attributes',
+                                headers=dict(Authorization=f'Bearer {token}'))
+
+    print(REST_response1.get_json())
+    expected_json = {'attributeHeaders': ['name', 'type', 'nullable',
+                                          'default', 'autoincrement'],
+                     'attributes': {'primary': [['a_id', 'int', False, None, False],
+                                                ['b_id', 'int', False, None, False]],
+                                    'secondary': [['a_name', 'varchar(30)',
+                                                   False, None, False],
+                                                  ['b_number', 'float', False, None, False]]}}
+
+    assert expected_json == REST_response1.get_json()
