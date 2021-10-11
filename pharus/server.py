@@ -63,6 +63,7 @@ def protected_route(function: Callable) -> Callable:
 
 
 try:
+    # pylint: disable=unused-import
     from . import dynamic_api
 except ImportError:
     pass
