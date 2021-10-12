@@ -184,6 +184,90 @@ class _DJConnector():
         return list(attributes.keys()), rows, len(query)
 
     @staticmethod
+    def _fetch_records_by_query(jwt_payload: dict, query,
+                                restriction: list = [], limit: int = 1000, page: int = 1,
+                                order=['KEY ASC']) -> tuple:
+        """
+        Get records from table.
+
+        :param jwt_payload: Dictionary containing databaseAddress, username, and password
+            strings
+        :type jwt_payload: dict
+        :param schema_name: Name of schema
+        :type schema_name: str
+        :param table_name: Table name under the given schema; must be in camel case
+        :type table_name: str
+        :param restriction: Sequence of filters as ``dict`` with ``attributeName``,
+            ``operation``, ``value`` keys defined, defaults to ``[]``
+        :type restriction: list, optional
+        :param limit: Max number of records to return, defaults to ``1000``
+        :type limit: int, optional
+        :param page: Page number to return, defaults to ``1``
+        :type page: int, optional
+        :param order: Sequence to order records, defaults to ``['KEY ASC']``. See
+            :class:`~datajoint.fetch.Fetch` for more info.
+        :type order: list, optional
+        :return: Attribute headers, records in dict form, and the total number of records that
+            can be paged
+        :rtype: tuple
+        """
+        _DJConnector._set_datajoint_config(jwt_payload)
+
+        # Get table object from name
+        attributes = query.heading.attributes
+        # Fetch tuples without blobs as dict to be used to create a
+        #   list of tuples for returning
+        query_restricted = query & dj.AndList([
+            _DJConnector._filter_to_restriction(f, attributes[f['attributeName']].type)
+            for f in restriction])
+        non_blobs_rows = query_restricted.fetch(*query.heading.non_blobs, as_dict=True,
+                                                limit=limit, offset=(page-1)*limit,
+                                                order_by=order)
+
+        # Buffer list to be return
+        rows = []
+
+        # Looped through each tuple and deal with TEMPORAL types and replacing
+        #   blobs with ==BLOB== for json encoding
+        for non_blobs_row in non_blobs_rows:
+            # Buffer object to store the attributes
+            row = []
+            # Loop through each attributes, append to the tuple_to_return with specific
+            #   modification based on data type
+            for attribute_name, attribute_info in attributes.items():
+                if not attribute_info.is_blob:
+                    if non_blobs_row[attribute_name] is None:
+                        # If it is none then just append None
+                        row.append(None)
+                    elif attribute_info.type == 'date':
+                        # Date attribute type covert to epoch time
+                        row.append((non_blobs_row[attribute_name] -
+                                    datetime.date(1970, 1, 1)).days * DAY)
+                    elif attribute_info.type == 'time':
+                        # Time attirbute, return total seconds
+                        row.append(non_blobs_row[attribute_name].total_seconds())
+                    elif attribute_info.type in ('datetime', 'timestamp'):
+                        # Datetime or timestamp, use timestamp to covert to epoch time
+                        row.append(non_blobs_row[attribute_name].timestamp())
+                    elif attribute_info.type[0:7] == 'decimal':
+                        # Covert decimal to string
+                        row.append(str(non_blobs_row[attribute_name]))
+                    else:
+                        # Normal attribute, just return value with .item to deal with numpy
+                        #   types
+                        if isinstance(non_blobs_row[attribute_name], np.generic):
+                            row.append(np.asscalar(non_blobs_row[attribute_name]))
+                        else:
+                            row.append(non_blobs_row[attribute_name])
+                else:
+                    # Attribute is blob type thus fill it in string instead
+                    row.append('=BLOB=')
+
+            # Add the row list to tuples
+            rows.append(row)
+        return list(attributes.keys()), rows, len(query)
+
+    @staticmethod
     def _get_table_attributes(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
         """
         Method to get primary and secondary attributes of a table.

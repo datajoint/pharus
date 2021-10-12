@@ -13,12 +13,6 @@ import json
 import numpy as np
 
 
-class NumpyEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return json.JSONEncoder.default(self, obj)
-
 # Helper method for getting the attributes of a query
 def _get_attributes(query) -> dict:
     query_attributes = dict(primary=[], secondary=[])
@@ -49,10 +43,23 @@ def _get_attributes(query) -> dict:
 def {method_name}(jwt_payload: dict) -> dict:
 
 {query}
-    djconn = _DJConnector._set_datajoint_config(jwt_payload)
-    vm_dict = {{s: dj.VirtualModule(s, s, connection=djconn) for s in dj.list_schemas()}}
-    query, fetch_args = dj_query(vm_dict)
-    return json.dumps(query.fetch(**fetch_args), cls=NumpyEncoder)
+if request.method in {'GET', 'HEAD'}:
+    try:
+        djconn = _DJConnector._set_datajoint_config(jwt_payload)
+        vm_dict = {{s: dj.VirtualModule(s, s, connection=djconn) for s in dj.list_schemas()}}
+        query, fetch_args = dj_query(vm_dict)
+        record_header, table_tuples, total_count = _DJConnector._fetch_records_by_query(
+            jwt_payload=jwt_payload,
+            query=query,
+            **{k: (int(v) if k in ('limit', 'page')
+                    else (v.split(',') if k == 'order' else loads(
+                    b64decode(v.encode('utf-8')).decode('utf-8'))))
+                for k, v in request.args.items()},
+            )
+        return dict(recordHeader=record_header, records=table_tuples,
+                    totalCount=total_count)
+    except Exception as e:
+        return str(e), 500
 
 
 @app.route('{route}/attributes', methods=['GET'])
