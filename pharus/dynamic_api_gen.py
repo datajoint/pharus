@@ -70,13 +70,18 @@ def {method_name}(jwt_payload: dict) -> dict:
 def {method_name}_attributes(jwt_payload: dict) -> dict:
 
 {query}
-    djconn = _DJConnector._set_datajoint_config(jwt_payload)
-    vm_dict = {{s: dj.VirtualModule(s, s, connection=djconn) for s in dj.list_schemas()}}
-    query, fetch_args = dj_query(vm_dict)
-    attributes_meta = _get_attributes(query)
+    if request.method in {{'GET'}}:
+        try:
+            djconn = _DJConnector._set_datajoint_config(jwt_payload)
+            vm_dict = {{s: dj.VirtualModule(s, s, connection=djconn) for s in dj.list_schemas()}}
+            query, fetch_args = dj_query(vm_dict)
+            attributes_meta = _get_attributes(query)
 
-    return dict(attributeHeaders=attributes_meta['attribute_headers'],
-                attributes=attributes_meta['attributes'])
+            return dict(attributeHeaders=attributes_meta['attribute_headers'],
+                        attributes=attributes_meta['attributes'])
+        except Exception as e:
+            return str(e), 500
+
 """
 
     spec_path = os.environ.get('API_SPEC_PATH')
