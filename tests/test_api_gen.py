@@ -11,8 +11,10 @@ def test_auto_generated_route(token, client, schemas_simple):
     REST_response3 = client.get('/query3', headers=dict(Authorization=f'Bearer {token}'))
     REST_response4 = client.get('/query4', headers=dict(Authorization=f'Bearer {token}'))
 
-    expected_json = (
-        '[[0, 11, "Raphael", -1.21], [1, 21, "Bernie", 7.77], [0, 10, "Raphael", 22.12]]')
+    expected_json = json.dumps({"recordHeader": ["a_id", "b_id", "a_name", "b_number"],
+                                "records": [[0, 10, "Raphael", 22.12],
+                                            [0, 11, "Raphael", -1.21],
+                                            [1, 21, "Bernie", 7.77]], "totalCount": 3})
 
     print(json.dumps(REST_response1.get_json(force=True), sort_keys=True))
 
@@ -26,7 +28,6 @@ def test_get_attributes(token, client, schemas_simple):
     REST_response1 = client.get('/query1/attributes',
                                 headers=dict(Authorization=f'Bearer {token}'))
 
-    print(REST_response1.get_json())
     expected_json = {'attributeHeaders': ['name', 'type', 'nullable',
                                           'default', 'autoincrement'],
                      'attributes': {'primary': [['a_id', 'int', False, None, False],
