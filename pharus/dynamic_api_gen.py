@@ -10,9 +10,7 @@ def populate_api():
 from .server import app, protected_route
 from .interface import _DJConnector, dj
 from flask import request
-import json
 from json import loads
-import numpy as np
 from base64 import b64decode
 
 
@@ -49,15 +47,16 @@ def {method_name}(jwt_payload: dict) -> dict:
     if request.method in {{'GET'}}:
         try:
             djconn = _DJConnector._set_datajoint_config(jwt_payload)
-            vm_dict = {{s: dj.VirtualModule(s, s, connection=djconn) for s in dj.list_schemas()}}
+            vm_dict = \\
+                {{s: dj.VirtualModule(s, s, connection=djconn) for s in dj.list_schemas()}}
             query, fetch_args = dj_query(vm_dict)
             record_header, table_tuples, total_count = _DJConnector._fetch_records_by_query(
                 jwt_payload=jwt_payload,
                 query=query,
                 **{{k: (int(v) if k in ('limit', 'page')
-                        else (v.split(',') if k == 'order' else loads(
-                        b64decode(v.encode('utf-8')).decode('utf-8'))))
-                    for k, v in request.args.items()}},
+                   else (v.split(',') if k == 'order'
+                   else loads(b64decode(v.encode('utf-8')).decode('utf-8'))))
+                   for k, v in request.args.items()}},
                 )
             return dict(recordHeader=record_header, records=table_tuples,
                         totalCount=total_count)
@@ -73,7 +72,8 @@ def {method_name}_attributes(jwt_payload: dict) -> dict:
     if request.method in {{'GET'}}:
         try:
             djconn = _DJConnector._set_datajoint_config(jwt_payload)
-            vm_dict = {{s: dj.VirtualModule(s, s, connection=djconn) for s in dj.list_schemas()}}
+            vm_dict = \\
+                {{s: dj.VirtualModule(s, s, connection=djconn) for s in dj.list_schemas()}}
             query, fetch_args = dj_query(vm_dict)
             attributes_meta = _get_attributes(query)
 
@@ -81,7 +81,6 @@ def {method_name}_attributes(jwt_payload: dict) -> dict:
                         attributes=attributes_meta['attributes'])
         except Exception as e:
             return str(e), 500
-
 """
 
     spec_path = os.environ.get('API_SPEC_PATH')
