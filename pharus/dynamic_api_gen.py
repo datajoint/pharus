@@ -44,12 +44,14 @@ def _get_attributes(query) -> dict:
 def {method_name}(jwt_payload: dict) -> dict:
 
 {query}
+{restriction}
     if request.method in {{'GET'}}:
         try:
             djconn = _DJConnector._set_datajoint_config(jwt_payload)
             vm_dict = \\
                 {{s: dj.VirtualModule(s, s, connection=djconn) for s in dj.list_schemas()}}
             query, fetch_args = dj_query(vm_dict)
+            query = query & restriction()
             record_header, table_tuples, total_count = _DJConnector._fetch_records_by_query(
                 jwt_payload=jwt_payload,
                 query=query,
@@ -96,4 +98,5 @@ def {method_name}_attributes(jwt_payload: dict) -> dict:
                 for comp in grid['components'].values():
                     f.write(route_template.format(route=comp['route'],
                             method_name=comp['route'].replace('/', ''),
-                            query=indent(comp['dj_query'], '    ')))
+                            query=indent(comp['dj_query'], '    '),
+                            restriction=indent(comp['restriction'], '    ')))

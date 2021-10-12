@@ -16,8 +16,6 @@ def test_auto_generated_route(token, client, schemas_simple):
                                             [0, 11, "Raphael", -1.21],
                                             [1, 21, "Bernie", 7.77]], "totalCount": 3})
 
-    print(json.dumps(REST_response1.get_json(force=True), sort_keys=True))
-
     assert expected_json == json.dumps(REST_response1.get_json(force=True), sort_keys=True)
     assert expected_json == json.dumps(REST_response2.get_json(force=True), sort_keys=True)
     assert expected_json == json.dumps(REST_response3.get_json(force=True), sort_keys=True)
@@ -25,7 +23,7 @@ def test_auto_generated_route(token, client, schemas_simple):
 
 
 def test_get_attributes(token, client, schemas_simple):
-    REST_response1 = client.get('/query1/attributes',
+    REST_response = client.get('/query1/attributes',
                                 headers=dict(Authorization=f'Bearer {token}'))
 
     expected_json = {'attributeHeaders': ['name', 'type', 'nullable',
@@ -36,4 +34,13 @@ def test_get_attributes(token, client, schemas_simple):
                                                    False, None, False],
                                                   ['b_number', 'float', False, None, False]]}}
 
-    assert expected_json == REST_response1.get_json()
+    assert expected_json == REST_response.get_json()
+
+
+def test_dynamic_restriction(token, client, schemas_simple):
+    REST_response = client.get('/query5', headers=dict(Authorization=f'Bearer {token}'))
+    # should restrict in the spec sheet by a_id=0
+    expected_json = json.dumps({"recordHeader": ["a_id", "b_id", "a_name", "b_number"],
+                                "records": [[0, 10, "Raphael", 22.12],
+                                            [0, 11, "Raphael", -1.21]], "totalCount": 2})
+    assert expected_json == json.dumps(REST_response.get_json(force=True), sort_keys=True)
