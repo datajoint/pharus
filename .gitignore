@@ -10,3 +10,4 @@ docs/_build
 *.tar.gz
 pharus/dynamic_api.py
 pharus/dynamic_api_spec.yaml
+tests/init/spec.yaml
