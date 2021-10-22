@@ -29,7 +29,7 @@ def {method_name}(jwt_payload: dict) -> dict:
                        for s in dj.list_schemas()}}
             query, fetch_args = dj_query(vm_dict)
             query = query & restriction()
-            record_header, table_tuples, total_count = _DJConnector._fetch_records_by_query(
+            record_header, table_tuples, total_count = _DJConnector._fetch_records(
                 jwt_payload=jwt_payload,
                 query=query,
                 **{{k: (int(v) if k in ('limit', 'page')
