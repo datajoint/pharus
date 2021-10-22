@@ -48,7 +48,7 @@ def {method_name}(jwt_payload: dict) -> dict:
     if request.method in {{'GET'}}:
         try:
             djconn = _DJConnector._set_datajoint_config(jwt_payload)
-            vm_dict = {{s: dj.VirtualModule(s, s, connection=djconn) 
+            vm_dict = {{s: dj.VirtualModule(s, s, connection=djconn)
                        for s in dj.list_schemas()}}
             query, fetch_args = dj_query(vm_dict)
             query = query & restriction()
