@@ -74,8 +74,8 @@ def {method_name}_attributes(jwt_payload: dict) -> dict:
     if request.method in {{'GET'}}:
         try:
             djconn = _DJConnector._set_datajoint_config(jwt_payload)
-            vm_dict = \\
-                {{s: dj.VirtualModule(s, s, connection=djconn) for s in dj.list_schemas()}}
+            vm_dict = {{s: dj.VirtualModule(s, s, connection=djconn)
+                        for s in dj.list_schemas()}}
             query, fetch_args = dj_query(vm_dict)
             attributes_meta = _get_attributes(query)
 
