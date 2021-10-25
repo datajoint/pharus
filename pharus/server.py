@@ -613,7 +613,6 @@ def record(jwt_payload: dict, schema_name: str, table_name: str) -> Union[dict, 
             dj_table = _DJConnector._get_table_object(schema_virtual_module, table_name)
 
             record_header, table_tuples, total_count = _DJConnector._fetch_records(
-                jwt_payload=jwt_payload,
                 query=dj_table,
                 **{k: (int(v) if k in ('limit', 'page')
                        else (v.split(',') if k == 'order' else loads(
