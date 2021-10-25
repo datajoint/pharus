@@ -11,9 +11,9 @@ from .interface import _DJConnector, dj
 from flask import request
 from json import loads
 from base64 import b64decode
-
 """
     route_template = """
+
 @app.route('{route}', methods=['GET'])
 @protected_route
 def {method_name}(jwt_payload: dict) -> dict:
@@ -57,7 +57,6 @@ def {method_name}_attributes(jwt_payload: dict) -> dict:
                         attributes=attributes_meta['attributes'])
         except Exception as e:
             return str(e), 500
-
 """
 
     spec_path = os.environ.get('API_SPEC_PATH')
