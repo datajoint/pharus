@@ -105,7 +105,7 @@ class _DJConnector():
         Get records from query.
 
         :param query: any datajoint object related to QueryExpression
-        :type query: datajoint ``QueryExpression`` or
+        :type query: datajoint ``QueryExpression`` or related object
         :param restriction: Sequence of filters as ``dict`` with ``attributeName``,
             ``operation``, ``value`` keys defined, defaults to ``[]``
         :type restriction: list, optional
@@ -182,7 +182,7 @@ class _DJConnector():
         Method to get primary and secondary attributes of a query.
 
         :param query: any datajoint object related to QueryExpression
-        :type query: datajoint ``QueryExpression`` or
+        :type query: datajoint ``QueryExpression`` or related object
         :return: Dict with keys ``attribute_headers`` and ``attributes`` containing
             ``primary``, ``secondary`` which each contain a
             ``list`` of ``tuples`` specifying: ``attribute_name``, ``type``, ``nullable``,
