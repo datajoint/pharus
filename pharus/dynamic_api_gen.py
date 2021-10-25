@@ -5,8 +5,7 @@ import yaml
 
 
 def populate_api():
-    header_template = """
-# Auto-generated rest api
+    header_template = """# Auto-generated rest api
 from .server import app, protected_route
 from .interface import _DJConnector, dj
 from flask import request
@@ -15,7 +14,6 @@ from base64 import b64decode
 
 """
     route_template = """
-
 @app.route('{route}', methods=['GET'])
 @protected_route
 def {method_name}(jwt_payload: dict) -> dict:
