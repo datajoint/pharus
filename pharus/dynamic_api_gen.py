@@ -57,6 +57,7 @@ def {method_name}_attributes(jwt_payload: dict) -> dict:
                         attributes=attributes_meta['attributes'])
         except Exception as e:
             return str(e), 500
+
 """
 
     spec_path = os.environ.get('API_SPEC_PATH')
