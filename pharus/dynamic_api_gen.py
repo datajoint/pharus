@@ -14,7 +14,6 @@ from base64 import b64decode
 
 """
     route_template = """
-
 @app.route('{route}', methods=['GET'])
 @protected_route
 def {method_name}(jwt_payload: dict) -> dict:
