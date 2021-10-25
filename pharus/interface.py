@@ -98,19 +98,14 @@ class _DJConnector():
         return tables_dict_list
 
     @staticmethod
-    def _fetch_records(jwt_payload: dict, query,
+    def _fetch_records(query,
                        restriction: list = [], limit: int = 1000, page: int = 1,
                        order=['KEY ASC']) -> tuple:
         """
-        Get records from table.
+        Get records from query.
 
-        :param jwt_payload: Dictionary containing databaseAddress, username, and password
-            strings
-        :type jwt_payload: dict
-        :param schema_name: Name of schema
-        :type schema_name: str
-        :param table_name: Table name under the given schema; must be in camel case
-        :type table_name: str
+        :param query: any datajoint object related to QueryExpression
+        :type query: datajoint ``QueryExpression`` or
         :param restriction: Sequence of filters as ``dict`` with ``attributeName``,
             ``operation``, ``value`` keys defined, defaults to ``[]``
         :type restriction: list, optional
@@ -125,7 +120,7 @@ class _DJConnector():
             can be paged
         :rtype: tuple
         """
-        _DJConnector._set_datajoint_config(jwt_payload)
+        # _DJConnector._set_datajoint_config(jwt_payload)
 
         # Get table object from name
         attributes = query.heading.attributes
@@ -179,20 +174,15 @@ class _DJConnector():
 
             # Add the row list to tuples
             rows.append(row)
-        return list(attributes.keys()), rows, len(query)
+        return list(attributes.keys()), rows, len(query_restricted)
 
     @staticmethod
     def _get_attributes(query) -> dict:
         """
-        Method to get primary and secondary attributes of a table.
+        Method to get primary and secondary attributes of a query.
 
-        :param jwt_payload: Dictionary containing databaseAddress, username, and password
-            strings
-        :type jwt_payload: dict
-        :param schema_name: Name of schema to list all tables from
-        :type schema_name: str
-        :param table_name: Table name under the given schema; must be in camel case
-        :type table_name: str
+        :param query: any datajoint object related to QueryExpression
+        :type query: datajoint ``QueryExpression`` or
         :return: Dict with keys ``attribute_headers`` and ``attributes`` containing
             ``primary``, ``secondary`` which each contain a
             ``list`` of ``tuples`` specifying: ``attribute_name``, ``type``, ``nullable``,
