@@ -98,19 +98,14 @@ class _DJConnector():
         return tables_dict_list
 
     @staticmethod
-    def _fetch_records(jwt_payload: dict, schema_name: str, table_name: str,
+    def _fetch_records(query,
                        restriction: list = [], limit: int = 1000, page: int = 1,
                        order=['KEY ASC']) -> tuple:
         """
-        Get records from table.
+        Get records from query.
 
-        :param jwt_payload: Dictionary containing databaseAddress, username, and password
-            strings
-        :type jwt_payload: dict
-        :param schema_name: Name of schema
-        :type schema_name: str
-        :param table_name: Table name under the given schema; must be in camel case
-        :type table_name: str
+        :param query: any datajoint object related to QueryExpression
+        :type query: datajoint ``QueryExpression`` or related object
         :param restriction: Sequence of filters as ``dict`` with ``attributeName``,
             ``operation``, ``value`` keys defined, defaults to ``[]``
         :type restriction: list, optional
@@ -125,20 +120,17 @@ class _DJConnector():
             can be paged
         :rtype: tuple
         """
-        _DJConnector._set_datajoint_config(jwt_payload)
-
-        schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
 
         # Get table object from name
-        table = _DJConnector._get_table_object(schema_virtual_module, table_name)
-        attributes = table.heading.attributes
+        attributes = query.heading.attributes
         # Fetch tuples without blobs as dict to be used to create a
         #   list of tuples for returning
-        query = table & dj.AndList([
+        query_restricted = query & dj.AndList([
             _DJConnector._filter_to_restriction(f, attributes[f['attributeName']].type)
             for f in restriction])
-        non_blobs_rows = query.fetch(*table.heading.non_blobs, as_dict=True, limit=limit,
-                                     offset=(page-1)*limit, order_by=order)
+        non_blobs_rows = query_restricted.fetch(*query.heading.non_blobs, as_dict=True,
+                                                limit=limit, offset=(page-1)*limit,
+                                                order_by=order)
 
         # Buffer list to be return
         rows = []
@@ -181,37 +173,26 @@ class _DJConnector():
 
             # Add the row list to tuples
             rows.append(row)
-        return list(attributes.keys()), rows, len(query)
+        return list(attributes.keys()), rows, len(query_restricted)
 
     @staticmethod
-    def _get_table_attributes(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
+    def _get_attributes(query) -> dict:
         """
-        Method to get primary and secondary attributes of a table.
+        Method to get primary and secondary attributes of a query.
 
-        :param jwt_payload: Dictionary containing databaseAddress, username, and password
-            strings
-        :type jwt_payload: dict
-        :param schema_name: Name of schema to list all tables from
-        :type schema_name: str
-        :param table_name: Table name under the given schema; must be in camel case
-        :type table_name: str
+        :param query: any datajoint object related to QueryExpression
+        :type query: datajoint ``QueryExpression`` or related object
         :return: Dict with keys ``attribute_headers`` and ``attributes`` containing
             ``primary``, ``secondary`` which each contain a
             ``list`` of ``tuples`` specifying: ``attribute_name``, ``type``, ``nullable``,
             ``default``, ``autoincrement``.
         :rtype: dict
         """
-        _DJConnector._set_datajoint_config(jwt_payload)
-        local_values = locals()
-        local_values[schema_name] = dj.VirtualModule(schema_name, schema_name)
 
-        # Get table object from name
-        table = _DJConnector._get_table_object(local_values[schema_name], table_name)
-
-        table_attributes = dict(primary=[], secondary=[])
-        for attribute_name, attribute_info in table.heading.attributes.items():
+        query_attributes = dict(primary=[], secondary=[])
+        for attribute_name, attribute_info in query.heading.attributes.items():
             if attribute_info.in_key:
-                table_attributes['primary'].append((
+                query_attributes['primary'].append((
                     attribute_name,
                     attribute_info.type,
                     attribute_info.nullable,
@@ -219,7 +200,7 @@ class _DJConnector():
                     attribute_info.autoincrement
                     ))
             else:
-                table_attributes['secondary'].append((
+                query_attributes['secondary'].append((
                     attribute_name,
                     attribute_info.type,
                     attribute_info.nullable,
@@ -229,7 +210,7 @@ class _DJConnector():
 
         return dict(attribute_headers=['name', 'type', 'nullable',
                                        'default', 'autoincrement'],
-                    attributes=table_attributes)
+                    attributes=query_attributes)
 
     @staticmethod
     def _get_table_definition(jwt_payload: dict, schema_name: str, table_name: str) -> str:
@@ -270,7 +251,7 @@ class _DJConnector():
         """
         _DJConnector._set_datajoint_config(jwt_payload)
 
-        schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
+        schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
         getattr(schema_virtual_module, table_name).insert(tuple_to_insert)
 
     @staticmethod
@@ -326,7 +307,7 @@ class _DJConnector():
         """
         conn = _DJConnector._set_datajoint_config(jwt_payload)
 
-        schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
+        schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
         with conn.transaction:
             [getattr(schema_virtual_module, table_name).update1(t) for t in tuple_to_update]
 
@@ -351,7 +332,7 @@ class _DJConnector():
         """
         _DJConnector._set_datajoint_config(jwt_payload)
 
-        schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
+        schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
 
         # Get table object from name
         table = _DJConnector._get_table_object(schema_virtual_module, table_name)

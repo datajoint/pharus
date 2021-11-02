@@ -1,6 +1,6 @@
 """Exposed REST API."""
 from os import environ
-from .interface import _DJConnector
+from .interface import _DJConnector, dj
 from . import __version__ as version
 from typing import Callable
 from functools import wraps
@@ -605,10 +605,15 @@ def record(jwt_payload: dict, schema_name: str, table_name: str) -> Union[dict, 
     """)
     if request.method in {'GET', 'HEAD'}:
         try:
+            _DJConnector._set_datajoint_config(jwt_payload)
+
+            schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
+
+            # Get table object from name
+            dj_table = _DJConnector._get_table_object(schema_virtual_module, table_name)
+
             record_header, table_tuples, total_count = _DJConnector._fetch_records(
-                jwt_payload=jwt_payload,
-                schema_name=schema_name,
-                table_name=table_name,
+                query=dj_table,
                 **{k: (int(v) if k in ('limit', 'page')
                        else (v.split(',') if k == 'order' else loads(
                         b64decode(v.encode('utf-8')).decode('utf-8'))))
@@ -895,8 +900,14 @@ def attribute(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
     """
     if request.method in {'GET', 'HEAD'}:
         try:
-            attributes_meta = _DJConnector._get_table_attributes(jwt_payload, schema_name,
-                                                                 table_name)
+            _DJConnector._set_datajoint_config(jwt_payload)
+            local_values = locals()
+            local_values[schema_name] = dj.VirtualModule(schema_name, schema_name)
+
+            # Get table object from name
+            dj_table = _DJConnector._get_table_object(local_values[schema_name], table_name)
+
+            attributes_meta = _DJConnector._get_attributes(dj_table)
             return dict(attributeHeaders=attributes_meta['attribute_headers'],
                         attributes=attributes_meta['attributes'])
         except Exception as e:

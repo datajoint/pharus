@@ -12,7 +12,7 @@ SciViz: # top level tab
         - session_number
       hidden: true
       grids:
-        grid2:
+        grid1:
           components:
             component1:
               route: /query1
@@ -20,13 +20,13 @@ SciViz: # top level tab
               column_span: 0
               type: plot:png
               restriction: >
-                def restriction(**args):
-                  return dict(**args)
+                def restriction(**kwargs):
+                    return dict(**kwargs)
               dj_query: >
                 def dj_query(vms):
                     TableA, TableB = (vms['test_group1_simple'].TableA, vms['test_group1_simple'].TableB)
                     return TableA * TableB, dict(order_by='b_number')
-        grid1:
+        grid2:
           components:
             component1:
               route: /query2
@@ -34,8 +34,8 @@ SciViz: # top level tab
               column_span: 0
               type: plot:png
               restriction: >
-                def restriction(**args):
-                  return dict(**args)
+                def restriction(**kwargs):
+                    return dict(**kwargs)
               dj_query: >
                 def dj_query(vms):
                     TableA, TableB = (vms['test_group1_simple'].TableA, vms['test_group1_simple'].TableB)
@@ -60,8 +60,8 @@ SciViz: # top level tab
               column_span: 0
               type: plot:png
               restriction: >
-                def restriction(**args):
-                  return dict(**args)
+                def restriction(**kwargs):
+                    return dict(**kwargs)
               dj_query: >
                 def dj_query(vms):
                     TableA, TableB = (vms['test_group1_simple'].TableA, vms['test_group1_simple'].TableB)
@@ -72,8 +72,8 @@ SciViz: # top level tab
               column_span: 1
               type: plot:plotly1
               restriction: >
-                def restriction(**args):
-                  return dict(**args)
+                def restriction(**kwargs):
+                    return dict(**kwargs)
               dj_query: >
                 def dj_query(vms):
                     TableA, TableB = (vms['test_group1_simple'].TableA, vms['test_group1_simple'].TableB)
@@ -81,3 +81,19 @@ SciViz: # top level tab
               diff_checker: >
                 def diff_checker(**args):
                   return TrainingStatsPlotly.proj(hash='trial_mean_hash')
+            component3:
+              route: /query5
+              row_span: 0
+              column_span: 1
+              type: plot:plotly1
+              restriction: >
+                def restriction(**kwargs):
+                    return dict(a_id=0, **kwargs)
+              dj_query: >
+                def dj_query(vms):
+                    TableA, TableB = (vms['test_group1_simple'].TableA, vms['test_group1_simple'].TableB)
+                    return TableA * TableB, dict(order_by='b_number')
+              diff_checker: >
+                def diff_checker(**args):
+                  return TrainingStatsPlotly.proj(hash='trial_mean_hash')
+                  
