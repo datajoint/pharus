@@ -2,9 +2,9 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
-## [0.1.2] - 2021-11-02
+## [0.2.0] - 2021-11-02
 ### Added
-- Dynamic api generation from spec sheet. PR #109
+- Dynamic api generation from spec sheet.(#103, #104, #105, #107, #108, #110) PR #106, #109
 - `dynamic_api_gen.py` Python script that generates `dynamic_api.py`.
 - Add Tests for the new dynamic api.
 - `server.py` now loads the routes generated dynamically from `dynamic_api.py` when it is present.
@@ -76,6 +76,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
+[0.2.0]: https://github.com/datajoint/pharus/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/datajoint/pharus/compare/0.1.0b2...0.1.0
 [0.1.0b2]: https://github.com/datajoint/pharus/compare/0.1.0b0...0.1.0b2
 [0.1.0b0]: https://github.com/datajoint/pharus/compare/0.1.0a5...0.1.0b0
