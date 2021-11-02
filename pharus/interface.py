@@ -120,7 +120,6 @@ class _DJConnector():
             can be paged
         :rtype: tuple
         """
-        # _DJConnector._set_datajoint_config(jwt_payload)
 
         # Get table object from name
         attributes = query.heading.attributes
