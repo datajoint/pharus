@@ -2,6 +2,13 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.1.2] - 2021-11-02
+### Added
+- Dynamic api generation from spec sheet. PR #109
+- `dynamic_api_gen.py` Python script that generates `dynamic_api.py`.
+- Add Tests for the new dynamic api.
+- `server.py` now loads the routes generated dynamically from `dynamic_api.py` when it is present.
+
 ## [0.1.0] - 2021-03-31
 ### Added
 - Local database instance pre-populated with sample data for `dev` Docker Compose environment. PR #99
