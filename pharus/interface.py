@@ -252,7 +252,7 @@ class _DJConnector():
         """
         _DJConnector._set_datajoint_config(jwt_payload)
 
-        schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
+        schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
         getattr(schema_virtual_module, table_name).insert(tuple_to_insert)
 
     @staticmethod
@@ -308,7 +308,7 @@ class _DJConnector():
         """
         conn = _DJConnector._set_datajoint_config(jwt_payload)
 
-        schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
+        schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
         with conn.transaction:
             [getattr(schema_virtual_module, table_name).update1(t) for t in tuple_to_update]
 
@@ -333,7 +333,7 @@ class _DJConnector():
         """
         _DJConnector._set_datajoint_config(jwt_payload)
 
-        schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
+        schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
 
         # Get table object from name
         table = _DJConnector._get_table_object(schema_virtual_module, table_name)

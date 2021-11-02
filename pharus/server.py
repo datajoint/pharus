@@ -607,7 +607,7 @@ def record(jwt_payload: dict, schema_name: str, table_name: str) -> Union[dict, 
         try:
             _DJConnector._set_datajoint_config(jwt_payload)
 
-            schema_virtual_module = dj.create_virtual_module(schema_name, schema_name)
+            schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
 
             # Get table object from name
             dj_table = _DJConnector._get_table_object(schema_virtual_module, table_name)
