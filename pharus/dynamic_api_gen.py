@@ -59,8 +59,13 @@ def {method_name}_attributes(jwt_payload: dict) -> dict:
             return str(e), 500
 """
 
-    spec_path = os.environ.get('API_SPEC_PATH')
     api_path = 'pharus/dynamic_api.py'
+    if os.environ.get('API_SPEC_PATH') is None:
+        spec_path = 'test/test_spec.yaml'
+        api_path = 'pharus/pharus/dynamic_api.py'
+    else:
+        spec_path = os.environ.get('API_SPEC_PATH')
+
     with open(Path(api_path), 'w') as f, open(Path(spec_path), 'r') as y:
         f.write(header_template)
         values_yaml = yaml.load(y, Loader=yaml.FullLoader)
