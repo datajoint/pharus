@@ -75,6 +75,8 @@ def {method_name}_attributes(jwt_payload: dict) -> dict:
         for page in pages.values():
             for grid in page['grids'].values():
                 for comp in grid['components'].values():
+                    if comp['type'] == 'markdown':
+                        continue
                     f.write(route_template.format(route=comp['route'],
                             method_name=comp['route'].replace('/', ''),
                             query=indent(comp['dj_query'], '    '),
