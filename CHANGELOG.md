@@ -2,6 +2,10 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.2.1] - 2021-11-08
+### Fixed
+- Error with retrieving the module's installation root path.
+
 ## [0.2.0] - 2021-11-02
 ### Added
 - Dynamic api generation from spec sheet.(#103, #104, #105, #107, #108, #110) PR #106, #109
