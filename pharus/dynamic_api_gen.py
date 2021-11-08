@@ -4,6 +4,7 @@ import os
 import yaml
 import pkg_resources
 
+
 def populate_api():
     header_template = """# Auto-generated rest api
 from .server import app, protected_route
