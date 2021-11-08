@@ -18,7 +18,7 @@ SciViz: # top level tab
               route: /query1
               row_span: 0
               column_span: 0
-              type: plot:png
+              type: table
               restriction: >
                 def restriction(**kwargs):
                     return dict(**kwargs)
@@ -32,7 +32,7 @@ SciViz: # top level tab
               route: /query2
               row_span: 0
               column_span: 0
-              type: plot:png
+              type: table
               restriction: >
                 def restriction(**kwargs):
                     return dict(**kwargs)
@@ -58,7 +58,7 @@ SciViz: # top level tab
               route: /query3
               row_span: 0
               column_span: 0
-              type: plot:png
+              type: table
               restriction: >
                 def restriction(**kwargs):
                     return dict(**kwargs)
@@ -70,7 +70,7 @@ SciViz: # top level tab
               route: /query4
               row_span: 0
               column_span: 1
-              type: plot:plotly1
+              type: table
               restriction: >
                 def restriction(**kwargs):
                     return dict(**kwargs)
@@ -85,7 +85,7 @@ SciViz: # top level tab
               route: /query5
               row_span: 0
               column_span: 1
-              type: plot:plotly1
+              type: table
               restriction: >
                 def restriction(**kwargs):
                     return dict(a_id=0, **kwargs)
