@@ -2,6 +2,7 @@ from textwrap import indent
 from pathlib import Path
 import os
 import yaml
+import pkg_resources
 
 
 def populate_api():
@@ -59,8 +60,10 @@ def {method_name}_attributes(jwt_payload: dict) -> dict:
             return str(e), 500
 """
 
+    pharus_root = f"{pkg_resources.get_distribution('pharus').module_path}/pharus"
+    api_path = f'{pharus_root}/dynamic_api.py'
     spec_path = os.environ.get('API_SPEC_PATH')
-    api_path = 'pharus/dynamic_api.py'
+
     with open(Path(api_path), 'w') as f, open(Path(spec_path), 'r') as y:
         f.write(header_template)
         values_yaml = yaml.load(y, Loader=yaml.FullLoader)
@@ -70,7 +73,8 @@ def {method_name}_attributes(jwt_payload: dict) -> dict:
         for page in pages.values():
             for grid in page['grids'].values():
                 for comp in grid['components'].values():
-                    f.write(route_template.format(route=comp['route'],
-                            method_name=comp['route'].replace('/', ''),
-                            query=indent(comp['dj_query'], '    '),
-                            restriction=indent(comp['restriction'], '    ')))
+                    if comp['type'] == 'table':
+                        f.write(route_template.format(route=comp['route'],
+                                method_name=comp['route'].replace('/', ''),
+                                query=indent(comp['dj_query'], '    '),
+                                restriction=indent(comp['restriction'], '    ')))
