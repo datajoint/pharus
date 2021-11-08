@@ -6,6 +6,7 @@ COPY --chown=anaconda:anaconda ./README.rst ./requirements.txt ./setup.py \
     /main/
 COPY --chown=anaconda:anaconda ./pharus/*.py /main/pharus/
 RUN \
+    umask u+rwx,g+rwx,o-rwx && \
     cd /main && \
     pip install . && \
     rm -R /main/*
