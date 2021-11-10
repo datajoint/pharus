@@ -23,8 +23,8 @@ SciViz: # top level tab
                 def restriction(**kwargs):
                     return dict(**kwargs)
               dj_query: >
-                def dj_query(vms):
-                    TableA, TableB = (vms['test_group1_simple'].TableA, vms['test_group1_simple'].TableB)
+                def dj_query(test_group1_simple):
+                    TableA, TableB = (test_group1_simple.TableA, test_group1_simple.TableB)
                     return TableA * TableB, dict(order_by='b_number')
         grid2:
           components:
@@ -37,8 +37,8 @@ SciViz: # top level tab
                 def restriction(**kwargs):
                     return dict(**kwargs)
               dj_query: >
-                def dj_query(vms):
-                    TableA, TableB = (vms['test_group1_simple'].TableA, vms['test_group1_simple'].TableB)
+                def dj_query(test_group1_simple):
+                    TableA, TableB = (test_group1_simple.TableA, test_group1_simple.TableB)
                     return TableA * TableB, dict(order_by='b_number')
           
     page1:
@@ -63,8 +63,8 @@ SciViz: # top level tab
                 def restriction(**kwargs):
                     return dict(**kwargs)
               dj_query: >
-                def dj_query(vms):
-                    TableA, TableB = (vms['test_group1_simple'].TableA, vms['test_group1_simple'].TableB)
+                def dj_query(test_group1_simple):
+                    TableA, TableB = (test_group1_simple.TableA, test_group1_simple.TableB)
                     return TableA * TableB, dict(order_by='b_number')
             component2:
               route: /query4
@@ -75,8 +75,8 @@ SciViz: # top level tab
                 def restriction(**kwargs):
                     return dict(**kwargs)
               dj_query: >
-                def dj_query(vms):
-                    TableA, TableB = (vms['test_group1_simple'].TableA, vms['test_group1_simple'].TableB)
+                def dj_query(test_group1_simple):
+                    TableA, TableB = (test_group1_simple.TableA, test_group1_simple.TableB)
                     return TableA * TableB, dict(order_by='b_number')
               diff_checker: >
                 def diff_checker(**args):
@@ -90,8 +90,8 @@ SciViz: # top level tab
                 def restriction(**kwargs):
                     return dict(a_id=0, **kwargs)
               dj_query: >
-                def dj_query(vms):
-                    TableA, TableB = (vms['test_group1_simple'].TableA, vms['test_group1_simple'].TableB)
+                def dj_query(test_group1_simple):
+                    TableA, TableB = (test_group1_simple.TableA, test_group1_simple.TableB)
                     return TableA * TableB, dict(order_by='b_number')
               diff_checker: >
                 def diff_checker(**args):
