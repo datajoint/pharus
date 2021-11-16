@@ -61,6 +61,29 @@ def {method_name}_attributes(jwt_payload: dict) -> dict:
             return str(e), 500
 """
 
+    plot_route_template = '''
+
+@app.route('{route}', methods=['GET'])
+@protected_route
+def {method_name}(jwt_payload: dict) -> dict:
+
+{query}
+{restriction}
+    if request.method in {{'GET'}}:
+        try:
+            djconn = _DJConnector._set_datajoint_config(jwt_payload)
+            vm_list = [dj.VirtualModule(s, s, connection=djconn)
+                       for s in inspect.getfullargspec(dj_query).args]
+            query, fetch_args = dj_query(*vm_list)
+            query = query & restriction()
+            record_header, table_tuples, total_count = _DJConnector._fetch_records(
+                fetch_args=fetch_args, query=query, fetch_blobs=True)
+            print(table_tuples[0], flush=True)
+            return dict(table_tuples[0][0])
+        except Exception as e:
+            return str(e), 500
+'''
+
     pharus_root = f"{pkg_resources.get_distribution('pharus').module_path}/pharus"
     api_path = f'{pharus_root}/dynamic_api.py'
     spec_path = os.environ.get('API_SPEC_PATH')
@@ -76,6 +99,11 @@ def {method_name}_attributes(jwt_payload: dict) -> dict:
                 for comp in grid['components'].values():
                     if comp['type'] == 'table':
                         f.write(route_template.format(route=comp['route'],
+                                method_name=comp['route'].replace('/', ''),
+                                query=indent(comp['dj_query'], '    '),
+                                restriction=indent(comp['restriction'], '    ')))
+                    if comp['type'] == 'full-plot':
+                        f.write(plot_route_template.format(route=comp['route'],
                                 method_name=comp['route'].replace('/', ''),
                                 query=indent(comp['dj_query'], '    '),
                                 restriction=indent(comp['restriction'], '    ')))

@@ -100,7 +100,7 @@ class _DJConnector():
     @staticmethod
     def _fetch_records(query,
                        restriction: list = [], limit: int = 1000, page: int = 1,
-                       order=['KEY ASC']) -> tuple:
+                       order=['KEY ASC'], fetch_blobs=False, fetch_args=[]) -> tuple:
         """
         Get records from query.
 
@@ -128,7 +128,15 @@ class _DJConnector():
         query_restricted = query & dj.AndList([
             _DJConnector._filter_to_restriction(f, attributes[f['attributeName']].type)
             for f in restriction])
-        non_blobs_rows = query_restricted.fetch(*query.heading.non_blobs, as_dict=True,
+        if (fetch_args):
+            new_attributes = dict()
+            for arg in fetch_args:
+                new_attributes[arg] = attributes[arg]
+            attributes = new_attributes
+        else:
+            fetch_args = query.heading
+
+        non_blobs_rows = query_restricted.fetch(*fetch_args, as_dict=True,
                                                 limit=limit, offset=(page-1)*limit,
                                                 order_by=order)
 
@@ -169,8 +177,9 @@ class _DJConnector():
                             row.append(non_blobs_row[attribute_name])
                 else:
                     # Attribute is blob type thus fill it in string instead
-                    row.append('=BLOB=')
-
+                    # row.append('=BLOB=')
+                    (row.append(non_blobs_row[attribute_name]) if fetch_blobs
+                        else row.append('=BLOB='))
             # Add the row list to tuples
             rows.append(row)
         return list(attributes.keys()), rows, len(query_restricted)
