@@ -96,4 +96,18 @@ SciViz: # top level tab
               diff_checker: >
                 def diff_checker(**args):
                   return TrainingStatsPlotly.proj(hash='trial_mean_hash')
+            plot_test:
+              route: /plot1
+              type: full-plot
+              x: 0
+              y: 0
+              height: 1
+              width: 1
+              restriction: >
+                def restriction(**kwargs):
+                    return dict(**kwargs, p_id=2)
+              dj_query: >
+                def dj_query(group1_simple):
+                    PlotlyTable = group1_simple.PlotlyTable
+                    return PlotlyTable, ['plot']
                   

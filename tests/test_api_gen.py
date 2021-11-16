@@ -22,6 +22,21 @@ def test_auto_generated_route(token, client, schemas_simple):
     assert expected_json == json.dumps(REST_response4.get_json(force=True), sort_keys=True)
 
 
+def test_get_full_plot(token, client, schemas_simple):
+    REST_response1 = client.get('/plot1', headers=dict(Authorization=f'Bearer {token}'))
+    expected_json = json.dumps(dict(data=[dict(x=[1, 2, 3],
+                                               y=[2, 6, 3],
+                                               type='scatter',
+                                               mode='lines+markers',
+                                               marker=dict(color='red')),
+                                          dict(type='bar',
+                                               x=[1, 2, 3],
+                                               y=[2, 5, 3])],
+                                    layout=dict(title='A Fancy Plot')))
+                                
+    assert expected_json == json.dumps(REST_response1.get_json(force=True), sort_keys=True)
+
+
 def test_get_attributes(token, client, schemas_simple):
     REST_response = client.get('/query1/attributes',
                                 headers=dict(Authorization=f'Bearer {token}'))
