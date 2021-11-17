@@ -27,10 +27,10 @@ def {method_name}(jwt_payload: dict) -> dict:
             djconn = _DJConnector._set_datajoint_config(jwt_payload)
             vm_list = [dj.VirtualModule(s, s, connection=djconn)
                        for s in inspect.getfullargspec(dj_query).args]
-            query, fetch_args = dj_query(*vm_list)
-            query = query & restriction()
+            djdict = dj_query(*vm_list)
+            djdict['query'] = djdict['query'] & restriction()
             record_header, table_tuples, total_count = _DJConnector._fetch_records(
-                query=query,
+                query=djdict['query'], fetch_args=djdict['fetch_args'],
                 **{{k: (int(v) if k in ('limit', 'page')
                    else (v.split(',') if k == 'order'
                    else loads(b64decode(v.encode('utf-8')).decode('utf-8'))))
@@ -52,8 +52,8 @@ def {method_name}_attributes(jwt_payload: dict) -> dict:
             djconn = _DJConnector._set_datajoint_config(jwt_payload)
             vm_list = [dj.VirtualModule(s, s, connection=djconn)
                        for s in inspect.getfullargspec(dj_query).args]
-            query, fetch_args = dj_query(*vm_list)
-            attributes_meta = _DJConnector._get_attributes(query)
+            djdict = dj_query(*vm_list)
+            attributes_meta = _DJConnector._get_attributes(djdict['query'])
 
             return dict(attributeHeaders=attributes_meta['attribute_headers'],
                         attributes=attributes_meta['attributes'])
@@ -74,10 +74,10 @@ def {method_name}(jwt_payload: dict) -> dict:
             djconn = _DJConnector._set_datajoint_config(jwt_payload)
             vm_list = [dj.VirtualModule(s, s, connection=djconn)
                        for s in inspect.getfullargspec(dj_query).args]
-            query, fetch_args = dj_query(*vm_list)
-            query = query & restriction()
+            djdict = dj_query(*vm_list)
+            djdict['query'] = djdict['query'] & restriction()
             record_header, table_tuples, total_count = _DJConnector._fetch_records(
-                fetch_args=fetch_args, query=query, fetch_blobs=True)
+                fetch_args=djdict['fetch_args'], query=djdict['query'], fetch_blobs=True)
             print(table_tuples[0], flush=True)
             return dict(table_tuples[0][0])
         except Exception as e:

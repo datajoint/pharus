@@ -25,7 +25,9 @@ SciViz: # top level tab
               dj_query: >
                 def dj_query(test_group1_simple):
                     TableA, TableB = (test_group1_simple.TableA, test_group1_simple.TableB)
-                    return TableA * TableB, dict(order_by='b_number')
+                    q = TableA * TableB
+                    f = []
+                    return dict(query=q, fetch_args=f)
         grid2:
           components:
             component1:
@@ -39,7 +41,9 @@ SciViz: # top level tab
               dj_query: >
                 def dj_query(test_group1_simple):
                     TableA, TableB = (test_group1_simple.TableA, test_group1_simple.TableB)
-                    return TableA * TableB, dict(order_by='b_number')
+                    q = TableA * TableB
+                    f = []
+                    return dict(query=q, fetch_args=f)
           
     page1:
       route: /session2 # dev, be careful of name collisions
@@ -65,7 +69,9 @@ SciViz: # top level tab
               dj_query: >
                 def dj_query(test_group1_simple):
                     TableA, TableB = (test_group1_simple.TableA, test_group1_simple.TableB)
-                    return TableA * TableB, dict(order_by='b_number')
+                    q = TableA * TableB
+                    f = []
+                    return dict(query=q, fetch_args=f)
             component2:
               route: /query4
               row_span: 0
@@ -77,7 +83,9 @@ SciViz: # top level tab
               dj_query: >
                 def dj_query(test_group1_simple):
                     TableA, TableB = (test_group1_simple.TableA, test_group1_simple.TableB)
-                    return TableA * TableB, dict(order_by='b_number')
+                    q = TableA * TableB
+                    f = []
+                    return dict(query=q, fetch_args=f)
               diff_checker: >
                 def diff_checker(**args):
                   return TrainingStatsPlotly.proj(hash='trial_mean_hash')
@@ -92,7 +100,9 @@ SciViz: # top level tab
               dj_query: >
                 def dj_query(test_group1_simple):
                     TableA, TableB = (test_group1_simple.TableA, test_group1_simple.TableB)
-                    return TableA * TableB, dict(order_by='b_number')
+                    q = TableA * TableB
+                    f = []
+                    return dict(query=q, fetch_args=f)
               diff_checker: >
                 def diff_checker(**args):
                   return TrainingStatsPlotly.proj(hash='trial_mean_hash')
@@ -109,5 +119,5 @@ SciViz: # top level tab
               dj_query: >
                 def dj_query(test_group1_simple):
                     PlotlyTable = test_group1_simple.PlotlyTable
-                    return PlotlyTable, ['plot']
+                    return dict(query=PlotlyTable, fetch_args=['plot'])
                 
