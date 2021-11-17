@@ -1,10 +1,10 @@
 # Changelog
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
-## [Unreleased]
+## [0.2.3]
 ### Added
-- Support for plot component
-- fetch arguments from spec sheet
+- Support for plot component PR #155
+- fetch arguments from spec sheet PR #155
 
 ## [0.2.2] - 2021-11-10
 ### Fixed
@@ -88,6 +88,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
+[0.2.3]: https://github.com/datajoint/pharus/compare/0.2.2...0.2.3
 [0.2.2]: https://github.com/datajoint/pharus/compare/0.2.1...0.2.2
 [0.2.1]: https://github.com/datajoint/pharus/compare/0.2.0...0.2.1
 [0.2.0]: https://github.com/datajoint/pharus/compare/0.1.0...0.2.0
