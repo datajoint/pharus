@@ -128,7 +128,7 @@ class _DJConnector():
         query_restricted = query & dj.AndList([
             _DJConnector._filter_to_restriction(f, attributes[f['attributeName']].type)
             for f in restriction])
-        
+
         if fetch_blobs and not fetch_args:
             fetch_args = [*query.heading.attributes]
         elif not fetch_args:
