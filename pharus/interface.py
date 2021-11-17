@@ -128,14 +128,10 @@ class _DJConnector():
         query_restricted = query & dj.AndList([
             _DJConnector._filter_to_restriction(f, attributes[f['attributeName']].type)
             for f in restriction])
-        if (fetch_args):
-            new_attributes = dict()
-            for arg in fetch_args:
-                new_attributes[arg] = attributes[arg]
-            attributes = new_attributes
-        else:
+        if fetch_blobs and not fetch_args:
             fetch_args = query.heading
-
+        elif not fetch_args:
+            fetch_args = query.heading.non_blobs
         non_blobs_rows = query_restricted.fetch(*fetch_args, as_dict=True,
                                                 limit=limit, offset=(page-1)*limit,
                                                 order_by=order)
@@ -177,9 +173,8 @@ class _DJConnector():
                             row.append(non_blobs_row[attribute_name])
                 else:
                     # Attribute is blob type thus fill it in string instead
-                    # row.append('=BLOB=')
-                    (row.append(non_blobs_row[attribute_name]) if fetch_blobs
-                        else row.append('=BLOB='))
+                    (row.append(non_blobs_row[attribute_name])
+                     if fetch_blobs else row.append('=BLOB='))
             # Add the row list to tuples
             rows.append(row)
         return list(attributes.keys()), rows, len(query_restricted)

@@ -108,7 +108,7 @@ SciViz: # top level tab
                   return TrainingStatsPlotly.proj(hash='trial_mean_hash')
             plot_test:
               route: /plot1
-              type: full-plot
+              type: plot:plotly:stored_json
               x: 0
               y: 0
               height: 1
@@ -119,5 +119,5 @@ SciViz: # top level tab
               dj_query: >
                 def dj_query(test_group1_simple):
                     PlotlyTable = test_group1_simple.PlotlyTable
-                    return dict(query=PlotlyTable, fetch_args=['plot'])
+                    return dict(query=PlotlyTable(), fetch_args=['plot'])
                 

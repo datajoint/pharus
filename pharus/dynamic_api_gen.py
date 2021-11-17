@@ -78,7 +78,6 @@ def {method_name}(jwt_payload: dict) -> dict:
             djdict['query'] = djdict['query'] & restriction()
             record_header, table_tuples, total_count = _DJConnector._fetch_records(
                 fetch_args=djdict['fetch_args'], query=djdict['query'], fetch_blobs=True)
-            print(table_tuples[0], flush=True)
             return dict(table_tuples[0][0])
         except Exception as e:
             return str(e), 500
@@ -102,7 +101,7 @@ def {method_name}(jwt_payload: dict) -> dict:
                                 method_name=comp['route'].replace('/', ''),
                                 query=indent(comp['dj_query'], '    '),
                                 restriction=indent(comp['restriction'], '    ')))
-                    if comp['type'] == 'full-plot':
+                    if comp['type'] == 'plot:plotly:stored_json':
                         f.write(plot_route_template.format(route=comp['route'],
                                 method_name=comp['route'].replace('/', ''),
                                 query=indent(comp['dj_query'], '    '),
