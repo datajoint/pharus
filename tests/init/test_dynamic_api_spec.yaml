@@ -110,4 +110,3 @@ SciViz: # top level tab
                 def dj_query(test_group1_simple):
                     PlotlyTable = test_group1_simple.PlotlyTable
                     return PlotlyTable, ['plot']
-                  
