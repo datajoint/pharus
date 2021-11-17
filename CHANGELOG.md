@@ -8,11 +8,11 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 
 ## [0.2.2] - 2021-11-10
 ### Fixed
-- Optimize dynamic api virtual modules.
+- Optimize dynamic api virtual modules. PR #113
 
 ## [0.2.1] - 2021-11-08
 ### Fixed
-- Error with retrieving the module's installation root path.
+- Error with retrieving the module's installation root path. PR #112
 
 ## [0.2.0] - 2021-11-02
 ### Added
