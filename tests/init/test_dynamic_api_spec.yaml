@@ -107,7 +107,7 @@ SciViz: # top level tab
                 def restriction(**kwargs):
                     return dict(**kwargs, p_id=2)
               dj_query: >
-                def dj_query(group1_simple):
-                    PlotlyTable = group1_simple.PlotlyTable
+                def dj_query(test_group1_simple):
+                    PlotlyTable = test_group1_simple.PlotlyTable
                     return PlotlyTable, ['plot']
                   

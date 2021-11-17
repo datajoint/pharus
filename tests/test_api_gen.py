@@ -32,8 +32,7 @@ def test_get_full_plot(token, client, schemas_simple):
                                           dict(type='bar',
                                                x=[1, 2, 3],
                                                y=[2, 5, 3])],
-                                    layout=dict(title='A Fancy Plot')))
-                                
+                                    layout=dict(title='A Fancy Plot')), sort_keys=True)
     assert expected_json == json.dumps(REST_response1.get_json(force=True), sort_keys=True)
 
 
