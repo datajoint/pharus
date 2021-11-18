@@ -134,10 +134,7 @@ class _DJConnector():
         elif not fetch_args:
             fetch_args = query.heading.non_blobs
         else:
-            new_attributes = dict()
-            for arg in fetch_args:
-                new_attributes[arg] = attributes[arg]
-            attributes = new_attributes
+            attributes = {k: v for k, v in attributes.items() if k in fetch_args}
 
         non_blobs_rows = query_restricted.fetch(*fetch_args, as_dict=True,
                                                 limit=limit, offset=(page-1)*limit,

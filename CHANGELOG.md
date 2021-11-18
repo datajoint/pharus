@@ -1,7 +1,7 @@
 # Changelog
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
-## [0.2.3] - 2021-11-17
+## [0.2.3] - 2021-11-18
 ### Added
 - Support for plot component PR #155
 - Fetch argument specification in `dj_query` PR #155
