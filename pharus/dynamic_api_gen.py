@@ -76,6 +76,7 @@ def {method_name}(jwt_payload: dict) -> dict:
                        for s in inspect.getfullargspec(dj_query).args]
             djdict = dj_query(*vm_list)
             djdict['query'] = djdict['query'] & restriction()
+            djdict['query'] = djdict['query'] & request.args
             record_header, table_tuples, total_count = _DJConnector._fetch_records(
                 fetch_args=djdict['fetch_args'], query=djdict['query'], fetch_blobs=True)
             return dict(table_tuples[0][0])
@@ -98,13 +99,9 @@ def {method_name}(jwt_payload: dict) -> dict:
                        for s in inspect.getfullargspec(dj_query).args]
             djdict = dj_query(*vm_list)
             djdict['query'] = djdict['query'] & restriction()
+            djdict['query'] = djdict['query'] & request.args
             record_header, table_tuples, total_count = _DJConnector._fetch_records(
-                query=djdict['query'], fetch_args=djdict['fetch_args'],
-                **{{k: (int(v) if k in ('limit', 'page')
-                   else (v.split(',') if k == 'order'
-                   else loads(b64decode(v.encode('utf-8')).decode('utf-8'))))
-                   for k, v in request.args.items()}},
-                )
+                fetch_args=djdict['fetch_args'], query=djdict['query'])
             return dict(recordHeader=record_header, records=table_tuples,
                         totalCount=total_count)
         except Exception as e:
@@ -123,6 +120,23 @@ def {method_name}(jwt_payload: dict) -> dict:
         # Crawl through the yaml file for the routes in the components
         for page in pages.values():
             for grid in page['grids'].values():
+                if grid['type'] == 'dynamic':
+                    f.write(route_template.format(route=grid['route'],
+                            method_name=grid['route'].replace('/', ''),
+                            query=indent(grid['dj_query'], '    '),
+                            restriction=indent(grid['restriction'], '    ')))
+                    for comp in grid['component_templates'].values():
+                        if comp['type'] == 'plot:plotly:stored_json':
+                            f.write(plot_route_template.format(route=comp['route'],
+                                    method_name=comp['route'].replace('/', ''),
+                                    query=indent(comp['dj_query'], '    '),
+                                    restriction=indent(comp['restriction'], '    ')))
+                        if comp['type'] == 'metadata':
+                            f.write(metadata_template.format(route=comp['route'],
+                                    method_name=comp['route'].replace('/', ''),
+                                    query=indent(comp['dj_query'], '    '),
+                                    restriction=indent(comp['restriction'], '    ')))
+                    continue
                 for comp in grid['components'].values():
                     if comp['type'] == 'table':
                         f.write(route_template.format(route=comp['route'],
