@@ -15,8 +15,8 @@ HEALTHCHECK       \
     --retries=5  \
     --interval=15s \
     CMD           \
-        wget --quiet --tries=1 --spider \
-            http://localhost:${PHARUS_PORT}${PHARUS_PREFIX}/version > /dev/null 2>&1 || exit 1
+    wget --quiet --tries=1 --spider \
+    http://localhost:${PHARUS_PORT}${PHARUS_PREFIX}/version > /dev/null 2>&1 || exit 1
 ENV PHARUS_PORT 5000
 WORKDIR /main
 

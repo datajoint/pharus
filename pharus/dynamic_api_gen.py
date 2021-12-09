@@ -12,6 +12,7 @@ from .interface import _DJConnector, dj
 from flask import request
 from json import loads
 from base64 import b64decode
+from datetime import datetime
 import inspect
 """
     route_template = """
@@ -76,7 +77,7 @@ def {method_name}(jwt_payload: dict) -> dict:
                        for s in inspect.getfullargspec(dj_query).args]
             djdict = dj_query(*vm_list)
             djdict['query'] = djdict['query'] & restriction()
-            djdict['query'] = djdict['query'] & request.args
+            djdict['query'] = djdict['query'] & {{k: datetime.fromtimestamp(int(v)) if djdict['query'].heading.attributes[k].type in ('datetime') else v for k, v in request.args.items()}}
             record_header, table_tuples, total_count = _DJConnector._fetch_records(
                 fetch_args=djdict['fetch_args'], query=djdict['query'], fetch_blobs=True)
             return dict(table_tuples[0][0])
@@ -99,7 +100,7 @@ def {method_name}(jwt_payload: dict) -> dict:
                        for s in inspect.getfullargspec(dj_query).args]
             djdict = dj_query(*vm_list)
             djdict['query'] = djdict['query'] & restriction()
-            djdict['query'] = djdict['query'] & request.args
+            djdict['query'] = djdict['query'] & {{k: datetime.fromtimestamp(int(v)) if djdict['query'].heading.attributes[k].type in ('datetime') else v for k, v in request.args.items()}}
             record_header, table_tuples, total_count = _DJConnector._fetch_records(
                 fetch_args=djdict['fetch_args'], query=djdict['query'])
             return dict(recordHeader=record_header, records=table_tuples,
