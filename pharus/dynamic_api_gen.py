@@ -113,6 +113,25 @@ def {method_name}(jwt_payload: dict) -> dict:
                         totalCount=total_count)
         except Exception as e:
             return str(e), 500
+
+
+@app.route('{route}/attributes', methods=['GET'])
+@protected_route
+def {method_name}_attributes(jwt_payload: dict) -> dict:
+
+{query}
+    if request.method in {{'GET'}}:
+        try:
+            djconn = _DJConnector._set_datajoint_config(jwt_payload)
+            vm_list = [dj.VirtualModule(s, s, connection=djconn)
+                       for s in inspect.getfullargspec(dj_query).args]
+            djdict = dj_query(*vm_list)
+            attributes_meta = _DJConnector._get_attributes(djdict['query'])
+
+            return dict(attributeHeaders=attributes_meta['attribute_headers'],
+                        attributes=attributes_meta['attributes'])
+        except Exception as e:
+            return str(e), 500
 """
 
     pharus_root = f"{pkg_resources.get_distribution('pharus').module_path}/pharus"
