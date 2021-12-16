@@ -4,7 +4,6 @@ pharus_update() {
 	gunicorn --bind 0.0.0.0:${PHARUS_PORT} pharus.server:app &
 	GUNICORN_PID=$!
 }
-ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -f -i /tmp/keys/buaws-chen.pem ec2-user@3.128.2.214 -L 3306:buaws-chen-cf-rds.c0pqrqs42ez1.us-east-2.rds.amazonaws.com:3306 -N
 pharus_update
 echo "[$(date -u '+%Y-%m-%d %H:%M:%S')][DataJoint]: Monitoring Pharus updates..."
 INIT_TIME=$(date +%s)

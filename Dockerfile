@@ -3,7 +3,7 @@ ARG DISTRO
 ARG IMAGE
 FROM datajoint/${IMAGE}:py${PY_VER}-${DISTRO}
 COPY --chown=anaconda:anaconda ./README.rst ./requirements.txt ./setup.py \
-    ./pharus-hotreload.sh \
+    ./pharus-hotreload-prod.sh ./pharus-hotreload-dev.sh \
     /main/
 COPY --chown=anaconda:anaconda ./pharus/*.py /main/pharus/
 RUN \
