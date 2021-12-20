@@ -3,6 +3,8 @@ from pathlib import Path
 import os
 import yaml
 import pkg_resources
+import json
+import re
 
 
 def populate_api():
@@ -14,6 +16,10 @@ from json import loads
 from base64 import b64decode
 from datetime import datetime
 import inspect
+try:
+    from .extra_component_interface import type_map
+except:
+    from .component_interface import type_map
 """
     route_template = """
 
@@ -72,18 +78,8 @@ def {method_name}(jwt_payload: dict) -> dict:
 {restriction}
     if request.method in {{'GET'}}:
         try:
-            djconn = _DJConnector._set_datajoint_config(jwt_payload)
-            vm_list = [dj.VirtualModule(s, s, connection=djconn)
-                       for s in inspect.getfullargspec(dj_query).args]
-            djdict = dj_query(*vm_list)
-            djdict['query'] = djdict['query'] & restriction()
-            djdict['query'] = djdict['query'] & {{k: datetime.fromtimestamp(int(v))
-                                                 if djdict['query'].heading.attributes[k].type
-                                                 in ('datetime')
-                                                 else v for k, v in request.args.items()}}
-            record_header, table_tuples, total_count = _DJConnector._fetch_records(
-                fetch_args=djdict['fetch_args'], query=djdict['query'], fetch_blobs=True)
-            return dict(table_tuples[0][0])
+            component_instance = type_map['{component_type}'](name='{component_name}', component_config={component})
+            return component_instance.dj_query_route(jwt_payload)
         except Exception as e:
             return str(e), 500
 '''
@@ -141,6 +137,10 @@ def {method_name}_attributes(jwt_payload: dict) -> dict:
     with open(Path(api_path), 'w') as f, open(Path(spec_path), 'r') as y:
         f.write(header_template)
         values_yaml = yaml.load(y, Loader=yaml.FullLoader)
+        if 'extra_components' in values_yaml['SciViz'] and 'config' in values_yaml['SciViz']['extra_components']:
+            with open(Path(pharus_root, 'extra_component_interface.py'), 'w') as extra_component_config:
+                extra_component_config.write(
+                    values_yaml['SciViz']['extra_components']['config'])
         pages = values_yaml['SciViz']['pages']
 
         # Crawl through the yaml file for the routes in the components
@@ -152,29 +152,39 @@ def {method_name}_attributes(jwt_payload: dict) -> dict:
                             query=indent(grid['dj_query'], '    '),
                             restriction=indent(grid['restriction'], '    ')))
                     for comp in grid['component_templates'].values():
-                        if comp['type'] == 'plot:plotly:stored_json':
-                            f.write(plot_route_template.format(route=comp['route'],
-                                    method_name=comp['route'].replace('/', ''),
-                                    query=indent(comp['dj_query'], '    '),
-                                    restriction=indent(comp['restriction'], '    ')))
-                        if comp['type'] == 'metadata':
+                        if re.match(r'^plot.*$', comp['type']):
+                            f.write(plot_route_template.format(
+                                route=comp['route'],
+                                method_name=comp['route'].replace('/', ''),
+                                query=indent(comp['dj_query'], '    '),
+                                restriction=indent(
+                                    comp['restriction'], '    '),
+                                component_type=comp['type'],
+                                component_name=comp_name,
+                                component=json.dumps(comp)))
+                        if re.match(r'^metadata.*$', comp['type']):
                             f.write(metadata_template.format(route=comp['route'],
                                     method_name=comp['route'].replace('/', ''),
                                     query=indent(comp['dj_query'], '    '),
                                     restriction=indent(comp['restriction'], '    ')))
                     continue
-                for comp in grid['components'].values():
-                    if comp['type'] == 'table':
+                for comp_name, comp in grid['components'].items():
+                    if re.match(r'^table.*$', comp['type']):
                         f.write(route_template.format(route=comp['route'],
                                 method_name=comp['route'].replace('/', ''),
                                 query=indent(comp['dj_query'], '    '),
                                 restriction=indent(comp['restriction'], '    ')))
-                    if comp['type'] == 'plot:plotly:stored_json':
-                        f.write(plot_route_template.format(route=comp['route'],
+                    if re.match(r'^plot.*$', comp['type']):
+                        f.write(plot_route_template.format(
+                                route=comp['route'],
                                 method_name=comp['route'].replace('/', ''),
                                 query=indent(comp['dj_query'], '    '),
-                                restriction=indent(comp['restriction'], '    ')))
-                    if comp['type'] == 'metadata':
+                                restriction=indent(
+                                    comp['restriction'], '    '),
+                                component_type=comp['type'],
+                                component_name=comp_name,
+                                component=json.dumps(comp)))
+                    if re.match(r'^metadata.*$', comp['type']):
                         f.write(metadata_template.format(route=comp['route'],
                                 method_name=comp['route'].replace('/', ''),
                                 query=indent(comp['dj_query'], '    '),
