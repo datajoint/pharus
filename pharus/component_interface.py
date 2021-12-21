@@ -5,6 +5,7 @@ import datajoint as dj
 import inspect
 from datetime import datetime
 from flask import request
+from .interface import _DJConnector
 
 
 class QueryComponent():
@@ -33,6 +34,87 @@ class QueryComponent():
     @staticmethod
     def restriction(**kwargs):
         return dict(**kwargs)
+
+
+class TableComponent(QueryComponent):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.frontend_map = {
+            "source": "sci-viz/src/Components/Table/TableView.tsx",
+            "target": "TableView",
+        }
+        self.response_examples = {}
+
+    # Returns the result of djquery with paging, sorting, filtering
+    def dj_query_route(self, jwt_payload: dict):
+        djconn = dj.conn(host=jwt_payload['databaseAddress'],
+                         user=jwt_payload['username'],
+                         password=jwt_payload['password'], reset=True)
+        vm_list = [dj.VirtualModule(s, s, connection=djconn)
+                   for s in inspect.getfullargspec(self.dj_query).args]
+        djdict = self.dj_query(*vm_list)
+        djdict['query'] = djdict['query'] & self.restriction()
+        record_header, table_tuples, total_count = _DJConnector._fetch_records(
+            query=djdict['query'], fetch_args=djdict['fetch_args'],
+            **{k: (int(v) if k in ('limit', 'page')
+                   else (v.split(',') if k == 'order'
+                   else json.loads(b64decode(v.encode('utf-8')).decode('utf-8'))))
+               for k, v in request.args.items()},
+        )
+        return dict(recordHeader=record_header, records=table_tuples,
+                    totalCount=total_count)
+
+    def attributes_route(self, jwt_payload: dict):
+        djconn = dj.conn(host=jwt_payload['databaseAddress'],
+                         user=jwt_payload['username'],
+                         password=jwt_payload['password'], reset=True)
+        vm_list = [dj.VirtualModule(s, s, connection=djconn)
+                   for s in inspect.getfullargspec(self.dj_query).args]
+        djdict = self.dj_query(*vm_list)
+        attributes_meta = _DJConnector._get_attributes(djdict['query'])
+
+        return dict(attributeHeaders=attributes_meta['attribute_headers'],
+                    attributes=attributes_meta['attributes'])
+
+
+class MetadataComponent(QueryComponent):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.frontend_map = {
+            "source": "sci-viz/src/Components/Table/TableView.tsx",
+            "target": "TableView",
+        }
+        self.response_examples = {}
+
+    # Returns the result of djquery with paging, sorting, filtering
+    def dj_query_route(self, jwt_payload: dict):
+        djconn = dj.conn(host=jwt_payload['databaseAddress'],
+                         user=jwt_payload['username'],
+                         password=jwt_payload['password'], reset=True)
+        vm_list = [dj.VirtualModule(s, s, connection=djconn)
+                   for s in inspect.getfullargspec(self.dj_query).args]
+        djdict = self.dj_query(*vm_list)
+        djdict['query'] = djdict['query'] & self.restriction()
+        djdict['query'] = djdict['query'] & {k: datetime.fromtimestamp(int(v))
+                                             if djdict['query'].heading.attributes[k].type
+                                             in ('datetime')
+                                             else v for k, v in request.args.items()}
+        record_header, table_tuples, total_count = _DJConnector._fetch_records(
+            fetch_args=djdict['fetch_args'], query=djdict['query'])
+        return dict(recordHeader=record_header, records=table_tuples,
+                    totalCount=total_count)
+
+    def attributes_route(self, jwt_payload: dict):
+        djconn = dj.conn(host=jwt_payload['databaseAddress'],
+                         user=jwt_payload['username'],
+                         password=jwt_payload['password'], reset=True)
+        vm_list = [dj.VirtualModule(s, s, connection=djconn)
+                   for s in inspect.getfullargspec(self.dj_query).args]
+        djdict = self.dj_query(*vm_list)
+        attributes_meta = _DJConnector._get_attributes(djdict['query'])
+
+        return dict(attributeHeaders=attributes_meta['attribute_headers'],
+                    attributes=attributes_meta['attributes'])
 
 
 class PlotPlotlyStoredjsonComponent(QueryComponent):
@@ -76,7 +158,6 @@ class PlotPlotlyStoredjsonComponent(QueryComponent):
     #     '''
 
     def dj_query_route(self, jwt_payload: dict):
-        # print(jwt_payload, flush=True)
         djconn = dj.conn(host=jwt_payload['databaseAddress'],
                          user=jwt_payload['username'],
                          password=jwt_payload['password'], reset=True)
@@ -93,4 +174,6 @@ class PlotPlotlyStoredjsonComponent(QueryComponent):
 
 type_map = {
     "plot:plotly:stored_json": PlotPlotlyStoredjsonComponent,
+    "table": TableComponent,
+    "metadata": MetadataComponent
 }
