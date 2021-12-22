@@ -96,7 +96,7 @@ class MetadataComponent(QueryComponent):
                    for s in inspect.getfullargspec(self.dj_query).args]
         djdict = self.dj_query(*vm_list)
         djdict['query'] = djdict['query'] & self.restriction()
-        djdict['query'] = djdict['query'] & {k: datetime.fromtimestamp(int(v))
+        djdict['query'] = djdict['query'] & {k: datetime.fromtimestamp(float(v))
                                              if re.match(r'^datetime.*$', djdict['query'].heading.attributes[k].type)
                                              else v for k, v in request.args.items() if k in djdict['query'].heading.attributes}
         record_header, table_tuples, total_count = _DJConnector._fetch_records(
@@ -166,7 +166,7 @@ class PlotPlotlyStoredjsonComponent(QueryComponent):
         djdict = self.dj_query(*vm_list)
         djdict['query'] = djdict['query'] & self.restriction()
         djdict['query'] = djdict['query'] & {
-            k: datetime.fromtimestamp(int(v))
+            k: datetime.fromtimestamp(float(v))
             if re.match(r'^datetime.*$', djdict['query'].heading.attributes[k].type)
             else v for k, v in request.args.items() if k in djdict['query'].heading.attributes}
         return djdict['query'].fetch1(*djdict['fetch_args'])
