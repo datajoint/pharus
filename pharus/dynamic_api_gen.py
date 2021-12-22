@@ -56,9 +56,6 @@ def {method_name}(jwt_payload: dict) -> dict:
                     f.write(route_template.format(
                         route=grid['route'],
                         method_name=grid['route'].replace('/', ''),
-                        query=indent(grid['dj_query'], '    '),
-                        restriction=indent(
-                            grid['restriction'], '    '),
                         component_type='table',
                         component_name='dynamicgrid',
                         component=json.dumps(grid)))
@@ -67,9 +64,6 @@ def {method_name}(jwt_payload: dict) -> dict:
                             f.write(plot_route_template.format(
                                 route=comp['route'],
                                 method_name=comp['route'].replace('/', ''),
-                                query=indent(comp['dj_query'], '    '),
-                                restriction=indent(
-                                    comp['restriction'], '    '),
                                 component_type=comp['type'],
                                 component_name=comp_name,
                                 component=json.dumps(comp)))
@@ -77,33 +71,26 @@ def {method_name}(jwt_payload: dict) -> dict:
                             f.write(route_template.format(
                                 route=comp['route'],
                                 method_name=comp['route'].replace('/', ''),
-                                query=indent(comp['dj_query'], '    '),
-                                restriction=indent(
-                                    comp['restriction'], '    '),
                                 component_type=comp['type'],
                                 component_name=comp_name,
                                 component=json.dumps(comp)))
                     continue
                 for comp_name, comp in grid['components'].items():
-                    route_regex_list = [r'^table.*$', r'^metadata.*$']
+                    route_regex_list = [r'^table.*$', r'^metadata.*$', r'^plot.*$']
                     for regex in route_regex_list:
                         if re.match(regex, comp['type']):
                             f.write(route_template.format(
                                     route=comp['route'],
                                     method_name=comp['route'].replace('/', ''),
-                                    query=indent(comp['dj_query'], '    '),
-                                    restriction=indent(
-                                        comp['restriction'], '    '),
                                     component_type=comp['type'],
                                     component_name=comp_name,
-                                    component=json.dumps(comp)))
-                    if re.match(r'^plot.*$', comp['type']):
-                        f.write(plot_route_template.format(
-                                route=comp['route'],
-                                method_name=comp['route'].replace('/', ''),
-                                query=indent(comp['dj_query'], '    '),
-                                restriction=indent(
-                                    comp['restriction'], '    '),
-                                component_type=comp['type'],
-                                component_name=comp_name,
-                                component=json.dumps(comp)))
+                                    component=json.dumps(comp),
+                                    method_name_type='dj_query_route'))
+                            if...
+                            f.write(route_template.format(
+                                    route=comp['route'],
+                                    method_name=comp['route'].replace('/', ''),
+                                    component_type=comp['type'],
+                                    component_name=comp_name,
+                                    component=json.dumps(comp),
+                                    method_name_type='attributes_route'))
