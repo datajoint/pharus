@@ -19,7 +19,7 @@ import inspect
 import traceback
 try:
     from .extra_component_interface import type_map
-except:
+except (ModuleNotFoundError, ImportError):
     from .component_interface import type_map
 """
     route_template = """

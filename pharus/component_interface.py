@@ -2,6 +2,7 @@
 import json
 from base64 import b64decode
 import datajoint as dj
+import re
 import inspect
 from datetime import datetime
 from flask import request
@@ -96,9 +97,8 @@ class MetadataComponent(QueryComponent):
         djdict = self.dj_query(*vm_list)
         djdict['query'] = djdict['query'] & self.restriction()
         djdict['query'] = djdict['query'] & {k: datetime.fromtimestamp(int(v))
-                                             if djdict['query'].heading.attributes[k].type
-                                             in ('datetime')
-                                             else v for k, v in request.args.items()}
+                                             if re.match(r'^datetime.*$', djdict['query'].heading.attributes[k].type)
+                                             else v for k, v in request.args.items() if k in djdict['query'].heading.attributes}
         record_header, table_tuples, total_count = _DJConnector._fetch_records(
             fetch_args=djdict['fetch_args'], query=djdict['query'])
         return dict(recordHeader=record_header, records=table_tuples,
@@ -167,8 +167,8 @@ class PlotPlotlyStoredjsonComponent(QueryComponent):
         djdict['query'] = djdict['query'] & self.restriction()
         djdict['query'] = djdict['query'] & {
             k: datetime.fromtimestamp(int(v))
-            if djdict['query'].heading.attributes[k].type in ('datetime')
-            else v for k, v in request.args.items()}
+            if re.match(r'^datetime.*$', djdict['query'].heading.attributes[k].type)
+            else v for k, v in request.args.items() if k in djdict['query'].heading.attributes}
         return djdict['query'].fetch1(*djdict['fetch_args'])
 
 
