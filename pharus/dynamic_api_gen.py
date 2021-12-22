@@ -28,44 +28,13 @@ except:
 @protected_route
 def {method_name}(jwt_payload: dict) -> dict:
 
-{query}
-{restriction}
     if request.method in {{'GET'}}:
         try:
-            component_instance = type_map['{component_type}'](name='{component_name}', component_config={component})
-            return component_instance.dj_query_route(jwt_payload)
-        except Exception as e:
-            return traceback.format_exc(), 500
-
-
-@app.route('{route}/attributes', methods=['GET'])
-@protected_route
-def {method_name}_attributes(jwt_payload: dict) -> dict:
-
-{query}
-    if request.method in {{'GET'}}:
-        try:
-            component_instance = type_map['{component_type}'](name='{component_name}', component_config={component})
-            return component_instance.attributes_route(jwt_payload)
+            component_instance = type_map['{component_type}'](name='{component_name}', component_config={component}, jwt_payload=jwt_payload)
+            return component_instance.{method_name_type}()
         except Exception as e:
             return traceback.format_exc(), 500
 """
-
-    plot_route_template = '''
-
-@app.route('{route}', methods=['GET'])
-@protected_route
-def {method_name}(jwt_payload: dict) -> dict:
-
-{query}
-{restriction}
-    if request.method in {{'GET'}}:
-        try:
-            component_instance = type_map['{component_type}'](name='{component_name}', component_config={component})
-            return component_instance.dj_query_route(jwt_payload)
-        except Exception as e:
-            return traceback.format_exc(), 500
-'''
 
     pharus_root = f"{pkg_resources.get_distribution('pharus').module_path}/pharus"
     api_path = f'{pharus_root}/dynamic_api.py'
