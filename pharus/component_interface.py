@@ -2,6 +2,7 @@
 import json
 from base64 import b64decode
 import datajoint as dj
+import re
 import inspect
 from datetime import datetime
 from flask import request
@@ -59,7 +60,9 @@ class QueryComponent():
             {k: (datetime.fromtimestamp(float(v))
                  if re.match(r'^datetime.*$',
                              self.fetch_metadata['query'].heading.attributes[k].type)
-                 else v) for k, v in request.args.items()},
+                 else v)
+             for k, v in request.args.items()
+             if k in self.fetch_metadata['query'].heading.attributes},
         ])
 
 

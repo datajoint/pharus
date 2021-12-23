@@ -5,6 +5,7 @@ from datajoint.user_tables import UserTable
 from datajoint import VirtualModule
 import datetime
 import numpy as np
+import re
 from .error import InvalidRestriction, UnsupportedTableType
 
 DAY = 24 * 60 * 60
@@ -81,20 +82,25 @@ class _DJConnector():
             table_type = dj.diagram._get_tier(
                 '`' + schema_name + '`.`' + table_name + '`').__name__
             if table_type == 'Manual':
-                tables_dict_list['manual'].append(dj.utils.to_camel_case(table_name))
+                tables_dict_list['manual'].append(
+                    dj.utils.to_camel_case(table_name))
             elif table_type == 'Lookup':
-                tables_dict_list['lookup'].append(dj.utils.to_camel_case(table_name))
+                tables_dict_list['lookup'].append(
+                    dj.utils.to_camel_case(table_name))
             elif table_type == 'Computed':
-                tables_dict_list['computed'].append(dj.utils.to_camel_case(table_name))
+                tables_dict_list['computed'].append(
+                    dj.utils.to_camel_case(table_name))
             elif table_type == 'Imported':
-                tables_dict_list['imported'].append(dj.utils.to_camel_case(table_name))
+                tables_dict_list['imported'].append(
+                    dj.utils.to_camel_case(table_name))
             elif table_type == 'Part':
                 table_name_parts = table_name.split('__')
                 tables_dict_list['part'].append(
                     to_camel_case(table_name_parts[-2]) + '.' +
                     to_camel_case(table_name_parts[-1]))
             else:
-                raise UnsupportedTableType(table_name + ' is of unknown table type')
+                raise UnsupportedTableType(
+                    table_name + ' is of unknown table type')
         return tables_dict_list
 
     @staticmethod
@@ -126,7 +132,8 @@ class _DJConnector():
         # Fetch tuples without blobs as dict to be used to create a
         #   list of tuples for returning
         query_restricted = query & dj.AndList([
-            _DJConnector._filter_to_restriction(f, attributes[f['attributeName']].type)
+            _DJConnector._filter_to_restriction(
+                f, attributes[f['attributeName']].type)
             for f in restriction])
 
         if fetch_blobs and not fetch_args:
@@ -134,10 +141,12 @@ class _DJConnector():
         elif not fetch_args:
             fetch_args = query.heading.non_blobs
         else:
-            attributes = {k: v for k, v in attributes.items() if k in fetch_args}
+            attributes = {k: v for k, v in attributes.items()
+                          if k in fetch_args}
 
         non_blobs_rows = query_restricted.fetch(*fetch_args, as_dict=True,
-                                                limit=limit, offset=(page-1)*limit,
+                                                limit=limit, offset=(
+                                                    page-1)*limit,
                                                 order_by=order)
 
         # Buffer list to be return
@@ -161,8 +170,10 @@ class _DJConnector():
                                     datetime.date(1970, 1, 1)).days * DAY)
                     elif attribute_info.type == 'time':
                         # Time attirbute, return total seconds
-                        row.append(non_blobs_row[attribute_name].total_seconds())
-                    elif attribute_info.type in ('datetime', 'timestamp'):
+                        row.append(
+                            non_blobs_row[attribute_name].total_seconds())
+                    elif (re.match(r'^datetime.*$', attribute_info.type) or
+                          re.match(r'timestamp', attribute_info.type)):
                         # Datetime or timestamp, use timestamp to covert to epoch time
                         row.append(non_blobs_row[attribute_name].timestamp())
                     elif attribute_info.type[0:7] == 'decimal':
@@ -172,7 +183,8 @@ class _DJConnector():
                         # Normal attribute, just return value with .item to deal with numpy
                         #   types
                         if isinstance(non_blobs_row[attribute_name], np.generic):
-                            row.append(np.asscalar(non_blobs_row[attribute_name]))
+                            row.append(np.asscalar(
+                                non_blobs_row[attribute_name]))
                         else:
                             row.append(non_blobs_row[attribute_name])
                 else:
@@ -206,7 +218,7 @@ class _DJConnector():
                     attribute_info.nullable,
                     attribute_info.default,
                     attribute_info.autoincrement
-                    ))
+                ))
             else:
                 query_attributes['secondary'].append((
                     attribute_name,
@@ -214,7 +226,7 @@ class _DJConnector():
                     attribute_info.nullable,
                     attribute_info.default,
                     attribute_info.autoincrement
-                    ))
+                ))
 
         return dict(attribute_headers=['name', 'type', 'nullable',
                                        'default', 'autoincrement'],
@@ -289,11 +301,11 @@ class _DJConnector():
         # Retrieve dependencies of related to retricted
         dependencies = [dict(schema=descendant.database, table=descendant.table_name,
                              accessible=True, count=len(
-                                (table if descendant.full_table_name == table.full_table_name
-                                 else descendant * table) & dj.AndList([
-                                    _DJConnector._filter_to_restriction(
-                                        f, attributes[f['attributeName']].type)
-                                    for f in restriction])))
+                                 (table if descendant.full_table_name == table.full_table_name
+                                  else descendant * table) & dj.AndList([
+                                      _DJConnector._filter_to_restriction(
+                                          f, attributes[f['attributeName']].type)
+                                      for f in restriction])))
                         for descendant in table().descendants(as_objects=True)]
         return dependencies
 
@@ -317,7 +329,8 @@ class _DJConnector():
 
         schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
         with conn.transaction:
-            [getattr(schema_virtual_module, table_name).update1(t) for t in tuple_to_update]
+            [getattr(schema_virtual_module, table_name).update1(t)
+             for t in tuple_to_update]
 
     @staticmethod
     def _delete_records(jwt_payload: dict, schema_name: str, table_name: str,
@@ -343,10 +356,12 @@ class _DJConnector():
         schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
 
         # Get table object from name
-        table = _DJConnector._get_table_object(schema_virtual_module, table_name)
+        table = _DJConnector._get_table_object(
+            schema_virtual_module, table_name)
         attributes = table.heading.attributes
         restrictions = [
-            _DJConnector._filter_to_restriction(f, attributes[f['attributeName']].type)
+            _DJConnector._filter_to_restriction(
+                f, attributes[f['attributeName']].type)
             for f in restriction]
 
         # Compute restriction
