@@ -6,11 +6,13 @@ import inspect
 from datetime import datetime
 from flask import request
 from .interface import _DJConnector
+import re
 
 
 class QueryComponent():
-    def __init__(self, name, component_config, jwt_payload: dict,
-                 create_attributes_route=False):
+    attributes_route_format = None
+
+    def __init__(self, name, component_config, jwt_payload: dict):
         lcls = locals()
         self.name = name
         if not all(k in component_config for k in ('x', 'y', 'height', 'width')):
@@ -25,9 +27,10 @@ class QueryComponent():
         self.route = component_config['route']
         exec(component_config['dj_query'], globals(), lcls)
         self.dj_query = lcls["dj_query"]
-        if create_attributes_route:
-            self.attribute_route = f'{component_config["route"]}/attributes'
-        if component_config['restriction']:
+        if self.attributes_route_format:
+            self.attribute_route = self.attributes_route_format.format(
+                route=component_config["route"])
+        if 'restriction' in component_config:
             exec(component_config['restriction'], globals(), lcls)
             self.dj_restriction = lcls["restriction"]
         else:
@@ -53,15 +56,18 @@ class QueryComponent():
         # second element includes the restriction from query parameters
         return dj.AndList([
             self.dj_restriction(),
-            {k: (datetime.fromtimestamp(int(v))
-                 if self.fetch_metadata['query'].heading.attributes[k].type in ('datetime')
+            {k: (datetime.fromtimestamp(float(v))
+                 if re.match(r'^datetime.*$',
+                             self.fetch_metadata['query'].heading.attributes[k].type)
                  else v) for k, v in request.args.items()},
         ])
 
 
 class TableComponent(QueryComponent):
+    attributes_route_format = '{route}/attributes'
+
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **{k: True if k == 'create_attributes_route' else v for k, v in kwargs})
+        super().__init__(*args, **kwargs)
         self.frontend_map = {
             "source": "sci-viz/src/Components/Table/TableView.tsx",
             "target": "TableView",
@@ -206,7 +212,8 @@ class MetadataComponent(TableComponent):
     def dj_query_route(self):
         fetch_metadata = self.fetch_metadata
         record_header, table_records, total_count = _DJConnector._fetch_records(
-            query=fetch_metadata['query'], fetch_args=fetch_metadata['fetch_args'])
+            query=fetch_metadata['query'] & self.restriction,
+            fetch_args=fetch_metadata['fetch_args'])
         return dict(recordHeader=record_header, records=table_records,
                     totalCount=total_count)
 
@@ -243,7 +250,8 @@ class PlotPlotlyStoredjsonComponent(QueryComponent):
 
     def dj_query_route(self):
         fetch_metadata = self.fetch_metadata
-        return (fetch_metadata['query'] & self.restriction).fetch1(*fetch_metadata['fetch_args'])
+        return (fetch_metadata['query'] & self.restriction).fetch1(
+            *fetch_metadata['fetch_args'])
 
 
 type_map = {
