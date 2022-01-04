@@ -39,7 +39,7 @@ services:
           echo "------ UNIT TESTS ------"
           pytest -sv --cov-report term-missing --cov=pharus /main/tests
           echo "------ STYLE TESTS ------"
-          flake8 $${PKG_DIR} --count --max-complexity=20 --max-line-length=95 --statistics
+          flake8 $${PKG_DIR} --count --max-complexity=20 --max-line-length=95 --statistics --exclude=*dynamic_api.py
         else
           echo "=== Running ==="
           echo "Please see 'docker-compose-test.yaml' for detail on running tests."

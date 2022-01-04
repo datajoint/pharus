@@ -7,7 +7,6 @@ import inspect
 from datetime import datetime
 from flask import request, send_file
 from .interface import _DJConnector
-import re
 import os
 from pathlib import Path
 
