@@ -73,7 +73,7 @@ def {method_name}(jwt_payload: dict) -> dict:
                 for comp_name, comp in (grid['component_templates']
                                         if 'component_templates' in grid
                                         else grid['components']).items():
-                    if re.match(r'^(table|metadata|plot).*$', comp['type']):
+                    if re.match(r'^(table|metadata|plot|file).*$', comp['type']):
                         f.write(route_template.format(
                             route=comp['route'],
                             method_name=comp['route'].replace('/', ''),

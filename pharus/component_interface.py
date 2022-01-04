@@ -5,9 +5,11 @@ import datajoint as dj
 import re
 import inspect
 from datetime import datetime
-from flask import request
+from flask import request, send_file
 from .interface import _DJConnector
 import re
+import os
+from pathlib import Path
 
 
 class QueryComponent():
@@ -38,14 +40,14 @@ class QueryComponent():
             self.dj_restriction = lambda: dict()
 
         self.vm_list = [dj.VirtualModule(
-                            s, s,
-                            connection=dj.conn(
-                                host=jwt_payload['databaseAddress'],
-                                user=jwt_payload['username'],
-                                password=jwt_payload['password'],
-                                reset=True
-                            ))
-                        for s in inspect.getfullargspec(self.dj_query).args]
+            s, s,
+            connection=dj.conn(
+                host=jwt_payload['databaseAddress'],
+                user=jwt_payload['username'],
+                password=jwt_payload['password'],
+                reset=True
+            ))
+            for s in inspect.getfullargspec(self.dj_query).args]
 
     @property
     def fetch_metadata(self):
@@ -149,7 +151,8 @@ class TableComponent(QueryComponent):
                     totalCount=total_count)
 
     def attributes_route(self):
-        attributes_meta = _DJConnector._get_attributes(self.fetch_metadata['query'])
+        attributes_meta = _DJConnector._get_attributes(
+            self.fetch_metadata['query'])
         return dict(attributeHeaders=attributes_meta['attribute_headers'],
                     attributes=attributes_meta['attributes'])
 
@@ -257,8 +260,24 @@ class PlotPlotlyStoredjsonComponent(QueryComponent):
             *fetch_metadata['fetch_args'])
 
 
+class FileTransfer(QueryComponent):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.frontend_map = {
+            "source": "sci-viz/src/Components/Plots/FullPlotly.tsx",
+            "target": "FullPlotly",
+        }
+
+    def dj_query_route(self):
+        fetch_metadata = self.fetch_metadata
+        myBlobPath = (fetch_metadata['query'] & self.restriction).fetch1(
+            *fetch_metadata['fetch_args'])
+        return send_file(Path(os.getcwd(), myBlobPath))
+
+
 type_map = {
     "plot:plotly:stored_json": PlotPlotlyStoredjsonComponent,
     "table": TableComponent,
-    "metadata": MetadataComponent
+    "metadata": MetadataComponent,
+    "file:image:jpg": FileTransfer
 }
