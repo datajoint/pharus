@@ -1,6 +1,6 @@
 from pathlib import Path
 import os
-import yaml
+from envyaml import EnvYAML
 import pkg_resources
 import json
 import re
@@ -17,7 +17,7 @@ from datetime import datetime
 import inspect
 import traceback
 try:
-    from .extra_component_interface import type_map
+    from .component_interface_override import type_map
 except (ModuleNotFoundError, ImportError):
     from .component_interface import type_map
 """
@@ -31,6 +31,7 @@ def {method_name}(jwt_payload: dict) -> dict:
         try:
             component_instance = type_map['{component_type}'](name='{component_name}',
                                                               component_config={component},
+                                                              static_config={static_config},
                                                               jwt_payload=jwt_payload)
             return component_instance.{method_name_type}()
         except Exception as e:
@@ -43,19 +44,25 @@ def {method_name}(jwt_payload: dict) -> dict:
 
     with open(Path(api_path), 'w') as f, open(Path(spec_path), 'r') as y:
         f.write(header_template)
-        values_yaml = yaml.load(y, Loader=yaml.FullLoader)
-        if ('extra_components' in values_yaml['SciViz'] and
-                'config' in values_yaml['SciViz']['extra_components']):
+        values_yaml = EnvYAML(y)
+        if ('component_interface' in values_yaml['SciViz'] and
+                'override' in values_yaml['SciViz']['component_interface']):
             with open(Path(pharus_root,
-                           'extra_component_interface.py'), 'w') as extra_component_config:
-                extra_component_config.write(
-                    values_yaml['SciViz']['extra_components']['config'])
+                           'component_interface_override.py'),
+                      'w') as component_interface_override:
+                component_interface_override.write(
+                    values_yaml['SciViz']['component_interface']['override'])
 
         try:
-            from .extra_component_interface import type_map
+            from .component_interface_override import type_map
         except (ModuleNotFoundError, ImportError):
             from .component_interface import type_map
 
+        static_config = (
+            json.dumps(values_yaml['SciViz']['component_interface']['static_variables'])
+            if ('component_interface' in values_yaml['SciViz'] and
+                'static_variables' in values_yaml['SciViz']['component_interface'])
+            else None)
         pages = values_yaml['SciViz']['pages']
         # Crawl through the yaml file for the routes in the components
         for page in pages.values():
@@ -67,6 +74,7 @@ def {method_name}(jwt_payload: dict) -> dict:
                         component_type='table',
                         component_name='dynamicgrid',
                         component=json.dumps(grid),
+                        static_config=static_config,
                         method_name_type='dj_query_route'))
 
                 for comp_name, comp in (grid['component_templates']
@@ -79,6 +87,7 @@ def {method_name}(jwt_payload: dict) -> dict:
                             component_type=comp['type'],
                             component_name=comp_name,
                             component=json.dumps(comp),
+                            static_config=static_config,
                             method_name_type='dj_query_route'))
                         if type_map[comp['type']].attributes_route_format:
                             attributes_route = type_map[
@@ -90,4 +99,5 @@ def {method_name}(jwt_payload: dict) -> dict:
                                 component_type=comp['type'],
                                 component_name=comp_name,
                                 component=json.dumps(comp),
+                                static_config=static_config,
                                 method_name_type='attributes_route'))
