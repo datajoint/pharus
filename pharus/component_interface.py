@@ -281,7 +281,8 @@ class FileImageAttachComponent(QueryComponent):
         with open(Path(os.getcwd(), attach_relpath), 'rb') as f:
             image_data = f.read()
         os.unlink(Path(os.getcwd(), attach_relpath))
-        return send_file(io.BytesIO(image_data))
+        return send_file(io.BytesIO(image_data), download_name=attach_relpath)
+
 
 type_map = {
     "plot:plotly:stored_json": PlotPlotlyStoredjsonComponent,

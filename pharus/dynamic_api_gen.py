@@ -41,10 +41,9 @@ def {method_name}(jwt_payload: dict) -> dict:
     pharus_root = f"{pkg_resources.get_distribution('pharus').module_path}/pharus"
     api_path = f'{pharus_root}/dynamic_api.py'
     spec_path = os.environ.get('API_SPEC_PATH')
-
-    with open(Path(api_path), 'w') as f, open(Path(spec_path), 'r') as y:
+    values_yaml = EnvYAML(Path(spec_path))
+    with open(Path(api_path), 'w') as f:
         f.write(header_template)
-        values_yaml = EnvYAML(y)
         if ('component_interface' in values_yaml['SciViz'] and
                 'override' in values_yaml['SciViz']['component_interface']):
             with open(Path(pharus_root,
@@ -59,7 +58,8 @@ def {method_name}(jwt_payload: dict) -> dict:
             from .component_interface import type_map
 
         static_config = (
-            json.dumps(values_yaml['SciViz']['component_interface']['static_variables'])
+            json.dumps(values_yaml['SciViz']
+                       ['component_interface']['static_variables'])
             if ('component_interface' in values_yaml['SciViz'] and
                 'static_variables' in values_yaml['SciViz']['component_interface'])
             else None)
