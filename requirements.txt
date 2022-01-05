@@ -4,3 +4,4 @@ pyjwt[crypto]
 datajoint>=0.13.0
 datajoint_connection_hub
 pyyaml
+envyaml

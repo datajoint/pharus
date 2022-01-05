@@ -9,14 +9,18 @@ from flask import request, send_file
 from .interface import _DJConnector
 import os
 from pathlib import Path
+import types
+import io
 
 
 class QueryComponent():
     attributes_route_format = None
 
-    def __init__(self, name, component_config, jwt_payload: dict):
+    def __init__(self, name, component_config, static_config, jwt_payload: dict):
         lcls = locals()
         self.name = name
+        if static_config:
+            self.static_variables = types.MappingProxyType(static_config)
         if not all(k in component_config for k in ('x', 'y', 'height', 'width')):
             self.mode = 'dynamic'
         else:
@@ -259,24 +263,29 @@ class PlotPlotlyStoredjsonComponent(QueryComponent):
             *fetch_metadata['fetch_args'])
 
 
-class FileTransfer(QueryComponent):
+class FileImageAttachComponent(QueryComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.frontend_map = {
-            "source": "sci-viz/src/Components/Plots/FullPlotly.tsx",
-            "target": "FullPlotly",
+            "source": "sci-viz/src/Components/Plots/Image.tsx",
+            "target": "Image",
+        }
+        self.response_examples = {
+            "dj_query_route": b'PNG...',
         }
 
     def dj_query_route(self):
         fetch_metadata = self.fetch_metadata
-        myBlobPath = (fetch_metadata['query'] & self.restriction).fetch1(
+        attach_relpath = (fetch_metadata['query'] & self.restriction).fetch1(
             *fetch_metadata['fetch_args'])
-        return send_file(Path(os.getcwd(), myBlobPath))
-
+        with open(Path(os.getcwd(), attach_relpath), 'rb') as f:
+            image_data = f.read()
+        os.unlink(Path(os.getcwd(), attach_relpath))
+        return send_file(io.BytesIO(image_data))
 
 type_map = {
     "plot:plotly:stored_json": PlotPlotlyStoredjsonComponent,
     "table": TableComponent,
     "metadata": MetadataComponent,
-    "file:image:jpg": FileTransfer
+    "file:image:attach": FileImageAttachComponent
 }
