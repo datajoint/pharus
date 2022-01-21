@@ -54,7 +54,9 @@ class _DJConnector:
             for row in dj.conn().query(
                 """
                 SELECT SCHEMA_NAME FROM information_schema.schemata
-                WHERE SCHEMA_NAME NOT IN ("information_schema", "sys", "performance_schema", "mysql")
+                WHERE SCHEMA_NAME NOT IN (
+                    "information_schema", "sys", "performance_schema", "mysql"
+                )
                 ORDER BY SCHEMA_NAME
                 """
             )

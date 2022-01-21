@@ -8,9 +8,10 @@
 # With this config and the configuration below in NGINX, you should be able to verify it is
 # running properly with a `curl https://fakeservices.datajoint.io/api/version`.
 version: "2.4"
-x-net: &net
+x-net:
+  &net
   networks:
-      - main
+    - main
 services:
   pharus:
     <<: *net

@@ -1,4 +1,4 @@
-# PY_VER=3.8 IMAGE=djbase DISTRO=alpine PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}') HOST_UID=$(id -u) docker-compose -f docker-compose-dev.yaml up
+# PY_VER=3.8 IMAGE=djbase DISTRO=alpine PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\" '{print $2}') HOST_UID=$(id -u) docker-compose -f docker-compose-dev.yaml up
 #
 # Intended for normal development. Supports hot/live reloading.
 # Note: If requirements or Dockerfile change, will need to add --build flag to docker-compose.
@@ -7,9 +7,10 @@
 # With this config and the configuration below in NGINX, you should be able to verify it is
 # running properly with a `curl https://fakeservices.datajoint.io/api/version`.
 version: "2.4"
-x-net: &net
+x-net:
+  &net
   networks:
-      - main
+    - main
 services:
   local-db:
     <<: *net
