@@ -50,7 +50,7 @@ Run Tests for Development w/ Pytest, Flake8, Black
     .. code-block:: bash
 
         black ${PKG_DIR} --check -v --extend-exclude "^.*dynamic_api.py$"
-        flake8 ${PKG_DIR} --count --max-complexity=20 --max-line-length=94 --statistics --exclude=*dynamic_api.py
+        flake8 ${PKG_DIR} --count --max-complexity=20 --max-line-length=94 --statistics --exclude=*dynamic_api.py --ignore=W503
 
 Creating Sphinx Documentation from Scratch
 ------------------------------------------
