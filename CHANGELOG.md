@@ -2,13 +2,18 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
-## [0.2.4] - TBA
+## [0.2.4] - 2022-1-21
 ### Changed
 - Hot-reload mechanism to use `otumat watch` PR #116
 - Renamed environment variable defining spec sheet to `PHARUS_SPEC_PATH` PR #116
 
 ### Added
 - Autoformatting strategy using `black` PR #116 
+- Support for sci-viz components `metadata`, `image`, `dynamic grid` PR #116
+- `component interface` for users to be able to load their own custom interface for sci-viz PR #116
+
+### Fixed
+- Various bugs related to datetime PR #116
 
 ## [0.2.3] - 2021-11-18
 ### Added
