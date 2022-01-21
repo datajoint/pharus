@@ -1,6 +1,20 @@
 # Changelog
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
+
+## [0.3.0] - 2022-01-21
+### Changed
+- Hot-reload mechanism to use `otumat watch` PR #116
+- Renamed environment variable defining spec sheet to `PHARUS_SPEC_PATH` PR #116
+
+### Added
+- Autoformatting strategy using `black` PR #116 
+- Support for sci-viz components `metadata`, `image`, `dynamic grid` PR #116
+- `component interface` for users to be able to load their own custom interface for sci-viz PR #116
+
+### Fixed
+- Various bugs related to datetime PR #116
+
 ## [0.2.3] - 2021-11-18
 ### Added
 - Support for plot component PR #155
@@ -88,6 +102,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
+[0.3.0]: https://github.com/datajoint/pharus/compare/0.2.3...0.3.0
 [0.2.3]: https://github.com/datajoint/pharus/compare/0.2.2...0.2.3
 [0.2.2]: https://github.com/datajoint/pharus/compare/0.2.1...0.2.2
 [0.2.1]: https://github.com/datajoint/pharus/compare/0.2.0...0.2.1

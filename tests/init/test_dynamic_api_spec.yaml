@@ -13,6 +13,7 @@ SciViz: # top level tab
       hidden: true
       grids:
         grid1:
+          type: fixed
           components:
             component1:
               route: /query1
@@ -29,6 +30,7 @@ SciViz: # top level tab
                     f = []
                     return dict(query=q, fetch_args=f)
         grid2:
+          type: fixed
           components:
             component1:
               route: /query2

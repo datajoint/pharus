@@ -2,8 +2,6 @@ name: Development
 on:
   pull_request:
   push:
-    tags:
-      - '*.*.*'
 jobs:
   test-changelog:
     runs-on: ubuntu-latest
@@ -40,7 +38,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Compile docs static artifacts
         run: |
-          export PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
+          export PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\" '{print $2}')
           export HOST_UID=$(id -u)
           docker-compose -f docker-compose-docs.yaml up --exit-code-from pharus-docs --build
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
@@ -69,7 +67,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Compile image
         run: |
-          export PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
+          export PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\" '{print $2}')
           export HOST_UID=$(id -u)
           docker-compose -f docker-compose-build.yaml up --exit-code-from pharus --build
           IMAGE=$(docker images --filter "reference=datajoint/pharus*" \
@@ -112,7 +110,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Determine package version
         run: |
-          PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
+          PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\" '{print $2}')
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
       - name: Fetch image artifact
         uses: actions/download-artifact@v2
@@ -124,7 +122,13 @@ jobs:
           docker load < "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
           docker-compose -f docker-compose-test.yaml up --exit-code-from pharus
   publish-release:
-    if: github.event_name == 'push'
+    if: |
+      github.event_name == 'push' &&
+      contains(github.ref, 'refs/tags/*.*.*') &&
+      (
+        github.repository_owner == 'datajoint' ||
+        github.repository_owner == 'vathes'
+      )
     needs: test
     runs-on: ubuntu-latest
     env:
@@ -136,7 +140,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Determine package version
         run: |
-          PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
+          PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\" '{print $2}')
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
       - name: Get changelog entry
         id: changelog_reader
@@ -203,7 +207,13 @@ jobs:
           asset_name: docker-compose-deploy.yaml
           asset_content_type: application/yaml
   publish-images:
-    if: github.event_name == 'push'
+    if: |
+      github.event_name == 'push' &&
+      contains(github.ref, 'refs/tags/*.*.*') &&
+      (
+        github.repository_owner == 'datajoint' ||
+        github.repository_owner == 'vathes'
+      )
     needs: publish-release
     runs-on: ubuntu-latest
     strategy:
@@ -216,21 +226,23 @@ jobs:
       PY_VER: ${{matrix.py_ver}}
       DISTRO: ${{matrix.distro}}
       IMAGE: ${{matrix.image}}
-      DOCKER_USERNAME: ${{secrets.docker_username}}
-      DOCKER_PASSWORD: ${{secrets.docker_password}}
     steps:
       - uses: actions/checkout@v2
       - name: Determine package version
         run: |
-          PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
+          PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\" '{print $2}')
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
       - name: Fetch image artifact
         uses: actions/download-artifact@v2
         with:
           name: image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-${{matrix.distro}}
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{secrets.docker_username}}
+          password: ${{secrets.docker_password}}
       - name: Publish image
         run: |
-          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
           docker load < "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
           IMAGE=$(docker images --filter "reference=datajoint/*" --format "{{.Repository}}")
           TAG=$(docker images --filter "reference=datajoint/*" --format "{{.Tag}}")
@@ -253,14 +265,20 @@ jobs:
             ${{matrix.distro}}.tar.gz"
           asset_content_type: application/gzip
   publish-docs:
-    if: github.event_name == 'push'
+    if: |
+      github.event_name == 'push' &&
+      contains(github.ref, 'refs/tags/*.*.*') &&
+      (
+        github.repository_owner == 'datajoint' ||
+        github.repository_owner == 'vathes'
+      )
     needs: publish-release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Determine package version
         run: |
-          PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\' '{print $2}')
+          PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\" '{print $2}')
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
       - name: Fetch docs static artifacts
         uses: actions/download-artifact@v2

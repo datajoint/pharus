@@ -8,9 +8,10 @@
 # With this config and the configuration below in NGINX, you should be able to verify it is
 # running properly with a `curl https://fakeservices.datajoint.io/api/version`.
 version: "2.4"
-x-net: &net
+x-net:
+  &net
   networks:
-      - main
+    - main
 services:
   pharus:
     <<: *net
@@ -18,7 +19,7 @@ services:
     # environment: # configurable values with defaults
     #   - PHARUS_PORT=5000
     #   - PHARUS_PREFIX=/
-    #   - API_SPEC_PATH=tests/init/test_dynamic_api_spec.yaml # for dynamic api spec
+    #   - PHARUS_SPEC_PATH=tests/init/test_dynamic_api_spec.yaml # for dynamic api spec
   fakeservices.datajoint.io:
     <<: *net
     image: datajoint/nginx:v0.0.16
