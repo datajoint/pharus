@@ -204,9 +204,8 @@ def Student(schema_main):
 
     @schema_main
     class Student(dj.Lookup):
-        test = "how are you going to deal with some kind of string like this that is extreme long and stuff"
         definition = """
-        student_id: int  # This is a really long comment because we are curious how the autolinter will handle this case
+        student_id: int
         ---
         student_name: varchar(50)
         student_ssn: varchar(20)
