@@ -2,8 +2,6 @@ name: Development
 on:
   pull_request:
   push:
-    # tags:
-    #   - '*.*.*'
 jobs:
   test-changelog:
     runs-on: ubuntu-latest

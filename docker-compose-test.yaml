@@ -40,7 +40,7 @@ services:
           echo "------ UNIT TESTS ------"
           pytest -sv --cov-report term-missing --cov=pharus /main/tests
           echo "------ STYLE TESTS ------"
-          black $${PKG_DIR} --check -v --extend-exclude "^.*dynamic_api.py$"
+          black $${PKG_DIR} --check -v --extend-exclude "^.*dynamic_api.py$$"
         else
           echo "=== Running ==="
           echo "Please see 'docker-compose-test.yaml' for detail on running tests."
