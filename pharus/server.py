@@ -994,7 +994,8 @@ def dependency(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
             .. sourcecode:: http
 
                 GET /schema/alpha_company/table/Computer/dependency?restriction=W3siYXR0cml"""
-        "idXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo="
+        "idXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo"
+        "="
         """ HTTP/1.1
                 Host: fakeservices.datajoint.io
                 Authorization: Bearer <token>

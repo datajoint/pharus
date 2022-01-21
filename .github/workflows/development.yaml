@@ -4,7 +4,6 @@ on:
   push:
     # tags:
     #   - '*.*.*'
-    # 
 jobs:
   test-changelog:
     runs-on: ubuntu-latest
@@ -124,182 +123,200 @@ jobs:
           export HOST_UID=$(id -u)
           docker load < "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
           docker-compose -f docker-compose-test.yaml up --exit-code-from pharus
-  # publish-release:
-  #   if: github.event_name == 'push'
-  #   needs: test
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     TWINE_USERNAME: ${{secrets.twine_username}}
-  #     TWINE_PASSWORD: ${{secrets.twine_password}}
-  #   outputs:
-  #     release_upload_url: ${{steps.create_gh_release.outputs.upload_url}}
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Determine package version
-  #       run: |
-  #         PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\" '{print $2}')
-  #         echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
-  #     - name: Get changelog entry
-  #       id: changelog_reader
-  #       uses: guzman-raphael/changelog-reader-action@v5
-  #       with:
-  #         path: ./CHANGELOG.md
-  #         version: ${{env.PHARUS_VERSION}}
-  #     - name: Create GH release
-  #       id: create_gh_release
-  #       uses: actions/create-release@v1
-  #       env:
-  #         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-  #       with:
-  #         tag_name: ${{steps.changelog_reader.outputs.version}}
-  #         release_name: Release ${{steps.changelog_reader.outputs.version}}
-  #         body: ${{steps.changelog_reader.outputs.changes}}
-  #         prerelease: ${{steps.changelog_reader.outputs.status == 'prereleased'}}
-  #         draft: ${{steps.changelog_reader.outputs.status == 'unreleased'}}
-  #     - name: Fetch image artifact
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: image-pharus-${{env.PHARUS_VERSION}}-py3.8-alpine
-  #     - name: Fetch pip artifacts
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: pip-pharus-${{env.PHARUS_VERSION}}
-  #         path: dist
-  #     - name: Publish pip release
-  #       run: |
-  #         export HOST_UID=$(id -u)
-  #         docker load < "image-pharus-${PHARUS_VERSION}-py3.8-alpine.tar.gz"
-  #         docker-compose -f docker-compose-build.yaml run \
-  #           -e TWINE_USERNAME=${TWINE_USERNAME} -e TWINE_PASSWORD=${TWINE_PASSWORD} pharus \
-  #           sh -lc "pip install twine && python -m twine upload dist/*"
-  #     - name: Determine pip artifact paths
-  #       run: |
-  #         echo "PHARUS_WHEEL_PATH=$(ls dist/pharus-*.whl)" >> $GITHUB_ENV
-  #         echo "PHARUS_SDIST_PATH=$(ls dist/pharus-*.tar.gz)" >> $GITHUB_ENV
-  #     - name: Upload pip wheel asset to release
-  #       uses: actions/upload-release-asset@v1
-  #       env:
-  #         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-  #       with:
-  #         upload_url: ${{steps.create_gh_release.outputs.upload_url}}
-  #         asset_path: ${{env.PHARUS_WHEEL_PATH}}
-  #         asset_name: pip-pharus-${{env.PHARUS_VERSION}}.whl
-  #         asset_content_type: application/zip
-  #     - name: Upload pip sdist asset to release
-  #       uses: actions/upload-release-asset@v1
-  #       env:
-  #         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-  #       with:
-  #         upload_url: ${{steps.create_gh_release.outputs.upload_url}}
-  #         asset_path: ${{env.PHARUS_SDIST_PATH}}
-  #         asset_name: pip-pharus-${{env.PHARUS_VERSION}}.tar.gz
-  #         asset_content_type: application/gzip
-  #     - name: Upload deploy docker environment
-  #       uses: actions/upload-release-asset@v1
-  #       env:
-  #         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-  #       with:
-  #         upload_url: ${{steps.create_gh_release.outputs.upload_url}}
-  #         asset_path: docker-compose-deploy.yaml
-  #         asset_name: docker-compose-deploy.yaml
-  #         asset_content_type: application/yaml
-  # publish-images:
-  #   if: github.event_name == 'push'
-  #   needs: publish-release
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       include:
-  #         - py_ver: 3.8
-  #           distro: alpine
-  #           image: djbase
-  #   env:
-  #     PY_VER: ${{matrix.py_ver}}
-  #     DISTRO: ${{matrix.distro}}
-  #     IMAGE: ${{matrix.image}}
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Determine package version
-  #       run: |
-  #         PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\" '{print $2}')
-  #         echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
-  #     - name: Fetch image artifact
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-${{matrix.distro}}
-  #     - name: Login to DockerHub
-  #       uses: docker/login-action@v1
-  #       with:
-  #         username: ${{secrets.docker_username}}
-  #         password: ${{secrets.docker_password}}
-  #     - name: Publish image
-  #       run: |
-  #         docker load < "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
-  #         IMAGE=$(docker images --filter "reference=datajoint/*" --format "{{.Repository}}")
-  #         TAG=$(docker images --filter "reference=datajoint/*" --format "{{.Tag}}")
-  #         docker push "${IMAGE}:${TAG}"
-  #         docker tag "${IMAGE}:${TAG}" "${IMAGE}:${TAG}-${GITHUB_SHA:0:7}"
-  #         docker push "${IMAGE}:${TAG}-${GITHUB_SHA:0:7}"
-  #         [ "$PY_VER" == "3.8" ] && [ "$DISTRO" == "alpine" ] \
-  #                 && docker tag "${IMAGE}:${TAG}" "${IMAGE}:latest" \
-  #                 && docker push "${IMAGE}:latest" \
-  #             || echo "skipping 'latest' tag..."
-  #     - name: Upload image to release
-  #       uses: actions/upload-release-asset@v1
-  #       env:
-  #         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-  #       with:
-  #         upload_url: ${{needs.publish-release.outputs.release_upload_url}}
-  #         asset_path: "image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-\
-  #           ${{matrix.distro}}.tar.gz"
-  #         asset_name: "image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-\
-  #           ${{matrix.distro}}.tar.gz"
-  #         asset_content_type: application/gzip
-  # publish-docs:
-  #   if: github.event_name == 'push'
-  #   needs: publish-release
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Determine package version
-  #       run: |
-  #         PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\" '{print $2}')
-  #         echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
-  #     - name: Fetch docs static artifacts
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: docs-static-pharus-${{env.PHARUS_VERSION}}
-  #         path: docs/_build/html
-  #     - name: Commit documentation changes
-  #       run: |
-  #         git clone https://github.com/${GITHUB_REPOSITORY}.git \
-  #             --branch gh-pages --single-branch gh-pages
-  #         rm -R gh-pages/*
-  #         cp -r docs/_build/html/* gh-pages/
-  #         cp .gitignore gh-pages/
-  #         touch gh-pages/.nojekyll
-  #         cd gh-pages
-  #         git config --local user.email "action@github.com"
-  #         git config --local user.name "GitHub Action"
-  #         git add . --all
-  #         git commit -m "Update documentation" -a || true
-  #         # The above command will fail if no changes were present, so we ignore
-  #         # the return code.
-  #     - name: Push changes
-  #       uses: ad-m/github-push-action@master
-  #       with:
-  #         branch: gh-pages
-  #         directory: gh-pages
-  #         github_token: ${{secrets.GITHUB_TOKEN}}
-  #     - name: Compress docs static site artifacts
-  #       run: zip -r docs-static-pharus-${PHARUS_VERSION}.zip docs/_build/html
-  #     - name: Upload docs static site to release
-  #       uses: actions/upload-release-asset@v1
-  #       env:
-  #         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-  #       with:
-  #         upload_url: ${{needs.publish-release.outputs.release_upload_url}}
-  #         asset_path: "docs-static-pharus-${{env.PHARUS_VERSION}}.zip"
-  #         asset_name: "docs-static-pharus-${{env.PHARUS_VERSION}}.zip"
-  #         asset_content_type: application/zip
-  #         # fail_on_unmatched_files: true
+  publish-release:
+    if: |
+      github.event_name == 'push' &&
+      contains(github.ref, 'refs/tags/*.*.*') &&
+      (
+        github.repository_owner == 'datajoint' ||
+        github.repository_owner == 'vathes'
+      )
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      TWINE_USERNAME: ${{secrets.twine_username}}
+      TWINE_PASSWORD: ${{secrets.twine_password}}
+    outputs:
+      release_upload_url: ${{steps.create_gh_release.outputs.upload_url}}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Determine package version
+        run: |
+          PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\" '{print $2}')
+          echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
+      - name: Get changelog entry
+        id: changelog_reader
+        uses: guzman-raphael/changelog-reader-action@v5
+        with:
+          path: ./CHANGELOG.md
+          version: ${{env.PHARUS_VERSION}}
+      - name: Create GH release
+        id: create_gh_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          tag_name: ${{steps.changelog_reader.outputs.version}}
+          release_name: Release ${{steps.changelog_reader.outputs.version}}
+          body: ${{steps.changelog_reader.outputs.changes}}
+          prerelease: ${{steps.changelog_reader.outputs.status == 'prereleased'}}
+          draft: ${{steps.changelog_reader.outputs.status == 'unreleased'}}
+      - name: Fetch image artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: image-pharus-${{env.PHARUS_VERSION}}-py3.8-alpine
+      - name: Fetch pip artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: pip-pharus-${{env.PHARUS_VERSION}}
+          path: dist
+      - name: Publish pip release
+        run: |
+          export HOST_UID=$(id -u)
+          docker load < "image-pharus-${PHARUS_VERSION}-py3.8-alpine.tar.gz"
+          docker-compose -f docker-compose-build.yaml run \
+            -e TWINE_USERNAME=${TWINE_USERNAME} -e TWINE_PASSWORD=${TWINE_PASSWORD} pharus \
+            sh -lc "pip install twine && python -m twine upload dist/*"
+      - name: Determine pip artifact paths
+        run: |
+          echo "PHARUS_WHEEL_PATH=$(ls dist/pharus-*.whl)" >> $GITHUB_ENV
+          echo "PHARUS_SDIST_PATH=$(ls dist/pharus-*.tar.gz)" >> $GITHUB_ENV
+      - name: Upload pip wheel asset to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          upload_url: ${{steps.create_gh_release.outputs.upload_url}}
+          asset_path: ${{env.PHARUS_WHEEL_PATH}}
+          asset_name: pip-pharus-${{env.PHARUS_VERSION}}.whl
+          asset_content_type: application/zip
+      - name: Upload pip sdist asset to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          upload_url: ${{steps.create_gh_release.outputs.upload_url}}
+          asset_path: ${{env.PHARUS_SDIST_PATH}}
+          asset_name: pip-pharus-${{env.PHARUS_VERSION}}.tar.gz
+          asset_content_type: application/gzip
+      - name: Upload deploy docker environment
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          upload_url: ${{steps.create_gh_release.outputs.upload_url}}
+          asset_path: docker-compose-deploy.yaml
+          asset_name: docker-compose-deploy.yaml
+          asset_content_type: application/yaml
+  publish-images:
+    if: |
+      github.event_name == 'push' &&
+      contains(github.ref, 'refs/tags/*.*.*') &&
+      (
+        github.repository_owner == 'datajoint' ||
+        github.repository_owner == 'vathes'
+      )
+    needs: publish-release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - py_ver: 3.8
+            distro: alpine
+            image: djbase
+    env:
+      PY_VER: ${{matrix.py_ver}}
+      DISTRO: ${{matrix.distro}}
+      IMAGE: ${{matrix.image}}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Determine package version
+        run: |
+          PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\" '{print $2}')
+          echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
+      - name: Fetch image artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-${{matrix.distro}}
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{secrets.docker_username}}
+          password: ${{secrets.docker_password}}
+      - name: Publish image
+        run: |
+          docker load < "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
+          IMAGE=$(docker images --filter "reference=datajoint/*" --format "{{.Repository}}")
+          TAG=$(docker images --filter "reference=datajoint/*" --format "{{.Tag}}")
+          docker push "${IMAGE}:${TAG}"
+          docker tag "${IMAGE}:${TAG}" "${IMAGE}:${TAG}-${GITHUB_SHA:0:7}"
+          docker push "${IMAGE}:${TAG}-${GITHUB_SHA:0:7}"
+          [ "$PY_VER" == "3.8" ] && [ "$DISTRO" == "alpine" ] \
+                  && docker tag "${IMAGE}:${TAG}" "${IMAGE}:latest" \
+                  && docker push "${IMAGE}:latest" \
+              || echo "skipping 'latest' tag..."
+      - name: Upload image to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          upload_url: ${{needs.publish-release.outputs.release_upload_url}}
+          asset_path: "image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-\
+            ${{matrix.distro}}.tar.gz"
+          asset_name: "image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-\
+            ${{matrix.distro}}.tar.gz"
+          asset_content_type: application/gzip
+  publish-docs:
+    if: |
+      github.event_name == 'push' &&
+      contains(github.ref, 'refs/tags/*.*.*') &&
+      (
+        github.repository_owner == 'datajoint' ||
+        github.repository_owner == 'vathes'
+      )
+    needs: publish-release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Determine package version
+        run: |
+          PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\" '{print $2}')
+          echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
+      - name: Fetch docs static artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: docs-static-pharus-${{env.PHARUS_VERSION}}
+          path: docs/_build/html
+      - name: Commit documentation changes
+        run: |
+          git clone https://github.com/${GITHUB_REPOSITORY}.git \
+              --branch gh-pages --single-branch gh-pages
+          rm -R gh-pages/*
+          cp -r docs/_build/html/* gh-pages/
+          cp .gitignore gh-pages/
+          touch gh-pages/.nojekyll
+          cd gh-pages
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add . --all
+          git commit -m "Update documentation" -a || true
+          # The above command will fail if no changes were present, so we ignore
+          # the return code.
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          branch: gh-pages
+          directory: gh-pages
+          github_token: ${{secrets.GITHUB_TOKEN}}
+      - name: Compress docs static site artifacts
+        run: zip -r docs-static-pharus-${PHARUS_VERSION}.zip docs/_build/html
+      - name: Upload docs static site to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          upload_url: ${{needs.publish-release.outputs.release_upload_url}}
+          asset_path: "docs-static-pharus-${{env.PHARUS_VERSION}}.zip"
+          asset_name: "docs-static-pharus-${{env.PHARUS_VERSION}}.zip"
+          asset_content_type: application/zip
+          # fail_on_unmatched_files: true
