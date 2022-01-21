@@ -3,4 +3,4 @@ from . import client
 
 
 def test_version(client):
-    assert client.get('/version').json['version'] == version
+    assert client.get("/version").json["version"] == version

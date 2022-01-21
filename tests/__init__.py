@@ -6,10 +6,11 @@ import datajoint as dj
 from datetime import date
 from random import randint, choice, seed, getrandbits
 from faker import Faker
-seed('lock')  # Pin down randomizer between runs
+
+seed("lock")  # Pin down randomizer between runs
 faker = Faker()
 Faker.seed(0)  # Pin down randomizer between runs
-SCHEMA_PREFIX = 'test_'
+SCHEMA_PREFIX = "test_"
 
 
 @pytest.fixture
@@ -22,41 +23,57 @@ def client():
 @pytest.fixture
 def token(client):
     """Root Bearer token."""
-    yield client.post('/login', json=dict(databaseAddress=getenv('TEST_DB_SERVER'),
-                                          username=getenv('TEST_DB_USER'),
-                                          password=getenv('TEST_DB_PASS'))).json['jwt']
+    yield client.post(
+        "/login",
+        json=dict(
+            databaseAddress=getenv("TEST_DB_SERVER"),
+            username=getenv("TEST_DB_USER"),
+            password=getenv("TEST_DB_PASS"),
+        ),
+    ).json["jwt"]
 
 
 @pytest.fixture
 def group1_token(client, connection):
-    connection.query("""
-                     CREATE USER IF NOT EXISTS 'group1'@'%%'
-                     IDENTIFIED BY 'group1';
-                     """)
     connection.query(
-        f"GRANT ALL PRIVILEGES ON `{SCHEMA_PREFIX}group1_%%`.* TO 'group1'@'%%';")
-    yield client.post('/login', json=dict(databaseAddress=getenv('TEST_DB_SERVER'),
-                                          username='group1',
-                                          password='group1')).json['jwt']
+        """
+        CREATE USER IF NOT EXISTS 'group1'@'%%'
+        IDENTIFIED BY 'group1';
+        """
+    )
+    connection.query(
+        f"GRANT ALL PRIVILEGES ON `{SCHEMA_PREFIX}group1_%%`.* TO 'group1'@'%%';"
+    )
+    yield client.post(
+        "/login",
+        json=dict(
+            databaseAddress=getenv("TEST_DB_SERVER"),
+            username="group1",
+            password="group1",
+        ),
+    ).json["jwt"]
     connection.query("DROP USER 'group1'@'%%';")
 
 
 @pytest.fixture
 def connection():
     """Root database connection."""
-    dj.config['safemode'] = False
-    connection = dj.conn(host=getenv('TEST_DB_SERVER'),
-                         user=getenv('TEST_DB_USER'),
-                         password=getenv('TEST_DB_PASS'), reset=True)
+    dj.config["safemode"] = False
+    connection = dj.conn(
+        host=getenv("TEST_DB_SERVER"),
+        user=getenv("TEST_DB_USER"),
+        password=getenv("TEST_DB_PASS"),
+        reset=True,
+    )
     yield connection
-    dj.config['safemode'] = True
+    dj.config["safemode"] = True
     connection.close()
 
 
 @pytest.fixture
 def schema_main(connection):
     """Main test schema."""
-    main = dj.Schema(f'{SCHEMA_PREFIX}main', connection=connection)
+    main = dj.Schema(f"{SCHEMA_PREFIX}main", connection=connection)
     yield main
     main.drop()
 
@@ -65,8 +82,8 @@ def schema_main(connection):
 def schemas_simple(connection):
     """Simple test schemas."""
 
-    group1_simple = dj.Schema(f'{SCHEMA_PREFIX}group1_simple', connection=connection)
-    group2_simple = dj.Schema(f'{SCHEMA_PREFIX}group2_simple', connection=connection)
+    group1_simple = dj.Schema(f"{SCHEMA_PREFIX}group1_simple", connection=connection)
+    group2_simple = dj.Schema(f"{SCHEMA_PREFIX}group2_simple", connection=connection)
 
     @group1_simple
     class TableA(dj.Lookup):
@@ -75,7 +92,16 @@ def schemas_simple(connection):
         ---
         a_name: varchar(30)
         """
-        contents = [(0, 'Raphael',), (1, 'Bernie',)]
+        contents = [
+            (
+                0,
+                "Raphael",
+            ),
+            (
+                1,
+                "Bernie",
+            ),
+        ]
 
     @group1_simple
     class TableB(dj.Lookup):
@@ -85,7 +111,19 @@ def schemas_simple(connection):
         ---
         b_number: float
         """
-        contents = [(0, 10, 22.12), (0, 11, -1.21,), (1, 21, 7.77,)]
+        contents = [
+            (0, 10, 22.12),
+            (
+                0,
+                11,
+                -1.21,
+            ),
+            (
+                1,
+                21,
+                7.77,
+            ),
+        ]
 
     @group2_simple
     class DiffTableB(dj.Lookup):
@@ -95,7 +133,14 @@ def schemas_simple(connection):
         ---
         bs_number: float
         """
-        contents = [(0, -10, -99.99), (0, -11, 287.11,)]
+        contents = [
+            (0, -10, -99.99),
+            (
+                0,
+                -11,
+                287.11,
+            ),
+        ]
 
     @group1_simple
     class TableC(dj.Lookup):
@@ -105,7 +150,21 @@ def schemas_simple(connection):
         ---
         c_int: int
         """
-        contents = [(0, 10, 100, -8), (0, 11, 200, -9,), (0, 11, 300, -7,)]
+        contents = [
+            (0, 10, 100, -8),
+            (
+                0,
+                11,
+                200,
+                -9,
+            ),
+            (
+                0,
+                11,
+                300,
+                -7,
+            ),
+        ]
 
     @group1_simple
     class PlotlyTable(dj.Lookup):
@@ -114,15 +173,24 @@ def schemas_simple(connection):
         ---
         plot: longblob
         """
-        contents = [(2, dict(data=[dict(x=[1, 2, 3],
-                                        y=[2, 6, 3],
-                                        type='scatter',
-                                        mode='lines+markers',
-                                        marker=dict(color='red')),
-                                   dict(type='bar',
-                                        x=[1, 2, 3],
-                                        y=[2, 5, 3])],
-                             layout=dict(title='A Fancy Plot')))]
+        contents = [
+            (
+                2,
+                dict(
+                    data=[
+                        dict(
+                            x=[1, 2, 3],
+                            y=[2, 6, 3],
+                            type="scatter",
+                            mode="lines+markers",
+                            marker=dict(color="red"),
+                        ),
+                        dict(type="bar", x=[1, 2, 3], y=[2, 5, 3]),
+                    ],
+                    layout=dict(title="A Fancy Plot"),
+                ),
+            )
+        ]
 
     yield group1_simple, group2_simple
 
@@ -133,6 +201,7 @@ def schemas_simple(connection):
 @pytest.fixture
 def Student(schema_main):
     """Student table for testing."""
+
     @schema_main
     class Student(dj.Lookup):
         definition = """
@@ -145,11 +214,21 @@ def Student(schema_main):
         student_parking_lot=null : varchar(20)
         student_out_of_state: bool
         """
-        contents = [(i, faker.name(), faker.ssn(), faker.date_between_dates(
-                        date_start=date(2021, 1, 1), date_end=date(2021, 1, 31)),
-                     round(randint(1000, 3000), 2),
-                     choice([None, 'LotA', 'LotB', 'LotC']),
-                     bool(getrandbits(1))) for i in range(100)]
+        contents = [
+            (
+                i,
+                faker.name(),
+                faker.ssn(),
+                faker.date_between_dates(
+                    date_start=date(2021, 1, 1), date_end=date(2021, 1, 31)
+                ),
+                round(randint(1000, 3000), 2),
+                choice([None, "LotA", "LotB", "LotC"]),
+                bool(getrandbits(1)),
+            )
+            for i in range(100)
+        ]
+
     yield Student
     Student.drop()
 
@@ -157,6 +236,7 @@ def Student(schema_main):
 @pytest.fixture
 def Computer(schema_main):
     """Computer table for testing."""
+
     @schema_main
     class Computer(dj.Lookup):
         definition = """
@@ -164,8 +244,11 @@ def Computer(schema_main):
         ---
         computer_brand: enum('HP', 'DELL')
         """
-        contents = [(UUID('ffffffff-86d5-4af7-a013-89bde75528bd'), 'HP'),
-                    (UUID('aaaaaaaa-86d5-4af7-a013-89bde75528bd'), 'DELL')]
+        contents = [
+            (UUID("ffffffff-86d5-4af7-a013-89bde75528bd"), "HP"),
+            (UUID("aaaaaaaa-86d5-4af7-a013-89bde75528bd"), "DELL"),
+        ]
+
     yield Computer
     Computer.drop()
 
@@ -173,6 +256,7 @@ def Computer(schema_main):
 @pytest.fixture
 def Int(schema_main):
     """Integer basic table for testing."""
+
     @schema_main
     class Int(dj.Manual):
         definition = """
@@ -180,6 +264,7 @@ def Int(schema_main):
         ---
         int_attribute: int
         """
+
     yield Int
     Int.drop()
 
@@ -187,6 +272,7 @@ def Int(schema_main):
 @pytest.fixture
 def Float(schema_main):
     """Float basic table for testing."""
+
     @schema_main
     class Float(dj.Manual):
         definition = """
@@ -194,6 +280,7 @@ def Float(schema_main):
         ---
         float_attribute: float
         """
+
     yield Float
     Float.drop()
 
@@ -201,6 +288,7 @@ def Float(schema_main):
 @pytest.fixture
 def Decimal(schema_main):
     """Decimal basic table for testing."""
+
     @schema_main
     class Decimal(dj.Manual):
         definition = """
@@ -208,6 +296,7 @@ def Decimal(schema_main):
         ---
         decimal_attribute: decimal(5, 2)
         """
+
     yield Decimal
     Decimal.drop()
 
@@ -221,6 +310,7 @@ def String(schema_main):
         ---
         string_attribute: varchar(32)
         """
+
     yield String
     String.drop()
 
@@ -234,6 +324,7 @@ def Bool(schema_main):
         ---
         bool_attribute: bool
         """
+
     yield Bool
     Bool.drop()
 
@@ -247,6 +338,7 @@ def Date(schema_main):
         ---
         date_attribute: date
         """
+
     yield Date
     Date.drop()
 
@@ -260,6 +352,7 @@ def Datetime(schema_main):
         ---
         datetime_attribute: datetime
         """
+
     yield Datetime
     Datetime.drop()
 
@@ -273,6 +366,7 @@ def Timestamp(schema_main):
         ---
         timestamp_attribute: timestamp
         """
+
     yield Timestamp
     Timestamp.drop()
 
@@ -286,6 +380,7 @@ def Time(schema_main):
         ---
         time_attribute: time
         """
+
     yield Time
     Time.drop()
 
@@ -299,6 +394,7 @@ def Blob(schema_main):
         ---
         blob_attribute: blob
         """
+
     yield Blob
     Blob.drop()
 
@@ -312,6 +408,7 @@ def Longblob(schema_main):
         ---
         longblob_attribute: longblob
         """
+
     yield Longblob
     Longblob.drop()
 
@@ -325,6 +422,7 @@ def Uuid(schema_main):
         ---
         uuid_attribute: uuid
         """
+
     yield Uuid
     Uuid.drop()
 
@@ -356,9 +454,10 @@ def ParentPart(schema_main):
 
         def make(self, key):
             scan_data_dict = (ScanData & key).fetch1()
-            self.insert1(dict(key, processed_scan_data=scan_data_dict['data']))
+            self.insert1(dict(key, processed_scan_data=scan_data_dict["data"]))
             self.ProcessScanDataPart.insert1(
-                dict(key, processed_scan_data_part=scan_data_dict['data'] * 2))
+                dict(key, processed_scan_data_part=scan_data_dict["data"] * 2)
+            )
 
     yield ScanData, ProcessScanData
     ScanData.drop()

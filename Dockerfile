@@ -3,7 +3,6 @@ ARG DISTRO
 ARG IMAGE
 FROM datajoint/${IMAGE}:py${PY_VER}-${DISTRO}
 COPY --chown=anaconda:anaconda ./README.rst ./requirements.txt ./setup.py \
-    ./pharus-hotreload-prod.sh ./pharus-hotreload-dev.sh \
     /main/
 COPY --chown=anaconda:anaconda ./pharus/*.py /main/pharus/
 RUN \
@@ -21,10 +20,8 @@ HEALTHCHECK       \
 ENV PHARUS_PORT 5000
 # ---TEMP---
 RUN pip install plotly
+# ----------
+COPY --chown=anaconda:anaconda ./reload.sh /tmp/
 WORKDIR /main
 
-# development service
-# CMD ["pharus"]
-
-# production service
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PHARUS_PORT} pharus.server:app"]
+CMD ["sh", "-c", "otumat watch -f ${PHARUS_SPEC_PATH} -s /tmp/reload.sh -i 5"]
