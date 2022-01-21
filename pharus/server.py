@@ -349,14 +349,15 @@ def record(
         """
         Handler for ``/schema/{schema_name}/table/{table_name}/record`` route.
 
-        :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
+        :param jwt_payload: Dictionary containing databaseAddress, username, and password
+            strings.
         :type jwt_payload: dict
         :param schema_name: Schema name.
         :type schema_name: str
         :param table_name: Table name.
         :type table_name: str
-        :return: If successful performs desired operation based on HTTP method, otherwise returns
-            error.
+        :return: If successful performs desired operation based on HTTP method, otherwise
+            returns error.
         :rtype: :class:`~typing.Union[dict, str, tuple]`
 
         .. http:get:: /schema/{schema_name}/table/{table_name}/record
@@ -368,8 +369,8 @@ def record(
             .. sourcecode:: http
 
                 GET /schema/alpha_company/table/Computer/record?limit=1&page=2&"""
-        "order=computer_id%20DESC&restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLC"
-        "Aib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo="
+        "order=computer_id%20DESC&restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnk"
+        "iLCAib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo="
         """ HTTP/1.1
                 Host: fakeservices.datajoint.io
                 Authorization: Bearer <token>
@@ -424,23 +425,24 @@ def record(
                 Vary: Accept
                 Content-Type: text/plain
 
-                400 Bad Request: The browser (or proxy) sent a request that this server could not
-                    understand.
+                400 Bad Request: The browser (or proxy) sent a request that this server could
+                    not understand.
 
             :query schema_name: Schema name.
             :query table_name: Table name.
             :query limit: Limit of how many records per page. Defaults to ``1000``.
             :query page: Page requested. Defaults to ``1``.
             :query order: Sort order. Defaults to ``KEY ASC``.
-            :query restriction: Base64-encoded ``AND`` sequence of restrictions. For example, you
-                could restrict as ``[{"attributeName": "computer_memory", "operation": ">=",``-
-                ``"value": 16}]`` with this param set as
+            :query restriction: Base64-encoded ``AND`` sequence of restrictions. For example,
+                you could restrict as ``[{"attributeName": "computer_memory", "operation": ``-
+                ``">=", "value": 16}]`` with this param set as
                 ``W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl``-
                 ``cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=``. Defaults to no restriction.
             :reqheader Authorization: Bearer <OAuth2_token>
             :resheader Content-Type: text/plain, application/json
             :statuscode 200: No error.
-            :statuscode 500: Unexpected error encountered. Returns the error message as a string.
+            :statuscode 500: Unexpected error encountered. Returns the error message as a
+                string.
 
         .. http:post:: /schema/{schema_name}/table/{table_name}/record
 
@@ -491,13 +493,14 @@ def record(
                 Vary: Accept
                 Content-Type: text/plain
 
-                400 Bad Request: The browser (or proxy) sent a request that this server could not
-                    understand.
+                400 Bad Request: The browser (or proxy) sent a request that this server could
+                    not understand.
 
             :reqheader Authorization: Bearer <OAuth2_token>
             :resheader Content-Type: text/plain
             :statuscode 200: No error.
-            :statuscode 500: Unexpected error encountered. Returns the error message as a string.
+            :statuscode 500: Unexpected error encountered. Returns the error message as a
+                string.
 
         .. http:patch:: /schema/{schema_name}/table/{table_name}/record
 
@@ -548,13 +551,14 @@ def record(
                 Vary: Accept
                 Content-Type: text/plain
 
-                400 Bad Request: The browser (or proxy) sent a request that this server could not
-                    understand.
+                400 Bad Request: The browser (or proxy) sent a request that this server could
+                    not understand.
 
             :reqheader Authorization: Bearer <OAuth2_token>
             :resheader Content-Type: text/plain
             :statuscode 200: No error.
-            :statuscode 500: Unexpected error encountered. Returns the error message as a string.
+            :statuscode 500: Unexpected error encountered. Returns the error message as a
+                string.
 
         .. http:delete:: /schema/{schema_name}/table/{table_name}/record
 
@@ -565,8 +569,8 @@ def record(
             .. sourcecode:: http
 
                 DELETE /schema/alpha_company/table/Computer/record?cascade=false&"""
-        "restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49Iiw"
-        "gInZhbHVlIjogMTZ9XQo="
+        "restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49"
+        "IiwgInZhbHVlIjogMTZ9XQo="
         """ HTTP/1.1
                 Host: fakeservices.datajoint.io
                 Authorization: Bearer <token>
@@ -591,10 +595,10 @@ def record(
 
                 {
                     "error": "IntegrityError",
-                    "error_msg": "Cannot delete or update a parent row: a foreign key constraint
-                        fails (`alpha_company`.`#employee`, CONSTRAINT `#employee_ibfk_1` FOREIGN
-                        KEY (`computer_id`) REFERENCES `computer` (`computer_id`) ON DELETE
-                        RESTRICT ON UPDATE CASCADE",
+                    "error_msg": "Cannot delete or update a parent row: a foreign key
+                        constraint fails (`alpha_company`.`#employee`, CONSTRAINT
+                        `#employee_ibfk_1` FOREIGN KEY (`computer_id`) REFERENCES `computer`
+                        (`computer_id`) ON DELETE RESTRICT ON UPDATE CASCADE",
                     "child_schema": "alpha_company",
                     "child_table": "Employee"
                 }
@@ -607,22 +611,23 @@ def record(
                 Vary: Accept
                 Content-Type: text/plain
 
-                400 Bad Request: The browser (or proxy) sent a request that this server could not
-                    understand.
+                400 Bad Request: The browser (or proxy) sent a request that this server could
+                    not understand.
 
             :query cascade: Enable cascading delete. Accepts ``true`` or ``false``.
                 Defaults to ``false``.
-            :query restriction: Base64-encoded ``AND`` sequence of restrictions. For example, you
-                could restrict as ``[{"attributeName": "computer_memory", "operation": ">=",``-
-                ``"value": 16}]`` with this param set as
+            :query restriction: Base64-encoded ``AND`` sequence of restrictions. For example,
+                you could restrict as ``[{"attributeName": "computer_memory", "operation": ``-
+                ``">=", "value": 16}]`` with this param set as
                 ``W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl``-
                 ``cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=``. Defaults to no restriction.
             :reqheader Authorization: Bearer <OAuth2_token>
             :resheader Content-Type: text/plain, application/json
             :statuscode 200: No error.
-            :statuscode 409: Attempting to delete a record with dependents while ``cascade`` set
-                to ``false``.
-            :statuscode 500: Unexpected error encountered. Returns the error message as a string.
+            :statuscode 409: Attempting to delete a record with dependents while ``cascade``
+                set to ``false``.
+            :statuscode 500: Unexpected error encountered. Returns the error message as a
+                string.
         """
     )
     if request.method in {"GET", "HEAD"}:
@@ -969,7 +974,8 @@ def dependency(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
         """
         Handler for ``/schema/{schema_name}/table/{table_name}/dependency`` route.
 
-        :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
+        :param jwt_payload: Dictionary containing databaseAddress, username, and password
+            strings.
         :type jwt_payload: dict
         :param schema_name: Schema name.
         :type schema_name: str
@@ -980,15 +986,16 @@ def dependency(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
 
         .. http:get:: /schema/{schema_name}/table/{table_name}/dependency
 
-            Route to get the metadata in relation to the dependent records associated with a """
-        """restricted subset of a table.
+            Route to get the metadata in relation to the dependent records associated with """
+        """a restricted subset of a table.
 
             **Example request**:
 
             .. sourcecode:: http
 
-                GET /schema/alpha_company/table/Computer/dependency?restriction=W3siYXR0cmlidXR"""
-        "lTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo="
+                GET /schema/alpha_company/table/Computer/dependency?restriction=W3siYXR0cml"""
+        "idXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo"
+        "="
         """ HTTP/1.1
                 Host: fakeservices.datajoint.io
                 Authorization: Bearer <token>
@@ -1026,20 +1033,21 @@ def dependency(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
                 Vary: Accept
                 Content-Type: text/plain
 
-                400 Bad Request: The browser (or proxy) sent a request that this server could not
-                    understand.
+                400 Bad Request: The browser (or proxy) sent a request that this server could
+                    not understand.
 
             :query schema_name: Schema name.
             :query table_name: Table name.
-            :query restriction: Base64-encoded ``AND`` sequence of restrictions. For example, you
-                could restrict as ``[{"attributeName": "computer_memory", "operation": ">=",``-
-                ``"value": 16}]`` with this param set as
+            :query restriction: Base64-encoded ``AND`` sequence of restrictions. For example,
+                you could restrict as ``[{"attributeName": "computer_memory", "operation": ``-
+                ``">=", "value": 16}]`` with this param set as
                 ``W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl``-
                 ``cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=``. Defaults to no restriction.
             :reqheader Authorization: Bearer <OAuth2_token>
             :resheader Content-Type: text/plain, application/json
             :statuscode 200: No error.
-            :statuscode 500: Unexpected error encountered. Returns the error message as a string.
+            :statuscode 500: Unexpected error encountered. Returns the error message as a
+                string.
         """
     )
     if request.method in {"GET", "HEAD"}:
