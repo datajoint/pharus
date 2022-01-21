@@ -37,9 +37,9 @@ def token(client):
 def group1_token(client, connection):
     connection.query(
         """
-                     CREATE USER IF NOT EXISTS 'group1'@'%%'
-                     IDENTIFIED BY 'group1';
-                     """
+        CREATE USER IF NOT EXISTS 'group1'@'%%'
+        IDENTIFIED BY 'group1';
+        """
     )
     connection.query(
         f"GRANT ALL PRIVILEGES ON `{SCHEMA_PREFIX}group1_%%`.* TO 'group1'@'%%';"
@@ -204,6 +204,7 @@ def Student(schema_main):
 
     @schema_main
     class Student(dj.Lookup):
+        test = "how are you going to deal with some kind of string like this that is extreme long and stuff"
         definition = """
         student_id: int  # This is a really long comment because we are curious how the autolinter will handle this case
         ---

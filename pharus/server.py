@@ -347,283 +347,283 @@ def record(
 ) -> Union[dict, str, tuple]:
     (
         """
-    Handler for ``/schema/{schema_name}/table/{table_name}/record`` route.
+        Handler for ``/schema/{schema_name}/table/{table_name}/record`` route.
 
-    :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
-    :type jwt_payload: dict
-    :param schema_name: Schema name.
-    :type schema_name: str
-    :param table_name: Table name.
-    :type table_name: str
-    :return: If successful performs desired operation based on HTTP method, otherwise returns
-        error.
-    :rtype: :class:`~typing.Union[dict, str, tuple]`
+        :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
+        :type jwt_payload: dict
+        :param schema_name: Schema name.
+        :type schema_name: str
+        :param table_name: Table name.
+        :type table_name: str
+        :return: If successful performs desired operation based on HTTP method, otherwise returns
+            error.
+        :rtype: :class:`~typing.Union[dict, str, tuple]`
 
-    .. http:get:: /schema/{schema_name}/table/{table_name}/record
+        .. http:get:: /schema/{schema_name}/table/{table_name}/record
 
-        Route to fetch records.
+            Route to fetch records.
 
-        **Example request**:
+            **Example request**:
 
-        .. sourcecode:: http
+            .. sourcecode:: http
 
-            GET /schema/alpha_company/table/Computer/record?limit=1&page=2&"""
+                GET /schema/alpha_company/table/Computer/record?limit=1&page=2&"""
         "order=computer_id%20DESC&restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLC"
         "Aib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo="
         """ HTTP/1.1
-            Host: fakeservices.datajoint.io
-            Authorization: Bearer <token>
+                Host: fakeservices.datajoint.io
+                Authorization: Bearer <token>
 
-        **Example successful response**:
+            **Example successful response**:
 
-        .. sourcecode:: http
+            .. sourcecode:: http
 
-            HTTP/1.1 200 OK
-            Vary: Accept
-            Content-Type: application/json
+                HTTP/1.1 200 OK
+                Vary: Accept
+                Content-Type: application/json
 
-            {
-                "recordHeader": [
-                    "computer_id",
-                    "computer_serial",
-                    "computer_brand",
-                    "computer_built",
-                    "computer_processor",
-                    "computer_memory",
-                    "computer_weight",
-                    "computer_cost",
-                    "computer_preowned",
-                    "computer_purchased",
-                    "computer_updates",
-                    "computer_accessories"
-                ],
-                "records": [
-                    [
-                        "4e41491a-86d5-4af7-a013-89bde75528bd",
-                        "DJS1JA17G",
-                        "Dell",
-                        1590364800,
-                        2.2,
-                        16,
-                        4.4,
-                        "700.99",
-                        0,
-                        1603181061,
-                        null,
-                        "=BLOB="
+                {
+                    "recordHeader": [
+                        "computer_id",
+                        "computer_serial",
+                        "computer_brand",
+                        "computer_built",
+                        "computer_processor",
+                        "computer_memory",
+                        "computer_weight",
+                        "computer_cost",
+                        "computer_preowned",
+                        "computer_purchased",
+                        "computer_updates",
+                        "computer_accessories"
+                    ],
+                    "records": [
+                        [
+                            "4e41491a-86d5-4af7-a013-89bde75528bd",
+                            "DJS1JA17G",
+                            "Dell",
+                            1590364800,
+                            2.2,
+                            16,
+                            4.4,
+                            "700.99",
+                            0,
+                            1603181061,
+                            null,
+                            "=BLOB="
+                        ]
+                    ],
+                    "totalCount": 2
+                }
+
+            **Example unexpected response**:
+
+            .. sourcecode:: http
+
+                HTTP/1.1 500 Internal Server Error
+                Vary: Accept
+                Content-Type: text/plain
+
+                400 Bad Request: The browser (or proxy) sent a request that this server could not
+                    understand.
+
+            :query schema_name: Schema name.
+            :query table_name: Table name.
+            :query limit: Limit of how many records per page. Defaults to ``1000``.
+            :query page: Page requested. Defaults to ``1``.
+            :query order: Sort order. Defaults to ``KEY ASC``.
+            :query restriction: Base64-encoded ``AND`` sequence of restrictions. For example, you
+                could restrict as ``[{"attributeName": "computer_memory", "operation": ">=",``-
+                ``"value": 16}]`` with this param set as
+                ``W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl``-
+                ``cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=``. Defaults to no restriction.
+            :reqheader Authorization: Bearer <OAuth2_token>
+            :resheader Content-Type: text/plain, application/json
+            :statuscode 200: No error.
+            :statuscode 500: Unexpected error encountered. Returns the error message as a string.
+
+        .. http:post:: /schema/{schema_name}/table/{table_name}/record
+
+            Route to insert a record. Omitted attributes utilize the default if set.
+
+            **Example request**:
+
+            .. sourcecode:: http
+
+                POST /schema/alpha_company/table/Computer/record HTTP/1.1
+                Host: fakeservices.datajoint.io
+                Accept: application/json
+                Authorization: Bearer <token>
+
+                {
+                    "records": [
+                        {
+                            "computer_id": "ffffffff-86d5-4af7-a013-89bde75528bd",
+                            "computer_serial": "ZYXWVEISJ",
+                            "computer_brand": "HP",
+                            "computer_built": "2021-01-01",
+                            "computer_processor": 2.7,
+                            "computer_memory": 32,
+                            "computer_weight": 3.7,
+                            "computer_cost": 599.99,
+                            "computer_preowned": 0,
+                            "computer_purchased": "2021-02-01 13:00:00",
+                            "computer_updates": 0
+                        }
                     ]
-                ],
-                "totalCount": 2
-            }
+                }
 
-        **Example unexpected response**:
+            **Example successful response**:
 
-        .. sourcecode:: http
+            .. sourcecode:: http
 
-            HTTP/1.1 500 Internal Server Error
-            Vary: Accept
-            Content-Type: text/plain
+                HTTP/1.1 200 OK
+                Vary: Accept
+                Content-Type: text/plain
 
-            400 Bad Request: The browser (or proxy) sent a request that this server could not
-                understand.
+                Insert Successful
 
-        :query schema_name: Schema name.
-        :query table_name: Table name.
-        :query limit: Limit of how many records per page. Defaults to ``1000``.
-        :query page: Page requested. Defaults to ``1``.
-        :query order: Sort order. Defaults to ``KEY ASC``.
-        :query restriction: Base64-encoded ``AND`` sequence of restrictions. For example, you
-            could restrict as ``[{"attributeName": "computer_memory", "operation": ">=",``-
-            ``"value": 16}]`` with this param set as
-            ``W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl``-
-            ``cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=``. Defaults to no restriction.
-        :reqheader Authorization: Bearer <OAuth2_token>
-        :resheader Content-Type: text/plain, application/json
-        :statuscode 200: No error.
-        :statuscode 500: Unexpected error encountered. Returns the error message as a string.
+            **Example unexpected response**:
 
-    .. http:post:: /schema/{schema_name}/table/{table_name}/record
+            .. sourcecode:: http
 
-        Route to insert a record. Omitted attributes utilize the default if set.
+                HTTP/1.1 500 Internal Server Error
+                Vary: Accept
+                Content-Type: text/plain
 
-        **Example request**:
+                400 Bad Request: The browser (or proxy) sent a request that this server could not
+                    understand.
 
-        .. sourcecode:: http
+            :reqheader Authorization: Bearer <OAuth2_token>
+            :resheader Content-Type: text/plain
+            :statuscode 200: No error.
+            :statuscode 500: Unexpected error encountered. Returns the error message as a string.
 
-            POST /schema/alpha_company/table/Computer/record HTTP/1.1
-            Host: fakeservices.datajoint.io
-            Accept: application/json
-            Authorization: Bearer <token>
+        .. http:patch:: /schema/{schema_name}/table/{table_name}/record
 
-            {
-                "records": [
-                    {
-                        "computer_id": "ffffffff-86d5-4af7-a013-89bde75528bd",
-                        "computer_serial": "ZYXWVEISJ",
-                        "computer_brand": "HP",
-                        "computer_built": "2021-01-01",
-                        "computer_processor": 2.7,
-                        "computer_memory": 32,
-                        "computer_weight": 3.7,
-                        "computer_cost": 599.99,
-                        "computer_preowned": 0,
-                        "computer_purchased": "2021-02-01 13:00:00",
-                        "computer_updates": 0
-                    }
-                ]
-            }
+            Route to update a record. Omitted attributes utilize the default if set.
 
-        **Example successful response**:
+            **Example request**:
 
-        .. sourcecode:: http
+            .. sourcecode:: http
 
-            HTTP/1.1 200 OK
-            Vary: Accept
-            Content-Type: text/plain
+                PATCH /schema/alpha_company/table/Computer/record HTTP/1.1
+                Host: fakeservices.datajoint.io
+                Accept: application/json
+                Authorization: Bearer <token>
 
-            Insert Successful
+                {
+                    "records": [
+                        {
+                            "computer_id": "ffffffff-86d5-4af7-a013-89bde75528bd",
+                            "computer_serial": "ZYXWVEISJ",
+                            "computer_brand": "HP",
+                            "computer_built": "2021-01-01",
+                            "computer_processor": 2.7,
+                            "computer_memory": 32,
+                            "computer_weight": 3.7,
+                            "computer_cost": 601.01,
+                            "computer_preowned": 0,
+                            "computer_purchased": "2021-02-01 13:00:00",
+                            "computer_updates": 0
+                        }
+                    ]
+                }
 
-        **Example unexpected response**:
+            **Example successful response**:
 
-        .. sourcecode:: http
+            .. sourcecode:: http
 
-            HTTP/1.1 500 Internal Server Error
-            Vary: Accept
-            Content-Type: text/plain
+                HTTP/1.1 200 OK
+                Vary: Accept
+                Content-Type: text/plain
 
-            400 Bad Request: The browser (or proxy) sent a request that this server could not
-                understand.
+                Update Successful
 
-        :reqheader Authorization: Bearer <OAuth2_token>
-        :resheader Content-Type: text/plain
-        :statuscode 200: No error.
-        :statuscode 500: Unexpected error encountered. Returns the error message as a string.
+            **Example unexpected response**:
 
-    .. http:patch:: /schema/{schema_name}/table/{table_name}/record
+            .. sourcecode:: http
 
-        Route to update a record. Omitted attributes utilize the default if set.
+                HTTP/1.1 500 Internal Server Error
+                Vary: Accept
+                Content-Type: text/plain
 
-        **Example request**:
+                400 Bad Request: The browser (or proxy) sent a request that this server could not
+                    understand.
 
-        .. sourcecode:: http
+            :reqheader Authorization: Bearer <OAuth2_token>
+            :resheader Content-Type: text/plain
+            :statuscode 200: No error.
+            :statuscode 500: Unexpected error encountered. Returns the error message as a string.
 
-            PATCH /schema/alpha_company/table/Computer/record HTTP/1.1
-            Host: fakeservices.datajoint.io
-            Accept: application/json
-            Authorization: Bearer <token>
+        .. http:delete:: /schema/{schema_name}/table/{table_name}/record
 
-            {
-                "records": [
-                    {
-                        "computer_id": "ffffffff-86d5-4af7-a013-89bde75528bd",
-                        "computer_serial": "ZYXWVEISJ",
-                        "computer_brand": "HP",
-                        "computer_built": "2021-01-01",
-                        "computer_processor": 2.7,
-                        "computer_memory": 32,
-                        "computer_weight": 3.7,
-                        "computer_cost": 601.01,
-                        "computer_preowned": 0,
-                        "computer_purchased": "2021-02-01 13:00:00",
-                        "computer_updates": 0
-                    }
-                ]
-            }
+            Route to delete a specific record.
 
-        **Example successful response**:
+            **Example request**:
 
-        .. sourcecode:: http
+            .. sourcecode:: http
 
-            HTTP/1.1 200 OK
-            Vary: Accept
-            Content-Type: text/plain
-
-            Update Successful
-
-        **Example unexpected response**:
-
-        .. sourcecode:: http
-
-            HTTP/1.1 500 Internal Server Error
-            Vary: Accept
-            Content-Type: text/plain
-
-            400 Bad Request: The browser (or proxy) sent a request that this server could not
-                understand.
-
-        :reqheader Authorization: Bearer <OAuth2_token>
-        :resheader Content-Type: text/plain
-        :statuscode 200: No error.
-        :statuscode 500: Unexpected error encountered. Returns the error message as a string.
-
-    .. http:delete:: /schema/{schema_name}/table/{table_name}/record
-
-        Route to delete a specific record.
-
-        **Example request**:
-
-        .. sourcecode:: http
-
-            DELETE /schema/alpha_company/table/Computer/record?cascade=false&"""
+                DELETE /schema/alpha_company/table/Computer/record?cascade=false&"""
         "restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49Iiw"
         "gInZhbHVlIjogMTZ9XQo="
         """ HTTP/1.1
-            Host: fakeservices.datajoint.io
-            Authorization: Bearer <token>
+                Host: fakeservices.datajoint.io
+                Authorization: Bearer <token>
 
-        **Example successful response**:
+            **Example successful response**:
 
-        .. sourcecode:: http
+            .. sourcecode:: http
 
-            HTTP/1.1 200 OK
-            Vary: Accept
-            Content-Type: text/plain
+                HTTP/1.1 200 OK
+                Vary: Accept
+                Content-Type: text/plain
 
-            Delete Successful
+                Delete Successful
 
-        **Example conflict response**:
+            **Example conflict response**:
 
-        .. sourcecode:: http
+            .. sourcecode:: http
 
-            HTTP/1.1 409 Conflict
-            Vary: Accept
-            Content-Type: application/json
+                HTTP/1.1 409 Conflict
+                Vary: Accept
+                Content-Type: application/json
 
-            {
-                "error": "IntegrityError",
-                "error_msg": "Cannot delete or update a parent row: a foreign key constraint
-                    fails (`alpha_company`.`#employee`, CONSTRAINT `#employee_ibfk_1` FOREIGN
-                    KEY (`computer_id`) REFERENCES `computer` (`computer_id`) ON DELETE
-                    RESTRICT ON UPDATE CASCADE",
-                "child_schema": "alpha_company",
-                "child_table": "Employee"
-            }
+                {
+                    "error": "IntegrityError",
+                    "error_msg": "Cannot delete or update a parent row: a foreign key constraint
+                        fails (`alpha_company`.`#employee`, CONSTRAINT `#employee_ibfk_1` FOREIGN
+                        KEY (`computer_id`) REFERENCES `computer` (`computer_id`) ON DELETE
+                        RESTRICT ON UPDATE CASCADE",
+                    "child_schema": "alpha_company",
+                    "child_table": "Employee"
+                }
 
-        **Example unexpected response**:
+            **Example unexpected response**:
 
-        .. sourcecode:: http
+            .. sourcecode:: http
 
-            HTTP/1.1 500 Internal Server Error
-            Vary: Accept
-            Content-Type: text/plain
+                HTTP/1.1 500 Internal Server Error
+                Vary: Accept
+                Content-Type: text/plain
 
-            400 Bad Request: The browser (or proxy) sent a request that this server could not
-                understand.
+                400 Bad Request: The browser (or proxy) sent a request that this server could not
+                    understand.
 
-        :query cascade: Enable cascading delete. Accepts ``true`` or ``false``.
-            Defaults to ``false``.
-        :query restriction: Base64-encoded ``AND`` sequence of restrictions. For example, you
-            could restrict as ``[{"attributeName": "computer_memory", "operation": ">=",``-
-            ``"value": 16}]`` with this param set as
-            ``W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl``-
-            ``cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=``. Defaults to no restriction.
-        :reqheader Authorization: Bearer <OAuth2_token>
-        :resheader Content-Type: text/plain, application/json
-        :statuscode 200: No error.
-        :statuscode 409: Attempting to delete a record with dependents while ``cascade`` set
-            to ``false``.
-        :statuscode 500: Unexpected error encountered. Returns the error message as a string.
-    """
+            :query cascade: Enable cascading delete. Accepts ``true`` or ``false``.
+                Defaults to ``false``.
+            :query restriction: Base64-encoded ``AND`` sequence of restrictions. For example, you
+                could restrict as ``[{"attributeName": "computer_memory", "operation": ">=",``-
+                ``"value": 16}]`` with this param set as
+                ``W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl``-
+                ``cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=``. Defaults to no restriction.
+            :reqheader Authorization: Bearer <OAuth2_token>
+            :resheader Content-Type: text/plain, application/json
+            :statuscode 200: No error.
+            :statuscode 409: Attempting to delete a record with dependents while ``cascade`` set
+                to ``false``.
+            :statuscode 500: Unexpected error encountered. Returns the error message as a string.
+        """
     )
     if request.method in {"GET", "HEAD"}:
         try:
@@ -967,80 +967,80 @@ def attribute(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
 def dependency(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
     (
         """
-    Handler for ``/schema/{schema_name}/table/{table_name}/dependency`` route.
+        Handler for ``/schema/{schema_name}/table/{table_name}/dependency`` route.
 
-    :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
-    :type jwt_payload: dict
-    :param schema_name: Schema name.
-    :type schema_name: str
-    :param table_name: Table name.
-    :type table_name: str
-    :return: If sucessfuly sends back a list of dependencies otherwise returns error.
-    :rtype: dict
+        :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
+        :type jwt_payload: dict
+        :param schema_name: Schema name.
+        :type schema_name: str
+        :param table_name: Table name.
+        :type table_name: str
+        :return: If sucessfuly sends back a list of dependencies otherwise returns error.
+        :rtype: dict
 
-    .. http:get:: /schema/{schema_name}/table/{table_name}/dependency
+        .. http:get:: /schema/{schema_name}/table/{table_name}/dependency
 
-        Route to get the metadata in relation to the dependent records associated with a """
+            Route to get the metadata in relation to the dependent records associated with a """
         """restricted subset of a table.
 
-        **Example request**:
+            **Example request**:
 
-        .. sourcecode:: http
+            .. sourcecode:: http
 
-            GET /schema/alpha_company/table/Computer/dependency?restriction=W3siYXR0cmlidXR"""
+                GET /schema/alpha_company/table/Computer/dependency?restriction=W3siYXR0cmlidXR"""
         "lTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo="
         """ HTTP/1.1
-            Host: fakeservices.datajoint.io
-            Authorization: Bearer <token>
+                Host: fakeservices.datajoint.io
+                Authorization: Bearer <token>
 
-        **Example successful response**:
+            **Example successful response**:
 
-        .. sourcecode:: http
+            .. sourcecode:: http
 
-            HTTP/1.1 200 OK
-            Vary: Accept
-            Content-Type: application/json
+                HTTP/1.1 200 OK
+                Vary: Accept
+                Content-Type: application/json
 
-            {
-                "dependencies": [
-                    {
-                        "accessible": true,
-                        "count": 2,
-                        "schema": "alpha_company",
-                        "table": "computer"
-                    },
-                    {
-                        "accessible": true,
-                        "count": 2,
-                        "schema": "alpha_company",
-                        "table": "#employee"
-                    }
-                ]
-            }
+                {
+                    "dependencies": [
+                        {
+                            "accessible": true,
+                            "count": 2,
+                            "schema": "alpha_company",
+                            "table": "computer"
+                        },
+                        {
+                            "accessible": true,
+                            "count": 2,
+                            "schema": "alpha_company",
+                            "table": "#employee"
+                        }
+                    ]
+                }
 
-        **Example unexpected response**:
+            **Example unexpected response**:
 
-        .. sourcecode:: http
+            .. sourcecode:: http
 
-            HTTP/1.1 500 Internal Server Error
-            Vary: Accept
-            Content-Type: text/plain
+                HTTP/1.1 500 Internal Server Error
+                Vary: Accept
+                Content-Type: text/plain
 
-            400 Bad Request: The browser (or proxy) sent a request that this server could not
-                understand.
+                400 Bad Request: The browser (or proxy) sent a request that this server could not
+                    understand.
 
-        :query schema_name: Schema name.
-        :query table_name: Table name.
-        :query restriction: Base64-encoded ``AND`` sequence of restrictions. For example, you
-            could restrict as ``[{"attributeName": "computer_memory", "operation": ">=",``-
-            ``"value": 16}]`` with this param set as
-            ``W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl``-
-            ``cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=``. Defaults to no restriction.
-        :reqheader Authorization: Bearer <OAuth2_token>
-        :resheader Content-Type: text/plain, application/json
-        :statuscode 200: No error.
-        :statuscode 500: Unexpected error encountered. Returns the error message as a string.
-    """
+            :query schema_name: Schema name.
+            :query table_name: Table name.
+            :query restriction: Base64-encoded ``AND`` sequence of restrictions. For example, you
+                could restrict as ``[{"attributeName": "computer_memory", "operation": ">=",``-
+                ``"value": 16}]`` with this param set as
+                ``W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl``-
+                ``cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=``. Defaults to no restriction.
+            :reqheader Authorization: Bearer <OAuth2_token>
+            :resheader Content-Type: text/plain, application/json
+            :statuscode 200: No error.
+            :statuscode 500: Unexpected error encountered. Returns the error message as a string.
+        """
     )
     if request.method in {"GET", "HEAD"}:
         # Get dependencies
