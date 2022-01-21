@@ -1,30 +1,59 @@
-from . import (client, token, connection, schema_main,
-               Int, Float, Decimal, String, Bool, Date, Datetime, Timestamp, Time, Blob,
-               Longblob, Uuid, ParentPart)
+from . import (
+    client,
+    token,
+    connection,
+    schema_main,
+    Int,
+    Float,
+    Decimal,
+    String,
+    Bool,
+    Date,
+    Datetime,
+    Timestamp,
+    Time,
+    Blob,
+    Longblob,
+    Uuid,
+    ParentPart,
+)
 from datetime import date, datetime, time
 from numbers import Number
 from uuid import UUID
 
 
 def validate(table, inserted_value, expected_type, expected_value, client, token):
-    REST_records = client.get(f'/schema/{table.database}/table/{table.__name__}/record',
-                              headers=dict(Authorization=f'Bearer {token}')
-                              ).json['records']
+    REST_records = client.get(
+        f"/schema/{table.database}/table/{table.__name__}/record",
+        headers=dict(Authorization=f"Bearer {token}"),
+    ).json["records"]
     assert len(REST_records) == 0
-    REST_response = client.post(f'/schema/{table.database}/table/{table.__name__}/record',
-                                headers=dict(Authorization=f'Bearer {token}'),
-                                json=dict(records=[{
-                                    'id': 1,
-                                    f'{table.__name__.lower()}_attribute': (
-                                        inserted_value if isinstance(inserted_value, bool)
-                                        else str(inserted_value))}]))
+    REST_response = client.post(
+        f"/schema/{table.database}/table/{table.__name__}/record",
+        headers=dict(Authorization=f"Bearer {token}"),
+        json=dict(
+            records=[
+                {
+                    "id": 1,
+                    f"{table.__name__.lower()}_attribute": (
+                        inserted_value
+                        if isinstance(inserted_value, bool)
+                        else str(inserted_value)
+                    ),
+                }
+            ]
+        ),
+    )
     assert REST_response.status_code == 200
-    REST_records = client.get(f'/schema/{table.database}/table/{table.__name__}/record',
-                              headers=dict(Authorization=f'Bearer {token}')
-                              ).json['records']
+    REST_records = client.get(
+        f"/schema/{table.database}/table/{table.__name__}/record",
+        headers=dict(Authorization=f"Bearer {token}"),
+    ).json["records"]
     assert len(REST_records) == 1
-    assert isinstance(REST_records[0][1], expected_type) and \
-        REST_records[0][1] == expected_value
+    assert (
+        isinstance(REST_records[0][1], expected_type)
+        and REST_records[0][1] == expected_value
+    )
 
 
 def test_int(token, client, Int):
@@ -54,7 +83,7 @@ def test_decimal(token, client, Decimal):
         table=Decimal,
         inserted_value=6.123,
         expected_type=str,
-        expected_value='6.12',
+        expected_value="6.12",
         client=client,
         token=token,
     )
@@ -63,9 +92,9 @@ def test_decimal(token, client, Decimal):
 def test_string(token, client, String):
     validate(
         table=String,
-        inserted_value='hi',
+        inserted_value="hi",
         expected_type=str,
-        expected_value='hi',
+        expected_value="hi",
         client=client,
         token=token,
     )
@@ -120,7 +149,7 @@ def test_time(token, client, Time):
         table=Time,
         inserted_value=time(21, 1, 32),
         expected_type=Number,
-        expected_value=75692.,
+        expected_value=75692.0,
         client=client,
         token=token,
     )
@@ -131,7 +160,7 @@ def test_blob(token, client, Blob):
         table=Blob,
         inserted_value=[1, 2, 3],
         expected_type=str,
-        expected_value='=BLOB=',
+        expected_value="=BLOB=",
         client=client,
         token=token,
     )
@@ -142,7 +171,7 @@ def test_longblob(token, client, Longblob):
         table=Longblob,
         inserted_value=[4, 5, 6],
         expected_type=str,
-        expected_value='=BLOB=',
+        expected_value="=BLOB=",
         client=client,
         token=token,
     )
@@ -151,9 +180,9 @@ def test_longblob(token, client, Longblob):
 def test_uuid(token, client, Uuid):
     validate(
         table=Uuid,
-        inserted_value=UUID('d710463dabd748858c62d0ae857e2910'),
+        inserted_value=UUID("d710463dabd748858c62d0ae857e2910"),
         expected_type=str,
-        expected_value='d710463d-abd7-4885-8c62-d0ae857e2910',
+        expected_value="d710463d-abd7-4885-8c62-d0ae857e2910",
         client=client,
         token=token,
     )
@@ -166,8 +195,9 @@ def test_part_table(token, client, ParentPart):
 
     # Test Parent
     REST_value = client.get(
-        f'/schema/{ScanData.database}/table/{ProcessScanData.__name__}/record',
-        headers=dict(Authorization=f'Bearer {token}')).json['records'][0]
+        f"/schema/{ScanData.database}/table/{ProcessScanData.__name__}/record",
+        headers=dict(Authorization=f"Bearer {token}"),
+    ).json["records"][0]
 
     assert REST_value == [0, 5]
 
@@ -176,6 +206,7 @@ def test_part_table(token, client, ParentPart):
         f"""/schema/{ProcessScanData.database}/table/{
             ProcessScanData.__name__ + '.' +
             ProcessScanData.ProcessScanDataPart.__name__}/record""",
-        headers=dict(Authorization=f'Bearer {token}')).json['records'][0]
+        headers=dict(Authorization=f"Bearer {token}"),
+    ).json["records"][0]
 
     assert REST_value == [0, 10]

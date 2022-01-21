@@ -216,8 +216,6 @@ jobs:
       PY_VER: ${{matrix.py_ver}}
       DISTRO: ${{matrix.distro}}
       IMAGE: ${{matrix.image}}
-      DOCKER_USERNAME: ${{secrets.docker_username}}
-      DOCKER_PASSWORD: ${{secrets.docker_password}}
     steps:
       - uses: actions/checkout@v2
       - name: Determine package version

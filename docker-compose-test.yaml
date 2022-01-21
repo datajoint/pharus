@@ -23,7 +23,7 @@ services:
       - TEST_DB_USER=root
       - TEST_DB_PASS=simple
       - AS_SCRIPT
-      - API_SPEC_PATH=tests/init/test_dynamic_api_spec.yaml
+      - PHARUS_SPEC_PATH=tests/init/test_dynamic_api_spec.yaml
     volumes:
       - ./requirements_test.txt:/tmp/pip_requirements.txt
       - ./pharus:/opt/conda/lib/python3.8/site-packages/pharus
