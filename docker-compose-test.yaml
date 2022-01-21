@@ -37,11 +37,14 @@ services:
           echo "------ SYNTAX TESTS ------"
           PKG_DIR=/opt/conda/lib/python3.8/site-packages/pharus
           flake8 $${PKG_DIR} --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 /main/tests --count --select=E9,F63,F7,F82 --show-source --statistics
           echo "------ UNIT TESTS ------"
           pytest -sv --cov-report term-missing --cov=pharus /main/tests
           echo "------ STYLE TESTS ------"
           black $${PKG_DIR} --check -v --extend-exclude "^.*dynamic_api.py$$"
           flake8 $${PKG_DIR} --count --max-complexity=20 --max-line-length=94 --statistics --exclude=*dynamic_api.py
+          black /main/tests --check -v
+          flake8 /main/tests --count --max-complexity=20 --max-line-length=94 --statistics
         else
           echo "=== Running ==="
           echo "Please see 'docker-compose-test.yaml' for detail on running tests."
