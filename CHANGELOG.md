@@ -9,7 +9,6 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 ### Added
 - Autoformatting strategy using `black` PR #116 
 
-
 ## [0.2.3] - 2021-11-18
 ### Added
 - Support for plot component PR #155
