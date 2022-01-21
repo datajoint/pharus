@@ -1,5 +1,4 @@
 from . import (
-    SCHEMA_PREFIX,
     client,
     token,
     connection,

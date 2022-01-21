@@ -45,7 +45,12 @@ Run Tests for Development w/ Pytest, Flake8, Black
 
 - For syntax tests, run ``flake8 ${PKG_DIR} --count --select=E9,F63,F7,F82 --show-source --statistics``
 - For pytest integration tests, run ``pytest -sv --cov-report term-missing --cov=${PKG_DIR} /main/tests``
-- For style tests, run ``black $${PKG_DIR} --check -v --extend-exclude "^.*dynamic_api.py$"``
+- For style tests, run:
+
+    .. code-block:: bash
+
+        black ${PKG_DIR} --check -v --extend-exclude "^.*dynamic_api.py$"
+        flake8 ${PKG_DIR} --count --max-complexity=20 --max-line-length=94 --statistics --exclude=*dynamic_api.py --ignore=W503
 
 Creating Sphinx Documentation from Scratch
 ------------------------------------------
