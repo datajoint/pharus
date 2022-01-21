@@ -5,6 +5,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 ## [0.2.4] - TBA
 ### Changed
 - Hot-reload mechanism to use `otumat watch` PR #116
+- Renamed environment variable defining spec sheet to `PHARUS_SPEC_PATH` PR #116
 
 ### Added
 - Autoformatting strategy using `black` PR #116 
