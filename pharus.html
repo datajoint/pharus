@@ -404,7 +404,8 @@ computer_accessories=null : longblob             # included additional accessori
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password strings.</p></li>
+<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password
+strings.</p></li>
 <li><p><strong>schema_name</strong> (<em>str</em>) – Schema name.</p></li>
 <li><p><strong>table_name</strong> (<em>str</em>) – Table name.</p></li>
 </ul>
@@ -454,8 +455,8 @@ computer_accessories=null : longblob             # included additional accessori
 <span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/plain</span>
 
-400 Bad Request: The browser (or proxy) sent a request that this server could not
-    understand.
+400 Bad Request: The browser (or proxy) sent a request that this server could
+    not understand.
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -463,9 +464,9 @@ computer_accessories=null : longblob             # included additional accessori
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>schema_name</strong> – Schema name.</p></li>
 <li><p><strong>table_name</strong> – Table name.</p></li>
-<li><p><strong>restriction</strong> – Base64-encoded <code class="docutils literal notranslate"><span class="pre">AND</span></code> sequence of restrictions. For example, you
-could restrict as <code class="docutils literal notranslate"><span class="pre">[{&quot;attributeName&quot;:</span> <span class="pre">&quot;computer_memory&quot;,</span> <span class="pre">&quot;operation&quot;:</span> <span class="pre">&quot;&gt;=&quot;,</span></code>-
-<code class="docutils literal notranslate"><span class="pre">&quot;value&quot;:</span> <span class="pre">16}]</span></code> with this param set as
+<li><p><strong>restriction</strong> – Base64-encoded <code class="docutils literal notranslate"><span class="pre">AND</span></code> sequence of restrictions. For example,
+you could restrict as <code class="docutils literal notranslate"><span class="pre">[{&quot;attributeName&quot;:</span> <span class="pre">&quot;computer_memory&quot;,</span> <span class="pre">&quot;operation&quot;:</span> <span class="pre">``-</span>
+<span class="pre">``&quot;&gt;=&quot;,</span> <span class="pre">&quot;value&quot;:</span> <span class="pre">16}]</span></code> with this param set as
 <code class="docutils literal notranslate"><span class="pre">W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl</span></code>-
 <code class="docutils literal notranslate"><span class="pre">cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=</span></code>. Defaults to no restriction.</p></li>
 </ul>
@@ -483,7 +484,8 @@ could restrict as <code class="docutils literal notranslate"><span class="pre">[
 <dt class="field-even">Status Codes</dt>
 <dd class="field-even"><ul class="simple">
 <li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – No error.</p></li>
-<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Unexpected error encountered. Returns the error message as a string.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Unexpected error encountered. Returns the error message as a
+string.</p></li>
 </ul>
 </dd>
 </dl>
@@ -596,14 +598,15 @@ message</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password strings.</p></li>
+<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password
+strings.</p></li>
 <li><p><strong>schema_name</strong> (<em>str</em>) – Schema name.</p></li>
 <li><p><strong>table_name</strong> (<em>str</em>) – Table name.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>If successful performs desired operation based on HTTP method, otherwise returns
-error.</p>
+<dd class="field-even"><p>If successful performs desired operation based on HTTP method, otherwise
+returns error.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Union[dict,</span> <span class="pre">str,</span> <span class="pre">tuple]</span></code></p>
@@ -664,8 +667,8 @@ error.</p>
 <span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/plain</span>
 
-400 Bad Request: The browser (or proxy) sent a request that this server could not
-    understand.
+400 Bad Request: The browser (or proxy) sent a request that this server could
+    not understand.
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -676,9 +679,9 @@ error.</p>
 <li><p><strong>limit</strong> – Limit of how many records per page. Defaults to <code class="docutils literal notranslate"><span class="pre">1000</span></code>.</p></li>
 <li><p><strong>page</strong> – Page requested. Defaults to <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p></li>
 <li><p><strong>order</strong> – Sort order. Defaults to <code class="docutils literal notranslate"><span class="pre">KEY</span> <span class="pre">ASC</span></code>.</p></li>
-<li><p><strong>restriction</strong> – Base64-encoded <code class="docutils literal notranslate"><span class="pre">AND</span></code> sequence of restrictions. For example, you
-could restrict as <code class="docutils literal notranslate"><span class="pre">[{&quot;attributeName&quot;:</span> <span class="pre">&quot;computer_memory&quot;,</span> <span class="pre">&quot;operation&quot;:</span> <span class="pre">&quot;&gt;=&quot;,</span></code>-
-<code class="docutils literal notranslate"><span class="pre">&quot;value&quot;:</span> <span class="pre">16}]</span></code> with this param set as
+<li><p><strong>restriction</strong> – Base64-encoded <code class="docutils literal notranslate"><span class="pre">AND</span></code> sequence of restrictions. For example,
+you could restrict as <code class="docutils literal notranslate"><span class="pre">[{&quot;attributeName&quot;:</span> <span class="pre">&quot;computer_memory&quot;,</span> <span class="pre">&quot;operation&quot;:</span> <span class="pre">``-</span>
+<span class="pre">``&quot;&gt;=&quot;,</span> <span class="pre">&quot;value&quot;:</span> <span class="pre">16}]</span></code> with this param set as
 <code class="docutils literal notranslate"><span class="pre">W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl</span></code>-
 <code class="docutils literal notranslate"><span class="pre">cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=</span></code>. Defaults to no restriction.</p></li>
 </ul>
@@ -696,7 +699,8 @@ could restrict as <code class="docutils literal notranslate"><span class="pre">[
 <dt class="field-even">Status Codes</dt>
 <dd class="field-even"><ul class="simple">
 <li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – No error.</p></li>
-<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Unexpected error encountered. Returns the error message as a string.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Unexpected error encountered. Returns the error message as a
+string.</p></li>
 </ul>
 </dd>
 </dl>
@@ -744,8 +748,8 @@ Insert Successful
 <span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/plain</span>
 
-400 Bad Request: The browser (or proxy) sent a request that this server could not
-    understand.
+400 Bad Request: The browser (or proxy) sent a request that this server could
+    not understand.
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -762,7 +766,8 @@ Insert Successful
 <dt class="field-odd">Status Codes</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – No error.</p></li>
-<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Unexpected error encountered. Returns the error message as a string.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Unexpected error encountered. Returns the error message as a
+string.</p></li>
 </ul>
 </dd>
 </dl>
@@ -810,8 +815,8 @@ Update Successful
 <span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/plain</span>
 
-400 Bad Request: The browser (or proxy) sent a request that this server could not
-    understand.
+400 Bad Request: The browser (or proxy) sent a request that this server could
+    not understand.
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -828,7 +833,8 @@ Update Successful
 <dt class="field-odd">Status Codes</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – No error.</p></li>
-<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Unexpected error encountered. Returns the error message as a string.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Unexpected error encountered. Returns the error message as a
+string.</p></li>
 </ul>
 </dd>
 </dl>
@@ -859,10 +865,10 @@ Delete Successful
 
 <span class="p">{</span>
     <span class="nt">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;IntegrityError&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;error_msg&quot;</span><span class="p">:</span> <span class="s2">&quot;Cannot delete or update a parent row: a foreign key constraint</span>
-<span class="s2">        fails (`alpha_company`.`#employee`, CONSTRAINT `#employee_ibfk_1` FOREIGN</span>
-<span class="s2">        KEY (`computer_id`) REFERENCES `computer` (`computer_id`) ON DELETE</span>
-<span class="s2">        RESTRICT ON UPDATE CASCADE&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;error_msg&quot;</span><span class="p">:</span> <span class="s2">&quot;Cannot delete or update a parent row: a foreign key</span>
+<span class="s2">        constraint fails (`alpha_company`.`#employee`, CONSTRAINT</span>
+<span class="s2">        `#employee_ibfk_1` FOREIGN KEY (`computer_id`) REFERENCES `computer`</span>
+<span class="s2">        (`computer_id`) ON DELETE RESTRICT ON UPDATE CASCADE&quot;</span><span class="p">,</span>
     <span class="nt">&quot;child_schema&quot;</span><span class="p">:</span> <span class="s2">&quot;alpha_company&quot;</span><span class="p">,</span>
     <span class="nt">&quot;child_table&quot;</span><span class="p">:</span> <span class="s2">&quot;Employee&quot;</span>
 <span class="p">}</span>
@@ -873,8 +879,8 @@ Delete Successful
 <span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/plain</span>
 
-400 Bad Request: The browser (or proxy) sent a request that this server could not
-    understand.
+400 Bad Request: The browser (or proxy) sent a request that this server could
+    not understand.
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -882,9 +888,9 @@ Delete Successful
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cascade</strong> – Enable cascading delete. Accepts <code class="docutils literal notranslate"><span class="pre">true</span></code> or <code class="docutils literal notranslate"><span class="pre">false</span></code>.
 Defaults to <code class="docutils literal notranslate"><span class="pre">false</span></code>.</p></li>
-<li><p><strong>restriction</strong> – Base64-encoded <code class="docutils literal notranslate"><span class="pre">AND</span></code> sequence of restrictions. For example, you
-could restrict as <code class="docutils literal notranslate"><span class="pre">[{&quot;attributeName&quot;:</span> <span class="pre">&quot;computer_memory&quot;,</span> <span class="pre">&quot;operation&quot;:</span> <span class="pre">&quot;&gt;=&quot;,</span></code>-
-<code class="docutils literal notranslate"><span class="pre">&quot;value&quot;:</span> <span class="pre">16}]</span></code> with this param set as
+<li><p><strong>restriction</strong> – Base64-encoded <code class="docutils literal notranslate"><span class="pre">AND</span></code> sequence of restrictions. For example,
+you could restrict as <code class="docutils literal notranslate"><span class="pre">[{&quot;attributeName&quot;:</span> <span class="pre">&quot;computer_memory&quot;,</span> <span class="pre">&quot;operation&quot;:</span> <span class="pre">``-</span>
+<span class="pre">``&quot;&gt;=&quot;,</span> <span class="pre">&quot;value&quot;:</span> <span class="pre">16}]</span></code> with this param set as
 <code class="docutils literal notranslate"><span class="pre">W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl</span></code>-
 <code class="docutils literal notranslate"><span class="pre">cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=</span></code>. Defaults to no restriction.</p></li>
 </ul>
@@ -902,9 +908,10 @@ could restrict as <code class="docutils literal notranslate"><span class="pre">[
 <dt class="field-even">Status Codes</dt>
 <dd class="field-even"><ul class="simple">
 <li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – No error.</p></li>
-<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.10">409 Conflict</a></span> – Attempting to delete a record with dependents while <code class="docutils literal notranslate"><span class="pre">cascade</span></code> set
-to <code class="docutils literal notranslate"><span class="pre">false</span></code>.</p></li>
-<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Unexpected error encountered. Returns the error message as a string.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.10">409 Conflict</a></span> – Attempting to delete a record with dependents while <code class="docutils literal notranslate"><span class="pre">cascade</span></code>
+set to <code class="docutils literal notranslate"><span class="pre">false</span></code>.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Unexpected error encountered. Returns the error message as a
+string.</p></li>
 </ul>
 </dd>
 </dl>

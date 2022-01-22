@@ -45,7 +45,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#requirements-for-preferred-setup">Requirements for Preferred Setup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#run-locally-w-docker">Run Locally w/ Docker</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#run-locally-w-python">Run Locally w/ Python</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#run-tests-for-development-w-pytest-and-flake8">Run Tests for Development w/ Pytest and Flake8</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-tests-for-development-w-pytest-flake8-black">Run Tests for Development w/ Pytest, Flake8, Black</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#creating-sphinx-documentation-from-scratch">Creating Sphinx Documentation from Scratch</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#references">References</a></li>
 </ul>
@@ -117,8 +117,8 @@
 <li><p>For production, use <code class="docutils literal notranslate"><span class="pre">gunicorn</span> <span class="pre">--bind</span> <span class="pre">0.0.0.0:${PHARUS_PORT}</span> <span class="pre">pharus.server:app</span></code>.</p></li>
 </ul>
 </section>
-<section id="run-tests-for-development-w-pytest-and-flake8">
-<h2>Run Tests for Development w/ Pytest and Flake8<a class="headerlink" href="#run-tests-for-development-w-pytest-and-flake8" title="Permalink to this headline"></a></h2>
+<section id="run-tests-for-development-w-pytest-flake8-black">
+<h2>Run Tests for Development w/ Pytest, Flake8, Black<a class="headerlink" href="#run-tests-for-development-w-pytest-flake8-black" title="Permalink to this headline"></a></h2>
 <ul>
 <li><p>Set <code class="docutils literal notranslate"><span class="pre">pharus</span></code> testing environment variables:</p>
 <blockquote>
@@ -132,7 +132,14 @@
 </li>
 <li><p>For syntax tests, run <code class="docutils literal notranslate"><span class="pre">flake8</span> <span class="pre">${PKG_DIR}</span> <span class="pre">--count</span> <span class="pre">--select=E9,F63,F7,F82</span> <span class="pre">--show-source</span> <span class="pre">--statistics</span></code></p></li>
 <li><p>For pytest integration tests, run <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">-sv</span> <span class="pre">--cov-report</span> <span class="pre">term-missing</span> <span class="pre">--cov=${PKG_DIR}</span> <span class="pre">/main/tests</span></code></p></li>
-<li><p>For style tests, run <code class="docutils literal notranslate"><span class="pre">flake8</span> <span class="pre">${PKG_DIR}</span> <span class="pre">--count</span> <span class="pre">--max-complexity=20</span> <span class="pre">--max-line-length=95</span> <span class="pre">--statistics</span></code></p></li>
+<li><p>For style tests, run:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>black <span class="si">${</span><span class="nv">PKG_DIR</span><span class="si">}</span> --check -v --extend-exclude <span class="s2">&quot;^.*dynamic_api.py</span>$<span class="s2">&quot;</span>
+flake8 <span class="si">${</span><span class="nv">PKG_DIR</span><span class="si">}</span> --count --max-complexity<span class="o">=</span><span class="m">20</span> --max-line-length<span class="o">=</span><span class="m">94</span> --statistics --exclude<span class="o">=</span>*dynamic_api.py --ignore<span class="o">=</span>W503
+</pre></div>
+</div>
+</div></blockquote>
+</li>
 </ul>
 </section>
 <section id="creating-sphinx-documentation-from-scratch">
