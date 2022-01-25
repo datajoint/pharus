@@ -113,7 +113,7 @@ class _DJConnector:
         restriction: list = [],
         limit: int = 1000,
         page: int = 1,
-        order=["KEY ASC"],
+        order=None,
         fetch_blobs=False,
         fetch_args=[],
     ) -> tuple:
@@ -156,13 +156,18 @@ class _DJConnector:
             fetch_args = query.heading.non_blobs
         else:
             attributes = {k: v for k, v in attributes.items() if k in fetch_args}
-
+        if order:
+            order_by = order
+        elif "order_by" in fetch_args:
+            order_by = fetch_args["order_by"]
+        else:
+            order_by = ["KEY ASC"]
         non_blobs_rows = query_restricted.fetch(
             *fetch_args,
             as_dict=True,
             limit=limit,
             offset=(page - 1) * limit,
-            order_by=order,
+            order_by=order_by,
         )
 
         # Buffer list to be return

@@ -2,6 +2,10 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.3.1] - 2022-01-25
+### Fixed
+- Bug with `order_by` not applying from fetch args PR
+
 ## [0.3.0] - 2022-01-21
 ### Changed
 - Hot-reload mechanism to use `otumat watch` PR #116
@@ -102,6 +106,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
+[0.3.1]: https://github.com/datajoint/pharus/compare/0.3.0...0.3.1
 [0.3.0]: https://github.com/datajoint/pharus/compare/0.2.3...0.3.0
 [0.2.3]: https://github.com/datajoint/pharus/compare/0.2.2...0.2.3
 [0.2.2]: https://github.com/datajoint/pharus/compare/0.2.1...0.2.2
