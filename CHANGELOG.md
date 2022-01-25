@@ -4,7 +4,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 
 ## [0.3.1] - 2022-01-25
 ### Fixed
-- Bug with `order_by` not applying from fetch args PR
+- Bug with `order_by` not applying from fetch args PR #117
 
 ## [0.3.0] - 2022-01-21
 ### Changed
