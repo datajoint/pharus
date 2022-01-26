@@ -150,18 +150,21 @@ class _DJConnector:
             ]
         )
 
+        if order:
+            order_by = order
+            if "order_by" in fetch_args:
+                fetch_args.pop("order_by")
+        elif "order_by" in fetch_args:
+            order_by = fetch_args.pop("order_by")
+        else:
+            order_by = ["KEY ASC"]
+
         if fetch_blobs and not fetch_args:
             fetch_args = [*query.heading.attributes]
         elif not fetch_args:
             fetch_args = query.heading.non_blobs
         else:
             attributes = {k: v for k, v in attributes.items() if k in fetch_args}
-        if order:
-            order_by = order
-        elif "order_by" in fetch_args:
-            order_by = fetch_args["order_by"]
-        else:
-            order_by = ["KEY ASC"]
         non_blobs_rows = query_restricted.fetch(
             *fetch_args,
             as_dict=True,
