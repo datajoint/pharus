@@ -90,7 +90,7 @@ def {method_name}(jwt_payload: dict) -> dict:
                     if "component_templates" in grid
                     else grid["components"]
                 ).items():
-                    if re.match(r"^(table|metadata|plot|file).*$", comp["type"]):
+                    if re.match(r"^(table|metadata|plot|file|slider).*$", comp["type"]):
                         f.write(
                             route_template.format(
                                 route=comp["route"],
