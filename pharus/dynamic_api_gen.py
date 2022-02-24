@@ -16,6 +16,7 @@ from base64 import b64decode
 from datetime import datetime
 import inspect
 import traceback
+import os
 try:
     from .component_interface_override import type_map
 except (ModuleNotFoundError, ImportError):
@@ -33,6 +34,25 @@ def {method_name}(jwt_payload: dict) -> dict:
                                                               component_config={component},
                                                               static_config={static_config},
                                                               jwt_payload=jwt_payload)
+            return component_instance.{method_name_type}()
+        except Exception as e:
+            return traceback.format_exc(), 500
+"""
+    route_template_nologin = """
+
+@app.route('{route}', methods=['GET'])
+def {method_name}():
+    if request.method in {{'GET'}}:
+        try:
+            jwt = dict(
+                databaseAddress=os.environ["PHARUS_HOST"],
+                username=os.environ["PHARUS_USER"],
+                password=os.environ["PHARUS_PASSWORD"],
+                )
+            component_instance = type_map['{component_type}'](name='{component_name}',
+                                                              component_config={component},
+                                                              static_config={static_config},
+                                                              jwt_payload=jwt)
             return component_instance.{method_name_type}()
         except Exception as e:
             return traceback.format_exc(), 500
@@ -74,7 +94,11 @@ def {method_name}(jwt_payload: dict) -> dict:
             for grid in page["grids"].values():
                 if grid["type"] == "dynamic":
                     f.write(
-                        route_template.format(
+                        (
+                            route_template
+                            if values_yaml["SciViz"]["auth"]
+                            else route_template_nologin
+                        ).format(
                             route=grid["route"],
                             method_name=grid["route"].replace("/", ""),
                             component_type="table",
@@ -92,7 +116,11 @@ def {method_name}(jwt_payload: dict) -> dict:
                 ).items():
                     if re.match(r"^(table|metadata|plot|file|slider).*$", comp["type"]):
                         f.write(
-                            route_template.format(
+                            (
+                                route_template
+                                if values_yaml["SciViz"]["auth"]
+                                else route_template_nologin
+                            ).format(
                                 route=comp["route"],
                                 method_name=comp["route"].replace("/", ""),
                                 component_type=comp["type"],
@@ -107,7 +135,11 @@ def {method_name}(jwt_payload: dict) -> dict:
                                 comp["type"]
                             ].attributes_route_format.format(route=comp["route"])
                             f.write(
-                                route_template.format(
+                                (
+                                    route_template
+                                    if values_yaml["SciViz"]["auth"]
+                                    else route_template_nologin
+                                ).format(
                                     route=attributes_route,
                                     method_name=attributes_route.replace("/", ""),
                                     component_type=comp["type"],
