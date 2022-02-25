@@ -114,7 +114,10 @@ def {method_name}():
                     if "component_templates" in grid
                     else grid["components"]
                 ).items():
-                    if re.match(r"^(table|metadata|plot|file|slider).*$", comp["type"]):
+                    if re.match(
+                        r"^(table|metadata|plot|file|slider|dropdown-query).*$",
+                        comp["type"],
+                    ):
                         f.write(
                             (
                                 route_template

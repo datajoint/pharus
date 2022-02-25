@@ -291,4 +291,5 @@ type_map = {
     "metadata": MetadataComponent,
     "file:image:attach": FileImageAttachComponent,
     "slider": SliderComponent,
+    "dropdown-query": SliderComponent,
 }
