@@ -4,6 +4,7 @@ from base64 import b64decode
 import datajoint as dj
 import re
 import inspect
+from time import time
 from datetime import datetime
 from flask import request, send_file
 from .interface import _DJConnector
@@ -11,6 +12,35 @@ import os
 from pathlib import Path
 import types
 import io
+import numpy as np
+
+
+class NumpyEncoder(json.JSONEncoder):
+    """teach json to dump datetimes, etc"""
+
+    npmap = {
+        np.bool_: bool,
+        np.uint8: str,
+        np.uint16: str,
+        np.uint32: str,
+        np.uint64: str,
+        np.int8: str,
+        np.int16: str,
+        np.int32: str,
+        np.int64: str,
+        np.float32: str,
+        np.float64: str,
+        np.ndarray: list,
+    }
+
+    def default(self, o):
+        if type(o) in self.npmap:
+            return self.npmap[type(o)](o)
+        return json.JSONEncoder.default(self, o)
+
+    @classmethod
+    def dumps(cls, obj):
+        return json.dumps(obj, cls=cls)
 
 
 class QueryComponent:
@@ -73,6 +103,13 @@ class QueryComponent:
                         datetime.fromtimestamp(float(v))
                         if re.match(
                             r"^datetime.*$",
+                            self.fetch_metadata["query"].heading.attributes[k].type,
+                        )
+                        else datetime.fromtimestamp(float(v))
+                        .strftime("%Y/%m/%d")
+                        .replace("/", "-")
+                        if re.match(
+                            r"^date.*$",
                             self.fetch_metadata["query"].heading.attributes[k].type,
                         )
                         else v
@@ -226,9 +263,15 @@ class PlotPlotlyStoredjsonComponent(QueryComponent):
 
     def dj_query_route(self):
         fetch_metadata = self.fetch_metadata
-        return (fetch_metadata["query"] & self.restriction).fetch1(
-            *fetch_metadata["fetch_args"]
+        record_header, table_records, total_count = _DJConnector._fetch_records(
+            query=fetch_metadata["query"] & self.restriction,
+            fetch_args=fetch_metadata["fetch_args"],
+            fetch_blobs=True,
         )
+        return NumpyEncoder.dumps(table_records[0][0])
+        # return (fetch_metadata["query"] & self.restriction).fetch1(
+        #     *fetch_metadata["fetch_args"]
+        # )
 
 
 class SliderComponent(QueryComponent):
@@ -286,6 +329,7 @@ class FileImageAttachComponent(QueryComponent):
 
 
 type_map = {
+    "query": QueryComponent,
     "plot:plotly:stored_json": PlotPlotlyStoredjsonComponent,
     "table": TableComponent,
     "metadata": MetadataComponent,

@@ -101,7 +101,7 @@ def {method_name}():
                         ).format(
                             route=grid["route"],
                             method_name=grid["route"].replace("/", ""),
-                            component_type="table",
+                            component_type="slider",
                             component_name="dynamicgrid",
                             component=json.dumps(grid),
                             static_config=static_config,

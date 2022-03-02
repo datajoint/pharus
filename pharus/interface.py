@@ -159,6 +159,10 @@ class _DJConnector:
         else:
             order_by = ["KEY ASC"]
 
+        if "limit" in fetch_args:
+            limit = fetch_args["limit"]
+            fetch_args.pop("limit")
+
         if fetch_blobs and not fetch_args:
             fetch_args = [*query.heading.attributes]
         elif not fetch_args:
