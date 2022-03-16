@@ -5,7 +5,7 @@ import datajoint as dj
 import re
 import inspect
 from time import time
-from datetime import datetime
+from datetime import date, datetime
 from flask import request, send_file
 from .interface import _DJConnector
 import os
@@ -36,6 +36,8 @@ class NumpyEncoder(json.JSONEncoder):
     def default(self, o):
         if type(o) in self.npmap:
             return self.npmap[type(o)](o)
+        if type(o) in (datetime, date):
+            return o.isoformat()
         return json.JSONEncoder.default(self, o)
 
     @classmethod
