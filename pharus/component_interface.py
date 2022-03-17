@@ -4,7 +4,6 @@ from base64 import b64decode
 import datajoint as dj
 import re
 import inspect
-from time import time
 from datetime import date, datetime
 from flask import request, send_file
 from .interface import _DJConnector
