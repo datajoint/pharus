@@ -150,7 +150,9 @@ class _DJConnector:
             ]
         )
 
-        order_by = fetch_args.pop("order_by") if "order_by" in fetch_args else ["KEY ASC"]
+        order_by = (
+            fetch_args.pop("order_by") if "order_by" in fetch_args else ["KEY ASC"]
+        )
         order_by = order if order else order_by
 
         limit = fetch_args.pop("limit") if "limit" in fetch_args else limit

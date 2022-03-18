@@ -64,6 +64,9 @@ def {method_name}() -> dict:
     values_yaml = EnvYAML(Path(spec_path))
     with open(Path(api_path), "w") as f:
         f.write(header_template)
+        active_route_template = (
+            route_template if values_yaml["SciViz"]["auth"] else route_template_nologin
+        )
         if (
             "component_interface" in values_yaml["SciViz"]
             and "override" in values_yaml["SciViz"]["component_interface"]
@@ -94,14 +97,10 @@ def {method_name}() -> dict:
             for grid in page["grids"].values():
                 if grid["type"] == "dynamic":
                     f.write(
-                        (
-                            route_template
-                            if values_yaml["SciViz"]["auth"]
-                            else route_template_nologin
-                        ).format(
+                        (active_route_template).format(
                             route=grid["route"],
                             method_name=grid["route"].replace("/", ""),
-                            component_type="slider",
+                            component_type="basicquery",
                             component_name="dynamicgrid",
                             component=json.dumps(grid),
                             static_config=static_config,
@@ -119,11 +118,7 @@ def {method_name}() -> dict:
                         comp["type"],
                     ):
                         f.write(
-                            (
-                                route_template
-                                if values_yaml["SciViz"]["auth"]
-                                else route_template_nologin
-                            ).format(
+                            (active_route_template).format(
                                 route=comp["route"],
                                 method_name=comp["route"].replace("/", ""),
                                 component_type=comp["type"],
@@ -138,11 +133,7 @@ def {method_name}() -> dict:
                                 comp["type"]
                             ].attributes_route_format.format(route=comp["route"])
                             f.write(
-                                (
-                                    route_template
-                                    if values_yaml["SciViz"]["auth"]
-                                    else route_template_nologin
-                                ).format(
+                                (active_route_template).format(
                                     route=attributes_route,
                                     method_name=attributes_route.replace("/", ""),
                                     component_type=comp["type"],

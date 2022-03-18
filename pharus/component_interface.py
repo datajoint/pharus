@@ -103,13 +103,6 @@ class QueryComponent:
                     k: (
                         datetime.fromtimestamp(float(v))
                         if re.match(
-                            r"^datetime.*$",
-                            self.fetch_metadata["query"].heading.attributes[k].type,
-                        )
-                        else datetime.fromtimestamp(float(v))
-                        .strftime("%Y/%m/%d")
-                        .replace("/", "-")
-                        if re.match(
                             r"^date.*$",
                             self.fetch_metadata["query"].heading.attributes[k].type,
                         )
@@ -264,18 +257,14 @@ class PlotPlotlyStoredjsonComponent(QueryComponent):
 
     def dj_query_route(self):
         fetch_metadata = self.fetch_metadata
-        record_header, table_records, total_count = _DJConnector._fetch_records(
-            query=fetch_metadata["query"] & self.restriction,
-            fetch_args=fetch_metadata["fetch_args"],
-            fetch_blobs=True,
+        return NumpyEncoder.dumps(
+            (fetch_metadata["query"] & self.restriction).fetch1(
+                *fetch_metadata["fetch_args"]
+            )
         )
-        return NumpyEncoder.dumps(table_records[0][0])
-        # return (fetch_metadata["query"] & self.restriction).fetch1(
-        #     *fetch_metadata["fetch_args"]
-        # )
 
 
-class SliderComponent(QueryComponent):
+class BasicQuery(QueryComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.frontend_map = {
@@ -330,11 +319,11 @@ class FileImageAttachComponent(QueryComponent):
 
 
 type_map = {
-    "query": QueryComponent,
+    "basicquery": BasicQuery,
     "plot:plotly:stored_json": PlotPlotlyStoredjsonComponent,
     "table": TableComponent,
     "metadata": MetadataComponent,
     "file:image:attach": FileImageAttachComponent,
-    "slider": SliderComponent,
-    "dropdown-query": SliderComponent,
+    "slider": BasicQuery,
+    "dropdown-query": BasicQuery,
 }

@@ -2,9 +2,14 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
-## [0.3.1] - 2022-01-25
+## [0.3.1] - 2022-03-18
 ### Fixed
 - Bug with `order_by` not applying from fetch args PR #117
+
+### Added
+- Support for new `slider` and `dropdown-query` components PR #117
+- Numpy parser for `component_interface.py` to remove numpy types for json serialization PR #117
+- Support for loginless mode
 
 ## [0.3.0] - 2022-01-21
 ### Changed
