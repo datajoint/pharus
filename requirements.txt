@@ -6,3 +6,4 @@ datajoint_connection_hub
 pyyaml
 envyaml
 otumat
+numpy

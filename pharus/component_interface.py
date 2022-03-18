@@ -4,13 +4,44 @@ from base64 import b64decode
 import datajoint as dj
 import re
 import inspect
-from datetime import datetime
+from datetime import date, datetime
 from flask import request, send_file
 from .interface import _DJConnector
 import os
 from pathlib import Path
 import types
 import io
+import numpy as np
+
+
+class NumpyEncoder(json.JSONEncoder):
+    """teach json to dump datetimes, etc"""
+
+    npmap = {
+        np.bool_: bool,
+        np.uint8: int,
+        np.uint16: int,
+        np.uint32: int,
+        np.uint64: int,
+        np.int8: int,
+        np.int16: int,
+        np.int32: int,
+        np.int64: int,
+        np.float32: float,
+        np.float64: float,
+        np.ndarray: list,
+    }
+
+    def default(self, o):
+        if type(o) in self.npmap:
+            return self.npmap[type(o)](o)
+        if type(o) in (datetime, date):
+            return o.isoformat()
+        return json.JSONEncoder.default(self, o)
+
+    @classmethod
+    def dumps(cls, obj):
+        return json.dumps(obj, cls=cls)
 
 
 class QueryComponent:
@@ -70,9 +101,9 @@ class QueryComponent:
                 self.dj_restriction(),
                 {
                     k: (
-                        datetime.fromtimestamp(float(v))
+                        datetime.fromtimestamp(float(v)).isoformat()
                         if re.match(
-                            r"^datetime.*$",
+                            r"^date.*$",
                             self.fetch_metadata["query"].heading.attributes[k].type,
                         )
                         else v
@@ -226,8 +257,42 @@ class PlotPlotlyStoredjsonComponent(QueryComponent):
 
     def dj_query_route(self):
         fetch_metadata = self.fetch_metadata
-        return (fetch_metadata["query"] & self.restriction).fetch1(
-            *fetch_metadata["fetch_args"]
+        return NumpyEncoder.dumps(
+            (fetch_metadata["query"] & self.restriction).fetch1(
+                *fetch_metadata["fetch_args"]
+            )
+        )
+
+
+class BasicQuery(QueryComponent):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.frontend_map = {
+            "source": "sci-viz/src/Components/Plots/FullPlotly.tsx",
+            "target": "FullPlotly",
+        }
+        self.response_examples = {
+            "dj_query_route": {
+                "recordHeader": ["subject_uuid", "session_start_time", "session_uuid"],
+                "records": [
+                    [
+                        "00778394-c956-408d-8a6c-ca3b05a611d5",
+                        1565436299.0,
+                        "fb9bdf18-76be-452b-ac4e-21d5de3a6f9f",
+                    ]
+                ],
+                "totalCount": 1,
+            },
+        }
+
+    def dj_query_route(self):
+        fetch_metadata = self.fetch_metadata
+        record_header, table_records, total_count = _DJConnector._fetch_records(
+            query=fetch_metadata["query"] & self.restriction,
+            fetch_args=fetch_metadata["fetch_args"],
+        )
+        return dict(
+            recordHeader=record_header, records=table_records, totalCount=total_count
         )
 
 
@@ -254,8 +319,11 @@ class FileImageAttachComponent(QueryComponent):
 
 
 type_map = {
+    "basicquery": BasicQuery,
     "plot:plotly:stored_json": PlotPlotlyStoredjsonComponent,
     "table": TableComponent,
     "metadata": MetadataComponent,
     "file:image:attach": FileImageAttachComponent,
+    "slider": BasicQuery,
+    "dropdown-query": BasicQuery,
 }
