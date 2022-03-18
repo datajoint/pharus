@@ -101,7 +101,7 @@ class QueryComponent:
                 self.dj_restriction(),
                 {
                     k: (
-                        datetime.fromtimestamp(float(v))
+                        datetime.fromtimestamp(float(v)).isoformat()
                         if re.match(
                             r"^date.*$",
                             self.fetch_metadata["query"].heading.attributes[k].type,
