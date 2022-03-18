@@ -19,16 +19,16 @@ class NumpyEncoder(json.JSONEncoder):
 
     npmap = {
         np.bool_: bool,
-        np.uint8: str,
-        np.uint16: str,
-        np.uint32: str,
-        np.uint64: str,
-        np.int8: str,
-        np.int16: str,
-        np.int32: str,
-        np.int64: str,
-        np.float32: str,
-        np.float64: str,
+        np.uint8: int,
+        np.uint16: int,
+        np.uint32: int,
+        np.uint64: int,
+        np.int8: int,
+        np.int16: int,
+        np.int32: int,
+        np.int64: int,
+        np.float32: float,
+        np.float64: float,
         np.ndarray: list,
     }
 

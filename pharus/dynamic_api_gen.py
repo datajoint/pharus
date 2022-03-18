@@ -41,18 +41,18 @@ def {method_name}(jwt_payload: dict) -> dict:
     route_template_nologin = """
 
 @app.route('{route}', methods=['GET'])
-def {method_name}():
+def {method_name}() -> dict:
     if request.method in {{'GET'}}:
+        jwt_payload = dict(
+            databaseAddress=os.environ["PHARUS_HOST"],
+            username=os.environ["PHARUS_USER"],
+            password=os.environ["PHARUS_PASSWORD"],
+        )
         try:
-            jwt = dict(
-                databaseAddress=os.environ["PHARUS_HOST"],
-                username=os.environ["PHARUS_USER"],
-                password=os.environ["PHARUS_PASSWORD"],
-                )
             component_instance = type_map['{component_type}'](name='{component_name}',
                                                               component_config={component},
                                                               static_config={static_config},
-                                                              jwt_payload=jwt)
+                                                              jwt_payload=jwt_payload)
             return component_instance.{method_name_type}()
         except Exception as e:
             return traceback.format_exc(), 500

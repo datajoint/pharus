@@ -150,18 +150,10 @@ class _DJConnector:
             ]
         )
 
-        if order:
-            order_by = order
-            if "order_by" in fetch_args:
-                fetch_args.pop("order_by")
-        elif "order_by" in fetch_args:
-            order_by = fetch_args.pop("order_by")
-        else:
-            order_by = ["KEY ASC"]
+        order_by = fetch_args.pop("order_by") if "order_by" in fetch_args else ["KEY ASC"]
+        order_by = order if order else order_by
 
-        if "limit" in fetch_args:
-            limit = fetch_args["limit"]
-            fetch_args.pop("limit")
+        limit = fetch_args.pop("limit") if "limit" in fetch_args else limit
 
         if fetch_blobs and not fetch_args:
             fetch_args = [*query.heading.attributes]
