@@ -2,6 +2,10 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.4.1] - 2022-03-24
+### Fixed
+- Bug with otumat version not being tied to the latest PR #119
+
 ## [0.4.0] - 2022-03-18
 ### Fixed
 - Bug with `order_by` not applying from fetch args PR #117
