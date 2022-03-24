@@ -115,6 +115,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
+[0.4.1]: https://github.com/datajoint/pharus/compare/0.4.0...0.4.1
 [0.4.0]: https://github.com/datajoint/pharus/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/datajoint/pharus/compare/0.2.3...0.3.0
 [0.2.3]: https://github.com/datajoint/pharus/compare/0.2.2...0.2.3
