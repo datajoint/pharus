@@ -4,7 +4,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 
 ## [0.4.1] - 2022-03-24
 ### Fixed
-- Bug with otumat version not being tied to the latest 
+- Bug with otumat version not being tied to the latest PR #119
 
 ## [0.4.0] - 2022-03-18
 ### Fixed
