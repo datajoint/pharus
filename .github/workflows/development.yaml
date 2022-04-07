@@ -127,7 +127,8 @@ jobs:
       startsWith(github.ref, 'refs/tags') &&
       (
         github.repository_owner == 'datajoint' ||
-        github.repository_owner == 'vathes'
+        github.repository_owner == 'datajoint-company' ||
+        github.repository_owner == 'dj-sciops'
       )
     needs: test
     runs-on: ubuntu-latest
@@ -212,7 +213,8 @@ jobs:
       startsWith(github.ref, 'refs/tags') &&
       (
         github.repository_owner == 'datajoint' ||
-        github.repository_owner == 'vathes'
+        github.repository_owner == 'datajoint-company' ||
+        github.repository_owner == 'dj-sciops'
       )
     needs: publish-release
     runs-on: ubuntu-latest
@@ -270,7 +272,8 @@ jobs:
       startsWith(github.ref, 'refs/tags') &&
       (
         github.repository_owner == 'datajoint' ||
-        github.repository_owner == 'vathes'
+        github.repository_owner == 'datajoint-company' ||
+        github.repository_owner == 'dj-sciops'
       )
     needs: publish-release
     runs-on: ubuntu-latest
