@@ -77,7 +77,7 @@ class QueryComponent:
         self.vm_list = [
             dj.VirtualModule(
                 s,
-                s,
+                s.replace("__DASH__", "-"),
                 connection=dj.conn(
                     host=jwt_payload["databaseAddress"],
                     user=jwt_payload["username"],
@@ -287,9 +287,12 @@ class BasicQuery(QueryComponent):
 
     def dj_query_route(self):
         fetch_metadata = self.fetch_metadata
+        print(request.args, flush=True)
         record_header, table_records, total_count = _DJConnector._fetch_records(
             query=fetch_metadata["query"] & self.restriction,
             fetch_args=fetch_metadata["fetch_args"],
+            page=int(request.args["page"]) if "page" in request.args else 1,
+            limit=int(request.args["limit"]) if "limit" in request.args else 1000,
         )
         return dict(
             recordHeader=record_header, records=table_records, totalCount=total_count

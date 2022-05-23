@@ -107,7 +107,6 @@ def {method_name}() -> dict:
                             method_name_type="dj_query_route",
                         )
                     )
-
                 for comp_name, comp in (
                     grid["component_templates"]
                     if "component_templates" in grid
