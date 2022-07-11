@@ -12,6 +12,7 @@ from pathlib import Path
 import types
 import io
 import numpy as np
+from uuid import UUID
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -37,11 +38,13 @@ class NumpyEncoder(json.JSONEncoder):
             return self.npmap[type(o)](o)
         if type(o) in (datetime, date):
             return o.isoformat()
+        if type(o) is UUID:
+            return str(o)
         return json.JSONEncoder.default(self, o)
 
     @classmethod
     def dumps(cls, obj):
-        return json.dumps(obj, cls=cls)
+        return json.dumps(obj, cls=cls).replace("NaN", "null")
 
 
 class QueryComponent:
@@ -178,8 +181,12 @@ class TableComponent(QueryComponent):
                 for k, v in request.args.items()
             },
         )
-        return dict(
-            recordHeader=record_header, records=table_records, totalCount=total_count
+        return NumpyEncoder.dumps(
+            dict(
+                recordHeader=record_header,
+                records=table_records,
+                totalCount=total_count,
+            )
         )
 
     def attributes_route(self):
@@ -230,8 +237,12 @@ class MetadataComponent(TableComponent):
             query=fetch_metadata["query"] & self.restriction,
             fetch_args=fetch_metadata["fetch_args"],
         )
-        return dict(
-            recordHeader=record_header, records=table_records, totalCount=total_count
+        return NumpyEncoder.dumps(
+            dict(
+                recordHeader=record_header,
+                records=table_records,
+                totalCount=total_count,
+            )
         )
 
 
@@ -294,8 +305,12 @@ class BasicQuery(QueryComponent):
             page=int(request.args["page"]) if "page" in request.args else 1,
             limit=int(request.args["limit"]) if "limit" in request.args else 1000,
         )
-        return dict(
-            recordHeader=record_header, records=table_records, totalCount=total_count
+        return NumpyEncoder.dumps(
+            dict(
+                recordHeader=record_header,
+                records=table_records,
+                totalCount=total_count,
+            )
         )
 
 
