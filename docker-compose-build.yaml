@@ -11,7 +11,7 @@ services:
         - PY_VER
         - DISTRO
         - IMAGE
-    image: jverswijver/pharus:0.4.2-Beta.4
+    image: datajoint/pharus:${PHARUS_VERSION}
     environment:
       - PHARUS_PRIVATE_KEY
       - PHARUS_PUBLIC_KEY
