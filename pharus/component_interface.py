@@ -114,6 +114,56 @@ class QueryComponent:
             ]
         )
 
+class InsertComponent():
+    attributes_route_format = None
+
+    def __init__(self, name, component_config, static_config, payload, jwt_payload: dict):
+        lcls = locals()
+        self.name = name
+        self.payload = payload
+        if static_config:
+            self.static_variables = types.MappingProxyType(static_config)
+        if not all(k in component_config for k in ("x", "y", "height", "width")):
+            self.mode = "dynamic"
+        else:
+            self.mode = "fixed"
+            self.x = component_config["x"]
+            self.y = component_config["y"]
+            self.height = component_config["height"]
+            self.width = component_config["width"]
+        self.type = component_config["type"]
+        self.route = component_config["route"]
+        self.tables = component_config["tables"]
+        if self.attributes_route_format:
+            self.attribute_route = self.attributes_route_format.format(
+                route=component_config["route"]
+            )
+        if "restriction" in component_config:
+            exec(component_config["restriction"], globals(), lcls)
+            self.dj_restriction = lcls["restriction"]
+        else:
+            self.dj_restriction = lambda: dict()
+
+        self.vm_list = [
+            getattr(
+                dj.VirtualModule(
+                    s, 
+                    s, 
+                    connection=dj.conn(
+                        host=jwt_payload["databaseAddress"],
+                        user=jwt_payload["username"],
+                        password=jwt_payload["password"],
+                        reset=True,
+                    ),
+                ), t) 
+            for s, t in (_.split('.') for _ in self.tables)
+        ]
+
+    def dj_query_route(self):
+        [t.insert1(
+            {k: v for k, v in self.payload.items() if k in set(t.heading.attributes)}
+        ) for t in self.vm_list]
+        return "Insert successful"
 
 class TableComponent(QueryComponent):
     attributes_route_format = "{route}/attributes"
@@ -326,4 +376,5 @@ type_map = {
     "file:image:attach": FileImageAttachComponent,
     "slider": BasicQuery,
     "dropdown-query": BasicQuery,
+    "form": InsertComponent,
 }
