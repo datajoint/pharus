@@ -1,4 +1,4 @@
-version: 'v0.0.0'
+version: "v0.0.0"
 LabBook: null
 Test: "hello world"
 SciViz: # top level tab
@@ -15,6 +15,16 @@ SciViz: # top level tab
         grid1:
           type: fixed
           components:
+            insert:
+              route: /insert
+              x: 1
+              y: 2
+              height: 1
+              width: 1
+              type: form
+              tables:
+                - alpha_company.Computer
+                - alpha_company.Employee
             component1:
               route: /query1
               row_span: 0
@@ -122,4 +132,3 @@ SciViz: # top level tab
                 def dj_query(test_group1_simple):
                     PlotlyTable = test_group1_simple.PlotlyTable
                     return dict(query=PlotlyTable(), fetch_args=['plot'])
-                
