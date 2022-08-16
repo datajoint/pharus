@@ -44,13 +44,12 @@ class NumpyEncoder(json.JSONEncoder):
         return json.dumps(obj, cls=cls)
 
 
-class QueryComponent:
+class FetchComponent:
     attributes_route_format = None
 
-    def __init__(self, name, component_config, static_config, jwt_payload: dict, payload):
+    def __init__(self, name, component_config, static_config, jwt_payload: dict):
         lcls = locals()
         self.name = name
-        self.payload = payload
         if static_config:
             self.static_variables = types.MappingProxyType(static_config)
         if not all(k in component_config for k in ("x", "y", "height", "width")):
@@ -63,6 +62,8 @@ class QueryComponent:
             self.width = component_config["width"]
         self.type = component_config["type"]
         self.route = component_config["route"]
+        exec(component_config["dj_query"], globals(), lcls)
+        self.dj_query = lcls["dj_query"]
         if self.attributes_route_format:
             self.attribute_route = self.attributes_route_format.format(
                 route=component_config["route"]
@@ -73,39 +74,19 @@ class QueryComponent:
         else:
             self.dj_restriction = lambda: dict()
 
-        if "dj_query" in component_config:
-            exec(component_config["dj_query"], globals(), lcls)
-            self.dj_query = lcls["dj_query"]
-            self.vm_list = [
-                dj.VirtualModule(
-                    s,
-                    s,
-                    connection=dj.conn(
-                        host=jwt_payload["databaseAddress"],
-                        user=jwt_payload["username"],
-                        password=jwt_payload["password"],
-                        reset=True,
-                    ),
-                )
-                for s in inspect.getfullargspec(self.dj_query).args
-            ]
-        if "tables" in component_config:
-            self.tables = component_config["tables"]
-            self.vm_list = [
-                getattr(
-                    dj.VirtualModule(
-                        s, 
-                        s, 
-                        connection=dj.conn(
-                            host=jwt_payload["databaseAddress"],
-                            user=jwt_payload["username"],
-                            password=jwt_payload["password"],
-                            reset=True,
-                        ),
-                    ), 
-                t) 
-                for s, t in (_.split('.') for _ in self.tables)
-            ]
+        self.vm_list = [
+            dj.VirtualModule(
+                s,
+                s,
+                connection=dj.conn(
+                    host=jwt_payload["databaseAddress"],
+                    user=jwt_payload["username"],
+                    password=jwt_payload["password"],
+                    reset=True,
+                ),
+            )
+            for s in inspect.getfullargspec(self.dj_query).args
+        ]
 
     @property
     def fetch_metadata(self):
@@ -133,17 +114,58 @@ class QueryComponent:
             ]
         )
 
-class InsertComponent(QueryComponent):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+
+class InsertComponent:
+    def __init__(
+        self, name, component_config, static_config, payload, jwt_payload: dict
+    ):
+        self.name = name
+        self.payload = payload
+        if static_config:
+            self.static_variables = types.MappingProxyType(static_config)
+        if not all(k in component_config for k in ("x", "y", "height", "width")):
+            self.mode = "dynamic"
+        else:
+            self.mode = "fixed"
+            self.x = component_config["x"]
+            self.y = component_config["y"]
+            self.height = component_config["height"]
+            self.width = component_config["width"]
+        self.type = component_config["type"]
+        self.route = component_config["route"]
+        self.connection = dj.conn(
+            host=jwt_payload["databaseAddress"],
+            user=jwt_payload["username"],
+            password=jwt_payload["password"],
+            reset=True,
+        )
+        self.tables = [
+            getattr(
+                dj.VirtualModule(
+                    s,
+                    s,
+                    connection=self.connection,
+                ),
+                t,
+            )
+            for s, t in (_.split(".") for _ in component_config["tables"])
+        ]
 
     def dj_query_route(self):
-        [t.insert1(
-            {k: v for k, v in self.payload.items() if k in set(t.heading.attributes)}
-        ) for t in self.vm_list]
+        [
+            t.insert1(
+                {
+                    k: v
+                    for k, v in self.payload.items()
+                    if k in set(t.heading.attributes)
+                }
+            )
+            for t in self.tables
+        ]
         return "Insert successful"
 
-class TableComponent(QueryComponent):
+
+class TableComponent(FetchComponent):
     attributes_route_format = "{route}/attributes"
 
     def __init__(self, *args, **kwargs):
@@ -263,7 +285,7 @@ class MetadataComponent(TableComponent):
         )
 
 
-class PlotPlotlyStoredjsonComponent(QueryComponent):
+class PlotPlotlyStoredjsonComponent(FetchComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.frontend_map = {
@@ -292,7 +314,7 @@ class PlotPlotlyStoredjsonComponent(QueryComponent):
         )
 
 
-class BasicQuery(QueryComponent):
+class BasicQuery(FetchComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.frontend_map = {
@@ -324,7 +346,7 @@ class BasicQuery(QueryComponent):
         )
 
 
-class FileImageAttachComponent(QueryComponent):
+class FileImageAttachComponent(FetchComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.frontend_map = {
