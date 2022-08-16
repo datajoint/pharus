@@ -23,8 +23,9 @@ SciViz: # top level tab
               width: 1
               type: form
               tables:
-                - alpha_company.Computer
-                - alpha_company.Employee
+                - test_group1_simple.TableA
+                - test_group1_simple.TableB
+                - test_group1_simple.TableC
             component1:
               route: /query1
               row_span: 0
@@ -56,7 +57,7 @@ SciViz: # top level tab
                     q = TableA * TableB
                     f = []
                     return dict(query=q, fetch_args=f)
-          
+
     page1:
       route: /session2 # dev, be careful of name collisions
       args:
