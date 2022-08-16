@@ -114,6 +114,16 @@ class FetchComponent:
             ]
         )
 
+    def dj_query_route(self):
+        fetch_metadata = self.fetch_metadata
+        record_header, table_records, total_count = _DJConnector._fetch_records(
+            query=fetch_metadata["query"] & self.restriction,
+            fetch_args=fetch_metadata["fetch_args"],
+        )
+        return dict(
+            recordHeader=record_header, records=table_records, totalCount=total_count
+        )
+
 
 class InsertComponent:
     def __init__(
@@ -314,38 +324,6 @@ class PlotPlotlyStoredjsonComponent(FetchComponent):
         )
 
 
-class BasicQuery(FetchComponent):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.frontend_map = {
-            "source": "sci-viz/src/Components/Plots/FullPlotly.tsx",
-            "target": "FullPlotly",
-        }
-        self.response_examples = {
-            "dj_query_route": {
-                "recordHeader": ["subject_uuid", "session_start_time", "session_uuid"],
-                "records": [
-                    [
-                        "00778394-c956-408d-8a6c-ca3b05a611d5",
-                        1565436299.0,
-                        "fb9bdf18-76be-452b-ac4e-21d5de3a6f9f",
-                    ]
-                ],
-                "totalCount": 1,
-            },
-        }
-
-    def dj_query_route(self):
-        fetch_metadata = self.fetch_metadata
-        record_header, table_records, total_count = _DJConnector._fetch_records(
-            query=fetch_metadata["query"] & self.restriction,
-            fetch_args=fetch_metadata["fetch_args"],
-        )
-        return dict(
-            recordHeader=record_header, records=table_records, totalCount=total_count
-        )
-
-
 class FileImageAttachComponent(FetchComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -369,12 +347,12 @@ class FileImageAttachComponent(FetchComponent):
 
 
 type_map = {
-    "basicquery": BasicQuery,
+    "basicquery": FetchComponent,
     "plot:plotly:stored_json": PlotPlotlyStoredjsonComponent,
     "table": TableComponent,
     "metadata": MetadataComponent,
     "file:image:attach": FileImageAttachComponent,
-    "slider": BasicQuery,
-    "dropdown-query": BasicQuery,
+    "slider": FetchComponent,
+    "dropdown-query": FetchComponent,
     "form": InsertComponent,
 }
