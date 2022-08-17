@@ -164,11 +164,9 @@ class InsertComponent:
     def dj_query_route(self):
         with self.connection.transaction:
             for t in self.tables:
-                to_insert = {}
-                for k, v in self.payload.items():
-                    if k in set(t.heading.attributes):
-                        to_insert[k] = v
-                t.insert1(to_insert)
+                t.insert1(
+                    {k: v for k, v in self.payload.items() if k in t.heading.attributes}
+                )
         return "Insert successful"
 
 
