@@ -23,9 +23,27 @@ SciViz: # top level tab
               width: 1
               type: form
               tables:
-                - test_group1_simple.TableA
                 - test_group1_simple.TableB
                 - test_group1_simple.TableC
+              map: # optional, default to tables order and DB definitions. If provided, all must be specified
+                - type: attribute
+                  input: B Id
+                  destination: b_id
+                - type: attribute
+                  input: B Number
+                  destination: b_number
+                - type: table # order here respected in response/UI
+                  input: TableA
+                  destination: Table A
+                  map: # these are only primary keys
+                    - type: attribute
+                      input: A Id
+                      destination: a_id
+                - type: attribute
+                  input: C Id
+                  destination: c_id
+                - type: attribute #omitted input means display is session_note
+                  destination: c_int
             component1:
               route: /query1
               row_span: 0
