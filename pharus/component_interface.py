@@ -46,6 +46,7 @@ class NumpyEncoder(json.JSONEncoder):
 
 class FetchComponent:
     attributes_route_format = None
+    fields_route_format = None
 
     def __init__(self, name, component_config, static_config, jwt_payload: dict):
         lcls = locals()
@@ -126,6 +127,9 @@ class FetchComponent:
 
 
 class InsertComponent:
+    fields_route_format = "{route}/fields"
+    attributes_route_format = None
+
     def __init__(
         self, name, component_config, static_config, payload, jwt_payload: dict
     ):
@@ -143,6 +147,9 @@ class InsertComponent:
             self.width = component_config["width"]
         self.type = component_config["type"]
         self.route = component_config["route"]
+        self.field_route = self.fields_route_format.format(
+            route=component_config["route"]
+        )
         self.connection = dj.conn(
             host=jwt_payload["databaseAddress"],
             user=jwt_payload["username"],
@@ -168,6 +175,9 @@ class InsertComponent:
                     {k: v for k, v in self.payload.items() if k in t.heading.attributes}
                 )
         return "Insert successful"
+
+    def fields_route(self):
+        return dict(fields=["test1", "test2"])
 
 
 class TableComponent(FetchComponent):

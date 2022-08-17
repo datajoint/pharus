@@ -136,10 +136,24 @@ def {method_name}() -> dict:
                                 method_name_type="dj_query_route",
                             )
                         )
-                        if (
-                            comp["type"] != "form"
-                            and type_map[comp["type"]].attributes_route_format
-                        ):
+                        if type_map[comp["type"]].fields_route_format:
+                            fields_route = type_map[
+                                comp["type"]
+                            ].fields_route_format.format(route=comp["route"])
+                            f.write(
+                                (active_route_template).format(
+                                    route=fields_route,
+                                    rest_verb="GET",
+                                    method_name=fields_route.replace("/", ""),
+                                    component_type=comp["type"],
+                                    component_name=comp_name,
+                                    component=json.dumps(comp),
+                                    static_config=static_config,
+                                    payload="payload=None",
+                                    method_name_type="fields_route",
+                                )
+                            )
+                        elif type_map[comp["type"]].attributes_route_format:
                             attributes_route = type_map[
                                 comp["type"]
                             ].attributes_route_format.format(route=comp["route"])
