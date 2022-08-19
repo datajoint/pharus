@@ -210,6 +210,7 @@ class InsertComponent:
                         dict(type=field_type, datatype=field_datatype, name=field_name)
                     )
                 elif field_type == "table":
+                    s, t = field["destination"].split(".")
                     if "map" in field:
                         proj_map = {
                             attr["input"]
@@ -217,7 +218,6 @@ class InsertComponent:
                             else attr["destination"]: attr["destination"]
                             for attr in field["map"]
                         }
-                        s, t = field["destination"].split(".")
                         records = (
                             getattr(
                                 dj.VirtualModule(
@@ -231,9 +231,14 @@ class InsertComponent:
                             .fetch("KEY")
                         )
                     else:
-                        # TODO - No map implementation
-                        pass
-
+                        records = getattr(
+                            dj.VirtualModule(
+                                s,
+                                s,
+                                connection=self.connection,
+                            ),
+                            t,
+                        ).fetch("KEY")
                     fields.append(
                         dict(type=field_type, values=records, name=field_name)
                     )

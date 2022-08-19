@@ -32,3 +32,20 @@ def test_form_response(token, client, connection, schemas_simple):
             {"datatype": "int", "name": "c_int", "type": "attribute"},
         ],
     }
+
+
+def test_form_response_no_table_map(token, client, connection, schemas_simple):
+    REST_response = client.get(
+        "/insert2/fields",
+        headers=dict(Authorization=f"Bearer {token}"),
+    )
+    assert REST_response.status_code == 200, f"Error: {REST_response.data}"
+    assert REST_response.get_json() == {
+        "fields": [
+            {"datatype": "int", "name": "B Id", "type": "attribute"},
+            {"datatype": "float", "name": "B Number", "type": "attribute"},
+            {"name": "Table A", "type": "table", "values": [{"a_id": 0}, {"a_id": 1}]},
+            {"datatype": "int", "name": "C Id", "type": "attribute"},
+            {"datatype": "int", "name": "c_int", "type": "attribute"},
+        ],
+    }
