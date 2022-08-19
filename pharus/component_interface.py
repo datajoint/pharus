@@ -12,6 +12,7 @@ from pathlib import Path
 import types
 import io
 import numpy as np
+from functools import reduce
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -156,6 +157,20 @@ class InsertComponent:
             password=jwt_payload["password"],
             reset=True,
         )
+        self.fields_map = component_config["map"] if "map" in component_config else None
+        self.vm_list = {
+            s: dj.VirtualModule(
+                s,
+                s,
+                connection=dj.conn(
+                    host=jwt_payload["databaseAddress"],
+                    user=jwt_payload["username"],
+                    password=jwt_payload["password"],
+                    reset=True,
+                ),
+            )
+            for s, t in (_.split(".") for _ in component_config["tables"])
+        }
         self.tables = [
             getattr(
                 dj.VirtualModule(
@@ -177,7 +192,55 @@ class InsertComponent:
         return "Insert successful"
 
     def fields_route(self):
-        return dict(fields=["test1", "test2"])
+        attributes = reduce(
+            lambda a0, a1: {**a0, **a1}, (t.heading.attributes for t in self.tables)
+        )
+        datatype_map = {k: v.type for k, v in attributes.items()}
+
+        fields = []
+        if self.fields_map:
+            for field in self.fields_map:
+                field_type = field["type"]
+                field_name = (
+                    field["input"] if "input" in field else field["destination"]
+                )
+                if field_type == "attribute":
+                    field_datatype = datatype_map[field["destination"]]
+                    fields.append(
+                        dict(type=field_type, datatype=field_datatype, name=field_name)
+                    )
+                elif field_type == "table":
+                    if "map" in field:
+                        proj_map = {
+                            attr["input"]
+                            if "input" in attr
+                            else attr["destination"]: attr["destination"]
+                            for attr in field["map"]
+                        }
+                        s, t = field["destination"].split(".")
+                        records = (
+                            getattr(
+                                dj.VirtualModule(
+                                    s,
+                                    s,
+                                    connection=self.connection,
+                                ),
+                                t,
+                            )
+                            .proj(**proj_map)
+                            .fetch("KEY")
+                        )
+                    else:
+                        # TODO - No map implementation
+                        pass
+
+                    fields.append(
+                        dict(type=field_type, values=records, name=field_name)
+                    )
+
+            return dict(fields=fields)
+        else:
+            return dict(fields=["test3", "test4"])
 
 
 class TableComponent(FetchComponent):

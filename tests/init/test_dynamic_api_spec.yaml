@@ -33,8 +33,8 @@ SciViz: # top level tab
                   input: B Number
                   destination: b_number
                 - type: table # order here respected in response/UI
-                  input: TableA
-                  destination: Table A
+                  input: Table A
+                  destination: test_group1_simple.TableA
                   map: # these are only primary keys
                     - type: attribute
                       input: A Id
