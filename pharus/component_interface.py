@@ -175,9 +175,17 @@ class TableComponent(QueryComponent):
             limit=int(request.args["limit"]),
             page=int(request.args["page"]),
             order=order
+            **({
+                "order": request.args["order"].split(",")
+            } if "order" in request.args else {},
+            {
+                "limit": request.args["limit"].split(",")
+            } if "limit" in request.args else {},
+            {
+                "page": request.args["page"].split(",")
+            } if "page" in request.args else {}
+            )
         )
-
-        # print(f'\n\n\n\n{fetch_metadata["query"] & self.restriction[0]}\n\n\n\n')
 
         return NumpyEncoder.dumps(
             dict(
