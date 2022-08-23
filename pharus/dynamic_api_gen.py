@@ -107,14 +107,13 @@ def {method_name}() -> dict:
                             method_name_type="dj_query_route",
                         )
                     )
-
                 for comp_name, comp in (
                     grid["component_templates"]
                     if "component_templates" in grid
                     else grid["components"]
                 ).items():
                     if re.match(
-                        r"^(table|metadata|plot|file|slider|dropdown-query).*$",
+                        r"^(table|djtable|metadata|plot|file|slider|dropdown-query).*$",
                         comp["type"],
                     ):
                         f.write(

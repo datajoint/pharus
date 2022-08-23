@@ -12,6 +12,7 @@ from pathlib import Path
 import types
 import io
 import numpy as np
+from uuid import UUID
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -37,11 +38,13 @@ class NumpyEncoder(json.JSONEncoder):
             return self.npmap[type(o)](o)
         if type(o) in (datetime, date):
             return o.isoformat()
+        if type(o) is UUID:
+            return str(o)
         return json.JSONEncoder.default(self, o)
 
     @classmethod
     def dumps(cls, obj):
-        return json.dumps(obj, cls=cls)
+        return json.dumps(obj, cls=cls).replace("NaN", "null")
 
 
 class QueryComponent:
@@ -77,7 +80,7 @@ class QueryComponent:
         self.vm_list = [
             dj.VirtualModule(
                 s,
-                s,
+                s.replace("__DASH__", "-"),
                 connection=dj.conn(
                     host=jwt_payload["databaseAddress"],
                     user=jwt_payload["username"],
@@ -117,6 +120,7 @@ class QueryComponent:
 
 class TableComponent(QueryComponent):
     attributes_route_format = "{route}/attributes"
+    universal_set_route_format = "{route}/universalset"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -162,31 +166,42 @@ class TableComponent(QueryComponent):
     # Returns the result of djquery with paging, sorting, filtering
     def dj_query_route(self):
         fetch_metadata = self.fetch_metadata
+        order = []
+        if "order" in request.args:
+            order=request.args["order"].split(",")
         record_header, table_records, total_count = _DJConnector._fetch_records(
-            query=fetch_metadata["query"] & self.restriction[0],
+            query=fetch_metadata["query"] & self.restriction,
             fetch_args=fetch_metadata["fetch_args"],
-            **{
-                k: (
-                    int(v)
-                    if k in ("limit", "page")
-                    else (
-                        v.split(",")
-                        if k == "order"
-                        else json.loads(b64decode(v.encode("utf-8")).decode("utf-8"))
-                    )
-                )
-                for k, v in request.args.items()
-            },
+            limit=int(request.args["limit"]),
+            page=int(request.args["page"]),
+            order=order
         )
-        return dict(
-            recordHeader=record_header, records=table_records, totalCount=total_count
+
+        # print(f'\n\n\n\n{fetch_metadata["query"] & self.restriction[0]}\n\n\n\n')
+
+        return NumpyEncoder.dumps(
+            dict(
+                recordHeader=record_header,
+                records=table_records,
+                totalCount=total_count,
+            )
         )
 
     def attributes_route(self):
         attributes_meta = _DJConnector._get_attributes(self.fetch_metadata["query"])
-        return dict(
-            attributeHeaders=attributes_meta["attribute_headers"],
-            attributes=attributes_meta["attributes"],
+        query = self.fetch_metadata["query"] & self.restriction[0]
+        unique_values = []
+        for key in query.heading.attributes.keys():
+            result = (dj.U(key) & query).fetch()
+            unique_values.append(
+                [dict({"text": str(x[0]), "value": x[0]}) for x in result]
+            )
+        return NumpyEncoder.dumps(
+            dict(
+                attributeHeaders=attributes_meta["attribute_headers"],
+                attributes=attributes_meta["attributes"],
+                unique_values=unique_values,
+            )
         )
 
 
@@ -230,8 +245,12 @@ class MetadataComponent(TableComponent):
             query=fetch_metadata["query"] & self.restriction,
             fetch_args=fetch_metadata["fetch_args"],
         )
-        return dict(
-            recordHeader=record_header, records=table_records, totalCount=total_count
+        return NumpyEncoder.dumps(
+            dict(
+                recordHeader=record_header,
+                records=table_records,
+                totalCount=total_count,
+            )
         )
 
 
@@ -287,12 +306,19 @@ class BasicQuery(QueryComponent):
 
     def dj_query_route(self):
         fetch_metadata = self.fetch_metadata
+        print(request.args, flush=True)
         record_header, table_records, total_count = _DJConnector._fetch_records(
             query=fetch_metadata["query"] & self.restriction,
             fetch_args=fetch_metadata["fetch_args"],
+            page=int(request.args["page"]) if "page" in request.args else 1,
+            limit=int(request.args["limit"]) if "limit" in request.args else 1000,
         )
-        return dict(
-            recordHeader=record_header, records=table_records, totalCount=total_count
+        return NumpyEncoder.dumps(
+            dict(
+                recordHeader=record_header,
+                records=table_records,
+                totalCount=total_count,
+            )
         )
 
 
@@ -322,6 +348,7 @@ type_map = {
     "basicquery": BasicQuery,
     "plot:plotly:stored_json": PlotPlotlyStoredjsonComponent,
     "table": TableComponent,
+    "djtable": TableComponent,
     "metadata": MetadataComponent,
     "file:image:attach": FileImageAttachComponent,
     "slider": BasicQuery,
