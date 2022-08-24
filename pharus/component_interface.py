@@ -166,25 +166,12 @@ class TableComponent(QueryComponent):
     # Returns the result of djquery with paging, sorting, filtering
     def dj_query_route(self):
         fetch_metadata = self.fetch_metadata
-        order = []
-        if "order" in request.args:
-            order=request.args["order"].split(",")
         record_header, table_records, total_count = _DJConnector._fetch_records(
             query=fetch_metadata["query"] & self.restriction,
             fetch_args=fetch_metadata["fetch_args"],
-            limit=int(request.args["limit"]),
-            page=int(request.args["page"]),
-            order=order
-            **({
-                "order": request.args["order"].split(",")
-            } if "order" in request.args else {},
-            {
-                "limit": request.args["limit"].split(",")
-            } if "limit" in request.args else {},
-            {
-                "page": request.args["page"].split(",")
-            } if "page" in request.args else {}
-            )
+            limit=int(request.args["limit"]) or None,
+            page=int(request.args["page"]) or 1,
+            order=request.args["order"].split(",") or [],
         )
 
         return NumpyEncoder.dumps(
