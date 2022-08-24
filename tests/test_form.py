@@ -49,3 +49,148 @@ def test_form_response_no_table_map(token, client, connection, schemas_simple):
             {"datatype": "int", "name": "c_int", "type": "attribute"},
         ],
     }
+
+
+def test_form_response_no_map(token, client, connection, schemas_simple):
+    REST_response = client.get(
+        "/insert3/fields",
+        headers=dict(Authorization=f"Bearer {token}"),
+    )
+    assert REST_response.status_code == 200, f"Error: {REST_response.data}"
+    assert REST_response.get_json() == {
+        "fields": [
+            {"name": "TableA", "type": "table", "values": [{"a_id": 0}, {"a_id": 1}]},
+            {"datatype": "int", "name": "b_id", "type": "attribute"},
+            {"datatype": "float", "name": "b_number", "type": "attribute"},
+            {"datatype": "int", "name": "c_id", "type": "attribute"},
+            {"datatype": "int", "name": "c_int", "type": "attribute"},
+        ],
+    }
+
+
+def test_form_response_no_map_shared_FK_hierarchy(
+    token, client, connection, schemas_simple
+):
+    REST_response = client.get(
+        "/insert4/fields",
+        headers=dict(Authorization=f"Bearer {token}"),
+    )
+    assert REST_response.status_code == 200, f"Error: {REST_response.data}"
+    assert REST_response.get_json() == {
+        "fields": [
+            {"name": "TableA", "type": "table", "values": [{"a_id": 0}, {"a_id": 1}]},
+            {"datatype": "int", "name": "bs_id", "type": "attribute"},
+            {"datatype": "float", "name": "bs_number", "type": "attribute"},
+            {
+                "name": "TableB",
+                "type": "table",
+                "values": [
+                    {"a_id": 0, "b_id": 10},
+                    {"a_id": 0, "b_id": 11},
+                    {"a_id": 1, "b_id": 21},
+                ],
+            },
+            {"datatype": "int", "name": "c_id", "type": "attribute"},
+            {"datatype": "int", "name": "c_int", "type": "attribute"},
+        ],
+    }
+
+
+def test_form_response_no_map_shared_FK(token, client, connection, schemas_simple):
+    REST_response = client.get(
+        "/insert5/fields",
+        headers=dict(Authorization=f"Bearer {token}"),
+    )
+    assert REST_response.status_code == 200, f"Error: {REST_response.data}"
+    assert REST_response.get_json() == {
+        "fields": [
+            {"name": "TableA", "type": "table", "values": [{"a_id": 0}, {"a_id": 1}]},
+            {"datatype": "int", "name": "b_id", "type": "attribute"},
+            {"datatype": "float", "name": "b_number", "type": "attribute"},
+            {"datatype": "int", "name": "bs_id", "type": "attribute"},
+            {"datatype": "float", "name": "bs_number", "type": "attribute"},
+        ],
+    }
+
+
+def test_form_response_no_map_diff_FK(token, client, connection, schemas_simple):
+    REST_response = client.get(
+        "/insert6/fields",
+        headers=dict(Authorization=f"Bearer {token}"),
+    )
+    assert REST_response.status_code == 200, f"Error: {REST_response.data}"
+    assert REST_response.get_json() == {
+        "fields": [
+            {
+                "name": "DiffTableZ",
+                "type": "table",
+                "values": [{"zs_id": 0}, {"zs_id": 1}],
+            },
+            {"datatype": "int", "name": "y_id", "type": "attribute"},
+            {"datatype": "float", "name": "y_number", "type": "attribute"},
+            {"name": "TableZ", "type": "table", "values": [{"z_id": 0}, {"z_id": 1}]},
+            {"datatype": "int", "name": "ys_id", "type": "attribute"},
+            {"datatype": "float", "name": "ys_number", "type": "attribute"},
+        ],
+    }
+
+
+def test_form_response_no_map_multi_FPK(token, client, connection, schemas_simple):
+    REST_response = client.get(
+        "/insert7/fields",
+        headers=dict(Authorization=f"Bearer {token}"),
+    )
+    assert REST_response.status_code == 200, f"Error: {REST_response.data}"
+    assert REST_response.get_json() == {
+        "fields": [
+            {
+                "name": "TableX",
+                "type": "table",
+                "values": [
+                    {"x_id": 0, "x_int": 10, "x_name": "Carlos"},
+                    {"x_id": 1, "x_int": 20, "x_name": "Oscar"},
+                ],
+            },
+            {"datatype": "int", "name": "w_id", "type": "attribute"},
+            {"datatype": "int", "name": "w_int", "type": "attribute"},
+        ],
+    }
+
+
+def test_form_response_no_map_many_tables(token, client, connection, schemas_simple):
+    REST_response = client.get(
+        "/insert8/fields",
+        headers=dict(Authorization=f"Bearer {token}"),
+    )
+    assert REST_response.status_code == 200, f"Error: {REST_response.data}"
+    assert REST_response.get_json() == {
+        "fields": [
+            {"name": "TableA", "type": "table", "values": [{"a_id": 0}, {"a_id": 1}]},
+            {"datatype": "int", "name": "b_id", "type": "attribute"},
+            {"datatype": "float", "name": "b_number", "type": "attribute"},
+            {"datatype": "int", "name": "bs_id", "type": "attribute"},
+            {"datatype": "float", "name": "bs_number", "type": "attribute"},
+            {"datatype": "int", "name": "c_id", "type": "attribute"},
+            {"datatype": "int", "name": "c_int", "type": "attribute"},
+            {
+                "name": "DiffTableZ",
+                "type": "table",
+                "values": [{"zs_id": 0}, {"zs_id": 1}],
+            },
+            {"datatype": "int", "name": "y_id", "type": "attribute"},
+            {"datatype": "float", "name": "y_number", "type": "attribute"},
+            {"name": "TableZ", "type": "table", "values": [{"z_id": 0}, {"z_id": 1}]},
+            {"datatype": "int", "name": "ys_id", "type": "attribute"},
+            {"datatype": "float", "name": "ys_number", "type": "attribute"},
+            {
+                "name": "TableX",
+                "type": "table",
+                "values": [
+                    {"x_id": 0, "x_int": 10, "x_name": "Carlos"},
+                    {"x_id": 1, "x_int": 20, "x_name": "Oscar"},
+                ],
+            },
+            {"datatype": "int", "name": "w_id", "type": "attribute"},
+            {"datatype": "int", "name": "w_int", "type": "attribute"},
+        ],
+    }

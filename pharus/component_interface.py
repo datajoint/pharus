@@ -158,19 +158,6 @@ class InsertComponent:
             reset=True,
         )
         self.fields_map = component_config["map"] if "map" in component_config else None
-        self.vm_list = {
-            s: dj.VirtualModule(
-                s,
-                s,
-                connection=dj.conn(
-                    host=jwt_payload["databaseAddress"],
-                    user=jwt_payload["username"],
-                    password=jwt_payload["password"],
-                    reset=True,
-                ),
-            )
-            for s, t in (_.split(".") for _ in component_config["tables"])
-        }
         self.tables = [
             getattr(
                 dj.VirtualModule(
@@ -183,6 +170,13 @@ class InsertComponent:
             for s, t in (_.split(".") for _ in component_config["tables"])
         ]
 
+    def _get_datatype_map(self):
+        attributes = reduce(
+            lambda a0, a1: {**a0, **a1}, (t.heading.attributes for t in self.tables)
+        )
+        datatype_map = {k: v.type for k, v in attributes.items()}
+        return datatype_map
+
     def dj_query_route(self):
         with self.connection.transaction:
             for t in self.tables:
@@ -192,13 +186,9 @@ class InsertComponent:
         return "Insert successful"
 
     def fields_route(self):
-        attributes = reduce(
-            lambda a0, a1: {**a0, **a1}, (t.heading.attributes for t in self.tables)
-        )
-        datatype_map = {k: v.type for k, v in attributes.items()}
-
         fields = []
         if self.fields_map:
+            datatype_map = self._get_datatype_map()
             for field in self.fields_map:
                 field_type = field["type"]
                 field_name = (
@@ -242,10 +232,45 @@ class InsertComponent:
                     fields.append(
                         dict(type=field_type, values=records, name=field_name)
                     )
-
-            return dict(fields=fields)
         else:
-            return dict(fields=["test3", "test4"])
+            used_attr = []
+            for t in self.tables:
+                parents = {p.table_name: p for p in t.parents(as_objects=True)}
+                fks = {p.table_name: p.primary_key for p in parents.values()}
+                used_fk = []
+                for v in t.heading.attributes.values():
+                    if v.name in used_attr:
+                        continue
+                    is_fk = False
+                    for pn, pk in fks.items():
+                        if v.name in pk:
+                            is_fk = True
+                            pt = parents[pn]
+                            if pt.table_name not in used_fk:
+                                records = pt.fetch("KEY")
+                                field_type = "table"
+                                field_name = dj.utils.to_camel_case(pt.table_name)
+                                fields.append(
+                                    dict(
+                                        type=field_type, values=records, name=field_name
+                                    )
+                                )
+                                used_attr.append(v.name)
+                                used_fk.append(pt.table_name)
+                            break
+                    if not is_fk:
+                        field_type = "attribute"
+                        field_datatype = v.type
+                        field_name = v.name
+                        fields.append(
+                            dict(
+                                type=field_type,
+                                datatype=field_datatype,
+                                name=field_name,
+                            )
+                        )
+                        used_attr.append(v.name)
+        return dict(fields=fields)
 
 
 class TableComponent(FetchComponent):

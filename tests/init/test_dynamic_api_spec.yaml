@@ -69,6 +69,69 @@ SciViz: # top level tab
                   destination: c_id
                 - type: attribute #omitted input means display is session_note
                   destination: c_int
+            insert3:
+              route: /insert3
+              x: 1
+              y: 2
+              height: 1
+              width: 1
+              type: form
+              tables:
+                - test_group1_simple.TableB
+                - test_group1_simple.TableC
+            insert4:
+              route: /insert4
+              x: 1
+              y: 2
+              height: 1
+              width: 1
+              type: form
+              tables:
+                - test_group2_simple.DiffTableB
+                - test_group1_simple.TableC
+            insert5:
+              route: /insert5
+              x: 1
+              y: 2
+              height: 1
+              width: 1
+              type: form
+              tables:
+                - test_group1_simple.TableB
+                - test_group2_simple.DiffTableB
+            insert6:
+              route: /insert6
+              x: 1
+              y: 2
+              height: 1
+              width: 1
+              type: form
+              tables:
+                - test_group3_simple.TableY
+                - test_group4_simple.DiffTableY
+            insert7:
+              route: /insert7
+              x: 1
+              y: 2
+              height: 1
+              width: 1
+              type: form
+              tables:
+                - test_group4_simple.TableW
+            insert8:
+              route: /insert8
+              x: 1
+              y: 2
+              height: 1
+              width: 1
+              type: form
+              tables:
+                - test_group1_simple.TableB
+                - test_group2_simple.DiffTableB
+                - test_group1_simple.TableC
+                - test_group3_simple.TableY
+                - test_group4_simple.DiffTableY
+                - test_group4_simple.TableW
             component1:
               route: /query1
               row_span: 0
