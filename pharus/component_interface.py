@@ -233,30 +233,28 @@ class InsertComponent:
                         dict(type=field_type, values=records, name=field_name)
                     )
         else:
-            used_attr = []
             for t in self.tables:
                 parents = {p.table_name: p for p in t.parents(as_objects=True)}
-                fks = {p.table_name: p.primary_key for p in parents.values()}
-                used_fk = []
                 for v in t.heading.attributes.values():
-                    if v.name in used_attr:
+                    if v.name in [field["name"] for field in fields]:
                         continue
                     is_fk = False
-                    for pn, pk in fks.items():
+                    for pn, pk in {
+                        p.table_name: p.primary_key for p in parents.values()
+                    }.items():
                         if v.name in pk:
                             is_fk = True
                             pt = parents[pn]
-                            if pt.table_name not in used_fk:
-                                records = pt.fetch("KEY")
-                                field_type = "table"
-                                field_name = dj.utils.to_camel_case(pt.table_name)
-                                fields.append(
-                                    dict(
-                                        type=field_type, values=records, name=field_name
-                                    )
-                                )
-                                used_attr.append(v.name)
-                                used_fk.append(pt.table_name)
+                            field_name = dj.utils.to_camel_case(pt.table_name)
+                            if field_name in [
+                                field["name"] for field in fields
+                            ] or field_name in [t.__name__ for t in self.tables]:
+                                continue
+                            records = pt.fetch("KEY")
+                            field_type = "table"
+                            fields.append(
+                                dict(type=field_type, values=records, name=field_name)
+                            )
                             break
                     if not is_fk:
                         field_type = "attribute"
@@ -269,7 +267,6 @@ class InsertComponent:
                                 name=field_name,
                             )
                         )
-                        used_attr.append(v.name)
         return dict(fields=fields)
 
 
