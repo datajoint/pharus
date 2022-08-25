@@ -246,21 +246,18 @@ class InsertComponent:
                                 field["name"] for field in fields
                             ] or field_name in [t.__name__ for t in self.tables]:
                                 continue
-                            records = p.fetch("KEY")
-                            field_type = "table"
                             fields.append(
-                                dict(type=field_type, values=records, name=field_name)
+                                dict(
+                                    type="table", values=p.fetch("KEY"), name=field_name
+                                )
                             )
                             break
                     if not is_fk:
-                        field_type = "attribute"
-                        field_datatype = v.type
-                        field_name = v.name
                         fields.append(
                             dict(
-                                type=field_type,
-                                datatype=field_datatype,
-                                name=field_name,
+                                type="attribute",
+                                datatype=v.type,
+                                name=v.name,
                             )
                         )
         return dict(fields=fields)
