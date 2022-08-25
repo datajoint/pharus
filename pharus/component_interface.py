@@ -234,23 +234,19 @@ class InsertComponent:
                     )
         else:
             for t in self.tables:
-                parents = {p.table_name: p for p in t.parents(as_objects=True)}
                 for v in t.heading.attributes.values():
                     if v.name in [field["name"] for field in fields]:
                         continue
                     is_fk = False
-                    for pn, pk in {
-                        p.table_name: p.primary_key for p in parents.values()
-                    }.items():
-                        if v.name in pk:
+                    for p in t.parents(as_objects=True):
+                        if v.name in p.primary_key:
                             is_fk = True
-                            pt = parents[pn]
-                            field_name = dj.utils.to_camel_case(pt.table_name)
+                            field_name = dj.utils.to_camel_case(p.table_name)
                             if field_name in [
                                 field["name"] for field in fields
                             ] or field_name in [t.__name__ for t in self.tables]:
                                 continue
-                            records = pt.fetch("KEY")
+                            records = p.fetch("KEY")
                             field_type = "table"
                             fields.append(
                                 dict(type=field_type, values=records, name=field_name)
