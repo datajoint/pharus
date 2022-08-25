@@ -5,6 +5,8 @@ import pkg_resources
 import json
 import re
 
+from pharus.component_interface import InsertComponent, TableComponent
+
 
 def populate_api():
     header_template = """# Auto-generated rest api
@@ -136,7 +138,7 @@ def {method_name}() -> dict:
                                 method_name_type="dj_query_route",
                             )
                         )
-                        if type_map[comp["type"]].fields_route_format:
+                        if issubclass(type_map[comp["type"]], InsertComponent):
                             fields_route = type_map[
                                 comp["type"]
                             ].fields_route_format.format(route=comp["route"])
@@ -153,7 +155,7 @@ def {method_name}() -> dict:
                                     method_name_type="fields_route",
                                 )
                             )
-                        elif type_map[comp["type"]].attributes_route_format:
+                        elif issubclass(type_map[comp["type"]], TableComponent):
                             attributes_route = type_map[
                                 comp["type"]
                             ].attributes_route_format.format(route=comp["route"])
