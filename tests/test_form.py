@@ -73,7 +73,11 @@ def test_form_response_no_map(token, client, connection, schemas_simple):
     assert REST_response.status_code == 200, f"Error: {REST_response.data}"
     assert REST_response.get_json() == {
         "fields": [
-            {"name": "TableA", "type": "table", "values": [{"a_id": 0}, {"a_id": 1}]},
+            {
+                "name": "test_group1_simple.TableA",
+                "type": "table",
+                "values": [{"a_id": 0}, {"a_id": 1}],
+            },
             {"datatype": "int", "name": "b_id", "type": "attribute"},
             {"datatype": "float", "name": "b_number", "type": "attribute"},
             {"datatype": "int", "name": "c_id", "type": "attribute"},
@@ -92,11 +96,15 @@ def test_form_response_no_map_shared_FK_hierarchy(
     assert REST_response.status_code == 200, f"Error: {REST_response.data}"
     assert REST_response.get_json() == {
         "fields": [
-            {"name": "TableA", "type": "table", "values": [{"a_id": 0}, {"a_id": 1}]},
+            {
+                "name": "test_group1_simple.TableA",
+                "type": "table",
+                "values": [{"a_id": 0}, {"a_id": 1}],
+            },
             {"datatype": "int", "name": "bs_id", "type": "attribute"},
             {"datatype": "float", "name": "bs_number", "type": "attribute"},
             {
-                "name": "TableB",
+                "name": "test_group1_simple.TableB",
                 "type": "table",
                 "values": [
                     {"a_id": 0, "b_id": 10},
@@ -118,7 +126,11 @@ def test_form_response_no_map_shared_FK(token, client, connection, schemas_simpl
     assert REST_response.status_code == 200, f"Error: {REST_response.data}"
     assert REST_response.get_json() == {
         "fields": [
-            {"name": "TableA", "type": "table", "values": [{"a_id": 0}, {"a_id": 1}]},
+            {
+                "name": "test_group1_simple.TableA",
+                "type": "table",
+                "values": [{"a_id": 0}, {"a_id": 1}],
+            },
             {"datatype": "int", "name": "b_id", "type": "attribute"},
             {"datatype": "float", "name": "b_number", "type": "attribute"},
             {"datatype": "int", "name": "bs_id", "type": "attribute"},
@@ -136,13 +148,17 @@ def test_form_response_no_map_diff_FK(token, client, connection, schemas_simple)
     assert REST_response.get_json() == {
         "fields": [
             {
-                "name": "DiffTableZ",
+                "name": "test_group4_simple.DiffTableZ",
                 "type": "table",
                 "values": [{"zs_id": 0}, {"zs_id": 1}],
             },
             {"datatype": "int", "name": "y_id", "type": "attribute"},
             {"datatype": "float", "name": "y_number", "type": "attribute"},
-            {"name": "TableZ", "type": "table", "values": [{"z_id": 0}, {"z_id": 1}]},
+            {
+                "name": "test_group3_simple.TableZ",
+                "type": "table",
+                "values": [{"z_id": 0}, {"z_id": 1}],
+            },
             {"datatype": "int", "name": "ys_id", "type": "attribute"},
             {"datatype": "float", "name": "ys_number", "type": "attribute"},
         ],
@@ -158,7 +174,7 @@ def test_form_response_no_map_multi_FPK(token, client, connection, schemas_simpl
     assert REST_response.get_json() == {
         "fields": [
             {
-                "name": "TableX",
+                "name": "test_group3_simple.TableX",
                 "type": "table",
                 "values": [
                     {"x_id": 0, "x_int": 10, "x_name": "Carlos"},
@@ -179,7 +195,11 @@ def test_form_response_no_map_many_tables(token, client, connection, schemas_sim
     assert REST_response.status_code == 200, f"Error: {REST_response.data}"
     assert REST_response.get_json() == {
         "fields": [
-            {"name": "TableA", "type": "table", "values": [{"a_id": 0}, {"a_id": 1}]},
+            {
+                "name": "test_group1_simple.TableA",
+                "type": "table",
+                "values": [{"a_id": 0}, {"a_id": 1}],
+            },
             {"datatype": "int", "name": "b_id", "type": "attribute"},
             {"datatype": "float", "name": "b_number", "type": "attribute"},
             {"datatype": "int", "name": "bs_id", "type": "attribute"},
@@ -187,17 +207,21 @@ def test_form_response_no_map_many_tables(token, client, connection, schemas_sim
             {"datatype": "int", "name": "c_id", "type": "attribute"},
             {"datatype": "int", "name": "c_int", "type": "attribute"},
             {
-                "name": "DiffTableZ",
+                "name": "test_group4_simple.DiffTableZ",
                 "type": "table",
                 "values": [{"zs_id": 0}, {"zs_id": 1}],
             },
             {"datatype": "int", "name": "y_id", "type": "attribute"},
             {"datatype": "float", "name": "y_number", "type": "attribute"},
-            {"name": "TableZ", "type": "table", "values": [{"z_id": 0}, {"z_id": 1}]},
+            {
+                "name": "test_group3_simple.TableZ",
+                "type": "table",
+                "values": [{"z_id": 0}, {"z_id": 1}],
+            },
             {"datatype": "int", "name": "ys_id", "type": "attribute"},
             {"datatype": "float", "name": "ys_number", "type": "attribute"},
             {
-                "name": "TableX",
+                "name": "test_group3_simple.TableX",
                 "type": "table",
                 "values": [
                     {"x_id": 0, "x_int": 10, "x_name": "Carlos"},

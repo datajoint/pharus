@@ -239,10 +239,14 @@ class InsertComponent:
                     for p in t.parents(as_objects=True):
                         if v.name in p.primary_key:
                             is_fk = True
-                            field_name = dj.utils.to_camel_case(p.table_name)
+                            field_name = (
+                                f"{p.database}.{dj.utils.to_camel_case(p.table_name)}"
+                            )
                             if field_name not in [
                                 field["name"] for field in fields
-                            ] and field_name not in [t.__name__ for t in self.tables]:
+                            ] and field_name not in [
+                                f"{t.database}.{t.__name__}" for t in self.tables
+                            ]:
                                 fields.append(
                                     dict(
                                         type="table",
