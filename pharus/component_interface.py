@@ -168,6 +168,21 @@ class InsertComponent:
 
     def dj_query_route(self):
         with self.connection.transaction:
+            if self.fields_map:
+                field_name_map = {}
+                for field in self.fields_map:
+                    if field["type"] != "table":
+                        field_name_map[
+                            field["input"] if "input" in field else field["destination"]
+                        ] = field["destination"]
+                    else:
+                        for submap in field["map"]:
+                            field_name_map[
+                                submap["input"]
+                                if "input" in submap
+                                else submap["destination"]
+                            ] = submap["destination"]
+                self.payload = {field_name_map[k]: v for k, v in self.payload.items()}
             for t in self.tables:
                 t.insert1(
                     {k: v for k, v in self.payload.items() if k in t.heading.attributes}

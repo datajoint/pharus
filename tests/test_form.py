@@ -8,10 +8,20 @@ from . import (
 import datajoint as dj
 
 
-def test_insert(token, client, connection, schemas_simple):
+def test_insert_map(token, client, connection, schemas_simple):
     REST_response = client.post(
         "/insert",
-        json=dict(a_id=1, b_id=32, b_number=1.23, c_id=400, c_int=99),
+        json={"A Id": 1, "B Id": 32, "B Number": 1.23, "C Id": 400, "c_int": 99},
+        headers=dict(Authorization=f"Bearer {token}"),
+    )
+    assert REST_response.status_code == 200, REST_response.data
+    assert REST_response.data == b"Insert successful"
+
+
+def test_insert_no_map(token, client, connection, schemas_simple):
+    REST_response = client.post(
+        "/insert3",
+        json={"a_id": 1, "b_id": 32, "b_number": 1.23, "c_id": 400, "c_int": 99},
         headers=dict(Authorization=f"Bearer {token}"),
     )
     assert REST_response.status_code == 200
@@ -20,8 +30,8 @@ def test_insert(token, client, connection, schemas_simple):
 
 def test_insert_fail(token, client, connection, schemas_simple):
     REST_response = client.post(
-        "/insert",
-        json=dict(a_id=1, b_id=32, b_number=1.23, c_id=400),
+        "/insert3",
+        json={"a_id": 1, "b_id": 32, "b_number": 1.23, "c_id": 400},
         headers=dict(Authorization=f"Bearer {token}"),
     )
     assert REST_response.status_code == 500
