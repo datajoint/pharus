@@ -113,7 +113,7 @@ def {method_name}() -> dict:
                     else grid["components"]
                 ).items():
                     if re.match(
-                        r"^(table|djtable|metadata|plot|file|slider|dropdown-query).*$",
+                        r"^(table|antd-table|metadata|plot|file|slider|dropdown-query).*$",
                         comp["type"],
                     ):
                         f.write(

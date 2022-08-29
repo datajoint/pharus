@@ -85,9 +85,26 @@ def test_get_attributes(token, client, schemas_simple):
                 ["b_number", "float", False, None, False],
             ],
         },
+        "unique_values": [
+            [{"text": "0", "value": 0}, {"text": "1", "value": 1}],
+            [
+                {"text": "10", "value": 10},
+                {"text": "11", "value": 11},
+                {"text": "21", "value": 21},
+            ],
+            [
+                {"text": "Raphael", "value": "Raphael"},
+                {"text": "Bernie", "value": "Bernie"},
+            ],
+            [
+                {"text": "22.12", "value": 22.12},
+                {"text": "-1.21", "value": -1.21},
+                {"text": "7.77", "value": 7.77},
+            ],
+        ],
     }
 
-    assert expected_json == REST_response.get_json()
+    assert expected_json == REST_response.get_json(force=True)
 
 
 def test_dynamic_restriction(token, client, schemas_simple):

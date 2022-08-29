@@ -36,15 +36,17 @@ class NumpyEncoder(json.JSONEncoder):
     def default(self, o):
         if type(o) in self.npmap:
             return self.npmap[type(o)](o)
-        if type(o) in (datetime, date):
-            return o.isoformat()
         if type(o) is UUID:
             return str(o)
+        if type(o) is str and o == "NaN":
+            return "null"
+        if type(o) in (datetime, date):
+            return o.isoformat()
         return json.JSONEncoder.default(self, o)
 
     @classmethod
     def dumps(cls, obj):
-        return json.dumps(obj, cls=cls).replace("NaN", "null")
+        return json.dumps(obj, cls=cls)
 
 
 class QueryComponent:
@@ -80,7 +82,7 @@ class QueryComponent:
         self.vm_list = [
             dj.VirtualModule(
                 s,
-                s.replace("__DASH__", "-"),
+                s.replace("__", "-"),
                 connection=dj.conn(
                     host=jwt_payload["databaseAddress"],
                     user=jwt_payload["username"],
@@ -169,9 +171,9 @@ class TableComponent(QueryComponent):
         record_header, table_records, total_count = _DJConnector._fetch_records(
             query=fetch_metadata["query"] & self.restriction,
             fetch_args=fetch_metadata["fetch_args"],
-            limit=int(request.args["limit"]) or None,
-            page=int(request.args["page"]) or 1,
-            order=request.args["order"].split(",") or [],
+            limit=int(request.args["limit"]) if "limit" in request.args else 1000,
+            page=int(request.args["page"]) if "page" in request.args else 1,
+            order=request.args["order"].split(",") if "order" in request.args else None,
         )
 
         return NumpyEncoder.dumps(
@@ -301,7 +303,6 @@ class BasicQuery(QueryComponent):
 
     def dj_query_route(self):
         fetch_metadata = self.fetch_metadata
-        print(request.args, flush=True)
         record_header, table_records, total_count = _DJConnector._fetch_records(
             query=fetch_metadata["query"] & self.restriction,
             fetch_args=fetch_metadata["fetch_args"],
@@ -343,7 +344,7 @@ type_map = {
     "basicquery": BasicQuery,
     "plot:plotly:stored_json": PlotPlotlyStoredjsonComponent,
     "table": TableComponent,
-    "djtable": TableComponent,
+    "antd-table": TableComponent,
     "metadata": MetadataComponent,
     "file:image:attach": FileImageAttachComponent,
     "slider": BasicQuery,
