@@ -81,7 +81,7 @@ class QueryComponent:
         self.vm_list = [
             dj.VirtualModule(
                 s,
-                s.replace("__DASH__", "-"),
+                s.replace("__", "-"),
                 connection=dj.conn(
                     host=jwt_payload["databaseAddress"],
                     user=jwt_payload["username"],
@@ -121,7 +121,6 @@ class QueryComponent:
 
 class TableComponent(QueryComponent):
     attributes_route_format = "{route}/attributes"
-    universal_set_route_format = "{route}/universalset"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
