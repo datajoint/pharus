@@ -189,9 +189,7 @@ class TableComponent(QueryComponent):
         unique_values = []
         for key in query.heading.attributes.keys():
             result = (dj.U(key) & query).fetch()
-            unique_values.append(
-                [dict({"text": str(x[0]), "value": x[0]}) for x in result]
-            )
+            unique_values.append([dict({"text": x[0], "value": x[0]}) for x in result])
         return NumpyEncoder.dumps(
             dict(
                 attributeHeaders=attributes_meta["attribute_headers"],
