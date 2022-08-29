@@ -1,6 +1,5 @@
 """This module is a GUI component library of various common interfaces."""
 import json
-from base64 import b64decode
 import datajoint as dj
 import re
 import inspect
@@ -82,7 +81,7 @@ class QueryComponent:
         self.vm_list = [
             dj.VirtualModule(
                 s,
-                s.replace("__", "-"),
+                s.replace("__DASH__", "-"),
                 connection=dj.conn(
                     host=jwt_payload["databaseAddress"],
                     user=jwt_payload["username"],
