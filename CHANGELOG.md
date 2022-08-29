@@ -2,6 +2,14 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.4.2] - 2022-08-29
+### Fixed
+- Bugs with UUID and NaN in component_interface.py JSON encoder PR #128
+
+### Added
+- Support for creating virtual modules with `-` in the schema name, use `__` PR #128
+- Support for new `antd-table`, old table filtering will no longer work and the entire table will be deprecated in a later release PR #128
+
 ## [0.4.1] - 2022-03-24
 ### Fixed
 - Bug with otumat version not being tied to the latest PR #119
