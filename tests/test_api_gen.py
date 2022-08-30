@@ -104,7 +104,7 @@ def test_get_attributes(token, client, schemas_simple):
         ],
     }
 
-    assert expected_json == REST_response.get_json(force=True)
+    assert expected_json == REST_response.get_json()
 
 
 def test_dynamic_restriction(token, client, schemas_simple):

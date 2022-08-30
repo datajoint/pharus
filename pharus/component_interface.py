@@ -38,7 +38,7 @@ class NumpyEncoder(json.JSONEncoder):
         if type(o) is UUID:
             return str(o)
         if type(o) is str and o == "NaN":
-            return "null"
+            return None
         if type(o) in (datetime, date):
             return o.isoformat()
         return json.JSONEncoder.default(self, o)
@@ -302,7 +302,7 @@ class BasicQuery(QueryComponent):
     def dj_query_route(self):
         fetch_metadata = self.fetch_metadata
         record_header, table_records, total_count = _DJConnector._fetch_records(
-            query=fetch_metadata["query"] & self.restriction,
+            query=fetch_metadata["query"] & self.restriction[0],
             fetch_args=fetch_metadata["fetch_args"],
             page=int(request.args["page"]) if "page" in request.args else 1,
             limit=int(request.args["limit"]) if "limit" in request.args else 1000,
