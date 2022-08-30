@@ -158,13 +158,19 @@ class InsertComponent:
             )
             for s, t in (_.split(".") for _ in component_config["tables"])
         ]
-        self.parents = set(
-            [
-                p
-                for t in self.tables
-                for p in t.parents(as_objects=True)
-                if p.full_table_name not in (t.full_table_name for t in self.tables)
-            ]
+        self.parents = sorted(
+            list(
+                set(
+                    [
+                        p
+                        for t in self.tables
+                        for p in t.parents(as_objects=True)
+                        if p.full_table_name
+                        not in (t.full_table_name for t in self.tables)
+                    ]
+                )
+            ),
+            key=lambda p: p.full_table_name,
         )
 
     def dj_query_route(self):
@@ -205,11 +211,13 @@ class InsertComponent:
         return "Insert successful"
 
     def fields_route(self):
-        parent_attributes = set(sum([p.primary_key for p in self.parents], []))
+        parent_attributes = sorted(
+            list(set(sum([p.primary_key for p in self.parents], [])))
+        )
         source_fields = {
             **{
                 (p_name := f"{p.database}.{dj.utils.to_camel_case(p.table_name)}"): {
-                    "values": p.fetch("KEY", as_dict=True),
+                    "values": p.fetch("KEY"),
                     "type": "table",
                     "name": p_name,
                 }
@@ -224,7 +232,7 @@ class InsertComponent:
         }
 
         if not self.fields_map:
-            return dict(fields=source_fields)
+            return dict(fields=list(source_fields.values()))
         return dict(
             fields=[
                 dict(

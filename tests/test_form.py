@@ -11,7 +11,11 @@ import datajoint as dj
 def test_insert_map(token, client, connection, schemas_simple):
     REST_response = client.post(
         "/insert",
-        json={"A Id": 1, "B Id": 32, "B Number": 1.23, "C Id": 400, "c_int": 99},
+        json={
+            "submissions": [
+                {"A Id": 1, "B Id": 32, "B Number": 1.23, "C Id": 400, "c_int": 99}
+            ]
+        },
         headers=dict(Authorization=f"Bearer {token}"),
     )
     assert REST_response.status_code == 200, REST_response.data
@@ -21,7 +25,11 @@ def test_insert_map(token, client, connection, schemas_simple):
 def test_insert_no_map(token, client, connection, schemas_simple):
     REST_response = client.post(
         "/insert3",
-        json={"a_id": 1, "b_id": 32, "b_number": 1.23, "c_id": 400, "c_int": 99},
+        json={
+            "submissions": [
+                {"a_id": 1, "b_id": 32, "b_number": 1.23, "c_id": 400, "c_int": 99}
+            ]
+        },
         headers=dict(Authorization=f"Bearer {token}"),
     )
     assert REST_response.status_code == 200
@@ -31,7 +39,7 @@ def test_insert_no_map(token, client, connection, schemas_simple):
 def test_insert_fail(token, client, connection, schemas_simple):
     REST_response = client.post(
         "/insert3",
-        json={"a_id": 1, "b_id": 32, "b_number": 1.23, "c_id": 400},
+        json={"submissions": [{"a_id": 1, "b_id": 32, "b_number": 1.23, "c_id": 400}]},
         headers=dict(Authorization=f"Bearer {token}"),
     )
     assert REST_response.status_code == 500
@@ -111,8 +119,6 @@ def test_form_response_no_map_shared_FK_hierarchy(
                 "type": "table",
                 "values": [{"a_id": 0}, {"a_id": 1}],
             },
-            {"datatype": "int", "name": "bs_id", "type": "attribute"},
-            {"datatype": "float", "name": "bs_number", "type": "attribute"},
             {
                 "name": "test_group1_simple.TableB",
                 "type": "table",
@@ -122,9 +128,11 @@ def test_form_response_no_map_shared_FK_hierarchy(
                     {"a_id": 1, "b_id": 21},
                 ],
             },
+            {"datatype": "int", "name": "bs_id", "type": "attribute"},
+            {"datatype": "float", "name": "bs_number", "type": "attribute"},
             {"datatype": "int", "name": "c_id", "type": "attribute"},
             {"datatype": "int", "name": "c_int", "type": "attribute"},
-        ],
+        ]
     }
 
 
@@ -158,20 +166,20 @@ def test_form_response_no_map_diff_FK(token, client, connection, schemas_simple)
     assert REST_response.get_json() == {
         "fields": [
             {
+                "name": "test_group3_simple.TableZ",
+                "type": "table",
+                "values": [{"z_id": 0}, {"z_id": 1}],
+            },
+            {
                 "name": "test_group4_simple.DiffTableZ",
                 "type": "table",
                 "values": [{"zs_id": 0}, {"zs_id": 1}],
             },
             {"datatype": "int", "name": "y_id", "type": "attribute"},
             {"datatype": "float", "name": "y_number", "type": "attribute"},
-            {
-                "name": "test_group3_simple.TableZ",
-                "type": "table",
-                "values": [{"z_id": 0}, {"z_id": 1}],
-            },
             {"datatype": "int", "name": "ys_id", "type": "attribute"},
             {"datatype": "float", "name": "ys_number", "type": "attribute"},
-        ],
+        ]
     }
 
 
@@ -210,26 +218,6 @@ def test_form_response_no_map_many_tables(token, client, connection, schemas_sim
                 "type": "table",
                 "values": [{"a_id": 0}, {"a_id": 1}],
             },
-            {"datatype": "int", "name": "b_id", "type": "attribute"},
-            {"datatype": "float", "name": "b_number", "type": "attribute"},
-            {"datatype": "int", "name": "bs_id", "type": "attribute"},
-            {"datatype": "float", "name": "bs_number", "type": "attribute"},
-            {"datatype": "int", "name": "c_id", "type": "attribute"},
-            {"datatype": "int", "name": "c_int", "type": "attribute"},
-            {
-                "name": "test_group4_simple.DiffTableZ",
-                "type": "table",
-                "values": [{"zs_id": 0}, {"zs_id": 1}],
-            },
-            {"datatype": "int", "name": "y_id", "type": "attribute"},
-            {"datatype": "float", "name": "y_number", "type": "attribute"},
-            {
-                "name": "test_group3_simple.TableZ",
-                "type": "table",
-                "values": [{"z_id": 0}, {"z_id": 1}],
-            },
-            {"datatype": "int", "name": "ys_id", "type": "attribute"},
-            {"datatype": "float", "name": "ys_number", "type": "attribute"},
             {
                 "name": "test_group3_simple.TableX",
                 "type": "table",
@@ -238,7 +226,27 @@ def test_form_response_no_map_many_tables(token, client, connection, schemas_sim
                     {"x_id": 1, "x_int": 20, "x_name": "Oscar"},
                 ],
             },
+            {
+                "name": "test_group3_simple.TableZ",
+                "type": "table",
+                "values": [{"z_id": 0}, {"z_id": 1}],
+            },
+            {
+                "name": "test_group4_simple.DiffTableZ",
+                "type": "table",
+                "values": [{"zs_id": 0}, {"zs_id": 1}],
+            },
+            {"datatype": "int", "name": "b_id", "type": "attribute"},
+            {"datatype": "float", "name": "b_number", "type": "attribute"},
+            {"datatype": "int", "name": "bs_id", "type": "attribute"},
+            {"datatype": "float", "name": "bs_number", "type": "attribute"},
+            {"datatype": "int", "name": "c_id", "type": "attribute"},
+            {"datatype": "int", "name": "c_int", "type": "attribute"},
+            {"datatype": "int", "name": "y_id", "type": "attribute"},
+            {"datatype": "float", "name": "y_number", "type": "attribute"},
+            {"datatype": "int", "name": "ys_id", "type": "attribute"},
+            {"datatype": "float", "name": "ys_number", "type": "attribute"},
             {"datatype": "int", "name": "w_id", "type": "attribute"},
             {"datatype": "int", "name": "w_int", "type": "attribute"},
-        ],
+        ]
     }
