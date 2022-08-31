@@ -119,7 +119,16 @@ def {method_name}() -> dict:
                     else grid["components"]
                 ).items():
                     if re.match(
-                        r"^(table|antd-table|metadata|plot|file|slider|dropdown-query|form).*$",
+                        r"^("
+                        + r"table|"
+                        + r"antd-table|"
+                        + r"metadata|"
+                        + r"plot|"
+                        + r"file|"
+                        + r"slider|"
+                        + r"dropdown-query|"
+                        + r"form"
+                        + r").*$",
                         comp["type"],
                     ):
                         f.write(
