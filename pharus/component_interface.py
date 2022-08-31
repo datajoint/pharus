@@ -159,16 +159,13 @@ class InsertComponent:
             for s, t in (_.split(".") for _ in component_config["tables"])
         ]
         self.parents = sorted(
-            list(
-                set(
-                    [
-                        p
-                        for t in self.tables
-                        for p in t.parents(as_objects=True)
-                        if p.full_table_name
-                        not in (t.full_table_name for t in self.tables)
-                    ]
-                )
+            set(
+                [
+                    p
+                    for t in self.tables
+                    for p in t.parents(as_objects=True)
+                    if p.full_table_name not in (t.full_table_name for t in self.tables)
+                ]
             ),
             key=lambda p: p.full_table_name,
         )
@@ -211,9 +208,7 @@ class InsertComponent:
         return "Insert successful"
 
     def fields_route(self):
-        parent_attributes = sorted(
-            list(set(sum([p.primary_key for p in self.parents], [])))
-        )
+        parent_attributes = sorted(set(sum([p.primary_key for p in self.parents], [])))
         source_fields = {
             **{
                 (p_name := f"{p.database}.{dj.utils.to_camel_case(p.table_name)}"): {
