@@ -5,6 +5,8 @@ import pkg_resources
 import json
 import re
 
+from pharus.component_interface import InsertComponent, TableComponent
+
 
 def populate_api():
     header_template = """# Auto-generated rest api
@@ -24,25 +26,26 @@ except (ModuleNotFoundError, ImportError):
 """
     route_template = """
 
-@app.route('{route}', methods=['GET'])
+@app.route('{route}', methods=['{rest_verb}'])
 @protected_route
 def {method_name}(jwt_payload: dict) -> dict:
 
-    if request.method in {{'GET'}}:
+    if request.method in ['{rest_verb}']:
         try:
             component_instance = type_map['{component_type}'](name='{component_name}',
                                                               component_config={component},
                                                               static_config={static_config},
-                                                              jwt_payload=jwt_payload)
+                                                              jwt_payload=jwt_payload,
+                                                              {payload})
             return component_instance.{method_name_type}()
         except Exception as e:
             return traceback.format_exc(), 500
 """
     route_template_nologin = """
 
-@app.route('{route}', methods=['GET'])
+@app.route('{route}', methods=['{rest_verb}'])
 def {method_name}() -> dict:
-    if request.method in {{'GET'}}:
+    if request.method in ['{rest_verb}']:
         jwt_payload = dict(
             databaseAddress=os.environ["PHARUS_HOST"],
             username=os.environ["PHARUS_USER"],
@@ -52,7 +55,8 @@ def {method_name}() -> dict:
             component_instance = type_map['{component_type}'](name='{component_name}',
                                                               component_config={component},
                                                               static_config={static_config},
-                                                              jwt_payload=jwt_payload)
+                                                              jwt_payload=jwt_payload,
+                                                              {payload})
             return component_instance.{method_name_type}()
         except Exception as e:
             return traceback.format_exc(), 500
@@ -99,11 +103,13 @@ def {method_name}() -> dict:
                     f.write(
                         (active_route_template).format(
                             route=grid["route"],
+                            rest_verb="GET",
                             method_name=grid["route"].replace("/", ""),
                             component_type="basicquery",
                             component_name="dynamicgrid",
                             component=json.dumps(grid),
                             static_config=static_config,
+                            payload="",
                             method_name_type="dj_query_route",
                         )
                     )
@@ -114,32 +120,55 @@ def {method_name}() -> dict:
                     else grid["components"]
                 ).items():
                     if re.match(
-                        r"^(table|metadata|plot|file|slider|dropdown-query).*$",
+                        r"^(table|metadata|plot|file|slider|dropdown-query|form).*$",
                         comp["type"],
                     ):
                         f.write(
                             (active_route_template).format(
                                 route=comp["route"],
+                                rest_verb="POST" if comp["type"] == "form" else "GET",
                                 method_name=comp["route"].replace("/", ""),
                                 component_type=comp["type"],
                                 component_name=comp_name,
                                 component=json.dumps(comp),
                                 static_config=static_config,
+                                payload="payload=request.get_json()"
+                                if comp["type"] == "form"
+                                else "",
                                 method_name_type="dj_query_route",
                             )
                         )
-                        if type_map[comp["type"]].attributes_route_format:
+                        if issubclass(type_map[comp["type"]], InsertComponent):
+                            fields_route = type_map[
+                                comp["type"]
+                            ].fields_route_format.format(route=comp["route"])
+                            f.write(
+                                (active_route_template).format(
+                                    route=fields_route,
+                                    rest_verb="GET",
+                                    method_name=fields_route.replace("/", ""),
+                                    component_type=comp["type"],
+                                    component_name=comp_name,
+                                    component=json.dumps(comp),
+                                    static_config=static_config,
+                                    payload="payload=None",
+                                    method_name_type="fields_route",
+                                )
+                            )
+                        elif issubclass(type_map[comp["type"]], TableComponent):
                             attributes_route = type_map[
                                 comp["type"]
                             ].attributes_route_format.format(route=comp["route"])
                             f.write(
                                 (active_route_template).format(
                                     route=attributes_route,
+                                    rest_verb="GET",
                                     method_name=attributes_route.replace("/", ""),
                                     component_type=comp["type"],
                                     component_name=comp_name,
                                     component=json.dumps(comp),
                                     static_config=static_config,
+                                    payload="",
                                     method_name_type="attributes_route",
                                 )
                             )

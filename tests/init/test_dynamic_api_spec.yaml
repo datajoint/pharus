@@ -1,4 +1,4 @@
-version: 'v0.0.0'
+version: "v0.0.0"
 LabBook: null
 Test: "hello world"
 SciViz: # top level tab
@@ -15,6 +15,123 @@ SciViz: # top level tab
         grid1:
           type: fixed
           components:
+            insert:
+              route: /insert
+              x: 1
+              y: 2
+              height: 1
+              width: 1
+              type: form
+              tables:
+                - test_group1_simple.TableB
+                - test_group1_simple.TableC
+              map: # optional, default to tables order and DB definitions. If provided, all must be specified
+                - type: attribute
+                  input: B Id
+                  destination: b_id
+                - type: attribute
+                  input: B Number
+                  destination: b_number
+                - type: table # order here respected in response/UI
+                  input: Table A
+                  destination: test_group1_simple.TableA
+                  map: # these are only primary keys
+                    - type: attribute
+                      input: A Id
+                      destination: a_id
+                - type: attribute
+                  input: C Id
+                  destination: c_id
+                - type: attribute #omitted input means display is session_note
+                  destination: c_int
+            insert2:
+              route: /insert2
+              x: 1
+              y: 2
+              height: 1
+              width: 1
+              type: form
+              tables:
+                - test_group1_simple.TableB
+                - test_group1_simple.TableC
+              map: # optional, default to tables order and DB definitions. If provided, all must be specified
+                - type: attribute
+                  input: B Id
+                  destination: b_id
+                - type: attribute
+                  input: B Number
+                  destination: b_number
+                - type: table # order here respected in response/UI
+                  input: Table A
+                  destination: test_group1_simple.TableA
+                - type: attribute
+                  input: C Id
+                  destination: c_id
+                - type: attribute #omitted input means display is session_note
+                  destination: c_int
+            insert3:
+              route: /insert3
+              x: 1
+              y: 2
+              height: 1
+              width: 1
+              type: form
+              tables:
+                - test_group1_simple.TableB
+                - test_group1_simple.TableC
+            insert4:
+              route: /insert4
+              x: 1
+              y: 2
+              height: 1
+              width: 1
+              type: form
+              tables:
+                - test_group2_simple.DiffTableB
+                - test_group1_simple.TableC
+            insert5:
+              route: /insert5
+              x: 1
+              y: 2
+              height: 1
+              width: 1
+              type: form
+              tables:
+                - test_group1_simple.TableB
+                - test_group2_simple.DiffTableB
+            insert6:
+              route: /insert6
+              x: 1
+              y: 2
+              height: 1
+              width: 1
+              type: form
+              tables:
+                - test_group3_simple.TableY
+                - test_group4_simple.DiffTableY
+            insert7:
+              route: /insert7
+              x: 1
+              y: 2
+              height: 1
+              width: 1
+              type: form
+              tables:
+                - test_group4_simple.TableW
+            insert8:
+              route: /insert8
+              x: 1
+              y: 2
+              height: 1
+              width: 1
+              type: form
+              tables:
+                - test_group1_simple.TableB
+                - test_group2_simple.DiffTableB
+                - test_group1_simple.TableC
+                - test_group3_simple.TableY
+                - test_group4_simple.DiffTableY
+                - test_group4_simple.TableW
             component1:
               route: /query1
               row_span: 0
@@ -46,7 +163,7 @@ SciViz: # top level tab
                     q = TableA * TableB
                     f = []
                     return dict(query=q, fetch_args=f)
-          
+
     page1:
       route: /session2 # dev, be careful of name collisions
       args:
@@ -122,4 +239,3 @@ SciViz: # top level tab
                 def dj_query(test_group1_simple):
                     PlotlyTable = test_group1_simple.PlotlyTable
                     return dict(query=PlotlyTable(), fetch_args=['plot'])
-                

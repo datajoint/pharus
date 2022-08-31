@@ -12,6 +12,7 @@ from pathlib import Path
 import types
 import io
 import numpy as np
+from functools import reduce
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -44,9 +45,7 @@ class NumpyEncoder(json.JSONEncoder):
         return json.dumps(obj, cls=cls)
 
 
-class QueryComponent:
-    attributes_route_format = None
-
+class FetchComponent:
     def __init__(self, name, component_config, static_config, jwt_payload: dict):
         lcls = locals()
         self.name = name
@@ -64,10 +63,6 @@ class QueryComponent:
         self.route = component_config["route"]
         exec(component_config["dj_query"], globals(), lcls)
         self.dj_query = lcls["dj_query"]
-        if self.attributes_route_format:
-            self.attribute_route = self.attributes_route_format.format(
-                route=component_config["route"]
-            )
         if "restriction" in component_config:
             exec(component_config["restriction"], globals(), lcls)
             self.dj_restriction = lcls["restriction"]
@@ -114,8 +109,164 @@ class QueryComponent:
             ]
         )
 
+    def dj_query_route(self):
+        fetch_metadata = self.fetch_metadata
+        record_header, table_records, total_count = _DJConnector._fetch_records(
+            query=fetch_metadata["query"] & self.restriction,
+            fetch_args=fetch_metadata["fetch_args"],
+        )
+        return dict(
+            recordHeader=record_header, records=table_records, totalCount=total_count
+        )
 
-class TableComponent(QueryComponent):
+
+class InsertComponent:
+    fields_route_format = "{route}/fields"
+
+    def __init__(
+        self, name, component_config, static_config, payload, jwt_payload: dict
+    ):
+        self.name = name
+        self.payload = payload
+        if static_config:
+            self.static_variables = types.MappingProxyType(static_config)
+        if not all(k in component_config for k in ("x", "y", "height", "width")):
+            self.mode = "dynamic"
+        else:
+            self.mode = "fixed"
+            self.x = component_config["x"]
+            self.y = component_config["y"]
+            self.height = component_config["height"]
+            self.width = component_config["width"]
+        self.type = component_config["type"]
+        self.route = component_config["route"]
+        self.connection = dj.conn(
+            host=jwt_payload["databaseAddress"],
+            user=jwt_payload["username"],
+            password=jwt_payload["password"],
+            reset=True,
+        )
+        self.fields_map = component_config.get("map")
+        self.tables = [
+            getattr(
+                dj.VirtualModule(
+                    s,
+                    s,
+                    connection=self.connection,
+                ),
+                t,
+            )
+            for s, t in (_.split(".") for _ in component_config["tables"])
+        ]
+        self.parents = sorted(
+            set(
+                [
+                    p
+                    for t in self.tables
+                    for p in t.parents(as_objects=True)
+                    if p.full_table_name not in (t.full_table_name for t in self.tables)
+                ]
+            ),
+            key=lambda p: p.full_table_name,
+        )
+
+    def dj_query_route(self):
+        with self.connection.transaction:
+            destination_lookup = reduce(
+                lambda m0, m1: dict(
+                    m0,
+                    **(
+                        {
+                            m_t["input"]
+                            if "input" in m_t
+                            else m_t["destination"]: m_t["destination"]
+                            for m_t in m1["map"]
+                        }
+                        if m1["type"] == "table"
+                        else {
+                            m1["input"]
+                            if "input" in m1
+                            else m1["destination"]: m1["destination"]
+                        }
+                    ),
+                ),
+                self.fields_map or [],
+                {},
+            )
+            for t in self.tables:
+                t.insert(
+                    [
+                        {
+                            a: v
+                            for k, v in r.items()
+                            if (a := destination_lookup.get(k, k))
+                            in t.heading.attributes
+                        }
+                        for r in self.payload["submissions"]
+                    ]
+                )
+        return "Insert successful"
+
+    def fields_route(self):
+        parent_attributes = sorted(set(sum([p.primary_key for p in self.parents], [])))
+        source_fields = {
+            **{
+                (p_name := f"{p.database}.{dj.utils.to_camel_case(p.table_name)}"): {
+                    "values": p.fetch("KEY"),
+                    "type": "table",
+                    "name": p_name,
+                }
+                for p in self.parents
+            },
+            **{
+                a: {"datatype": v.type, "type": "attribute", "name": v.name}
+                for t in self.tables
+                for a, v in t.heading.attributes.items()
+                if a not in parent_attributes
+            },
+        }
+
+        if not self.fields_map:
+            return dict(fields=list(source_fields.values()))
+        return dict(
+            fields=[
+                dict(
+                    (field := source_fields.pop(m["destination"])),
+                    name=m["input" if "input" in m else "destination"],
+                    **(
+                        {
+                            "values": field["values"]
+                            if "map" not in m
+                            else [
+                                {
+                                    input_lookup[k]: v
+                                    for k, v in r.items()
+                                    if k
+                                    in (
+                                        input_lookup := {
+                                            table_m["destination"]: table_m[
+                                                "input"
+                                                if "input" in table_m
+                                                else "destination"
+                                            ]
+                                            for table_m in m["map"]
+                                        }
+                                    )
+                                }
+                                for r in field["values"]
+                            ]
+                        }
+                        if m["type"] == "table"
+                        else {}
+                    ),
+                )
+                for m in self.fields_map
+            ]
+            + list(source_fields.values())
+        )
+
+
+class TableComponent(FetchComponent):
     attributes_route_format = "{route}/attributes"
 
     def __init__(self, *args, **kwargs):
@@ -235,7 +386,7 @@ class MetadataComponent(TableComponent):
         )
 
 
-class PlotPlotlyStoredjsonComponent(QueryComponent):
+class PlotPlotlyStoredjsonComponent(FetchComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.frontend_map = {
@@ -264,39 +415,7 @@ class PlotPlotlyStoredjsonComponent(QueryComponent):
         )
 
 
-class BasicQuery(QueryComponent):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.frontend_map = {
-            "source": "sci-viz/src/Components/Plots/FullPlotly.tsx",
-            "target": "FullPlotly",
-        }
-        self.response_examples = {
-            "dj_query_route": {
-                "recordHeader": ["subject_uuid", "session_start_time", "session_uuid"],
-                "records": [
-                    [
-                        "00778394-c956-408d-8a6c-ca3b05a611d5",
-                        1565436299.0,
-                        "fb9bdf18-76be-452b-ac4e-21d5de3a6f9f",
-                    ]
-                ],
-                "totalCount": 1,
-            },
-        }
-
-    def dj_query_route(self):
-        fetch_metadata = self.fetch_metadata
-        record_header, table_records, total_count = _DJConnector._fetch_records(
-            query=fetch_metadata["query"] & self.restriction,
-            fetch_args=fetch_metadata["fetch_args"],
-        )
-        return dict(
-            recordHeader=record_header, records=table_records, totalCount=total_count
-        )
-
-
-class FileImageAttachComponent(QueryComponent):
+class FileImageAttachComponent(FetchComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.frontend_map = {
@@ -319,11 +438,12 @@ class FileImageAttachComponent(QueryComponent):
 
 
 type_map = {
-    "basicquery": BasicQuery,
+    "basicquery": FetchComponent,
     "plot:plotly:stored_json": PlotPlotlyStoredjsonComponent,
     "table": TableComponent,
     "metadata": MetadataComponent,
     "file:image:attach": FileImageAttachComponent,
-    "slider": BasicQuery,
-    "dropdown-query": BasicQuery,
+    "slider": FetchComponent,
+    "dropdown-query": FetchComponent,
+    "form": InsertComponent,
 }
