@@ -2,7 +2,7 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
-## [0.4.2] - 2022-08-29
+## [0.5.0] - 2022-08-31
 ### Fixed
 - Bugs with UUID and NaN in component_interface.py JSON encoder PR #128
 

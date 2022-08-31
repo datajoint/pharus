@@ -195,7 +195,6 @@ class TableComponent(QueryComponent):
             dict(
                 attributeHeaders=attributes_meta["attribute_headers"],
                 attributes=attributes_meta["attributes"],
-                unique_values=unique_values,
             )
         )
 

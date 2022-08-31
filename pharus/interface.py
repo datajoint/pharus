@@ -248,6 +248,10 @@ class _DJConnector:
                         attribute_info.nullable,
                         attribute_info.default,
                         attribute_info.autoincrement,
+                        [
+                            dict({"text": str(x[0]), "value": x[0]})
+                            for x in (dj.U(attribute_name) & query).fetch()
+                        ],
                     )
                 )
             else:
@@ -258,6 +262,10 @@ class _DJConnector:
                         attribute_info.nullable,
                         attribute_info.default,
                         attribute_info.autoincrement,
+                        [
+                            dict({"text": str(x[0]), "value": x[0]})
+                            for x in (dj.U(attribute_name) & query).fetch()
+                        ],
                     )
                 )
 

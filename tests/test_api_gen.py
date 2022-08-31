@@ -77,31 +77,53 @@ def test_get_attributes(token, client, schemas_simple):
         "attributeHeaders": ["name", "type", "nullable", "default", "autoincrement"],
         "attributes": {
             "primary": [
-                ["a_id", "int", False, None, False],
-                ["b_id", "int", False, None, False],
+                [
+                    "a_id",
+                    "int",
+                    False,
+                    None,
+                    False,
+                    [{"text": "0", "value": 0}, {"text": "1", "value": 1}],
+                ],
+                [
+                    "b_id",
+                    "int",
+                    False,
+                    None,
+                    False,
+                    [
+                        {"text": "10", "value": 10},
+                        {"text": "11", "value": 11},
+                        {"text": "21", "value": 21},
+                    ],
+                ],
             ],
             "secondary": [
-                ["a_name", "varchar(30)", False, None, False],
-                ["b_number", "float", False, None, False],
+                [
+                    "a_name",
+                    "varchar(30)",
+                    False,
+                    None,
+                    False,
+                    [
+                        {"text": "Raphael", "value": "Raphael"},
+                        {"text": "Bernie", "value": "Bernie"},
+                    ],
+                ],
+                [
+                    "b_number",
+                    "float",
+                    False,
+                    None,
+                    False,
+                    [
+                        {"text": "22.12", "value": 22.12},
+                        {"text": "-1.21", "value": -1.21},
+                        {"text": "7.77", "value": 7.77},
+                    ],
+                ],
             ],
         },
-        "unique_values": [
-            [{"text": "0", "value": 0}, {"text": "1", "value": 1}],
-            [
-                {"text": "10", "value": 10},
-                {"text": "11", "value": 11},
-                {"text": "21", "value": 21},
-            ],
-            [
-                {"text": "Raphael", "value": "Raphael"},
-                {"text": "Bernie", "value": "Bernie"},
-            ],
-            [
-                {"text": "22.12", "value": 22.12},
-                {"text": "-1.21", "value": -1.21},
-                {"text": "7.77", "value": 7.77},
-            ],
-        ],
     }
 
     assert expected_json == REST_response.get_json(force=True)
