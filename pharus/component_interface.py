@@ -53,6 +53,7 @@ class FetchComponent:
     def __init__(self, name, component_config, static_config, jwt_payload: dict):
         lcls = locals()
         self.name = name
+        self.response_mimetype = "application/json"
         if static_config:
             self.static_variables = types.MappingProxyType(static_config)
         if not all(k in component_config for k in ("x", "y", "height", "width")):
@@ -90,6 +91,10 @@ class FetchComponent:
     @property
     def fetch_metadata(self):
         return self.dj_query(*self.vm_list)
+
+    @property
+    def GET_mimetype(self):
+        return self.response_mimetype
 
     @property
     def restriction(self):
@@ -132,6 +137,8 @@ class InsertComponent:
     ):
         self.name = name
         self.payload = payload
+        self.get_response_mimetype = "application/json"
+        self.post_response_mimetype = "text/plain"
         if static_config:
             self.static_variables = types.MappingProxyType(static_config)
         if not all(k in component_config for k in ("x", "y", "height", "width")):
@@ -173,6 +180,14 @@ class InsertComponent:
             ),
             key=lambda p: p.full_table_name,
         )
+
+    @property
+    def GET_mimetype(self):
+        return self.get_response_mimetype
+
+    @property
+    def POST_mimetype(self):
+        return self.post_response_mimetype
 
     def dj_query_route(self):
         with self.connection.transaction:
@@ -231,42 +246,44 @@ class InsertComponent:
         }
 
         if not self.fields_map:
-            return dict(fields=list(source_fields.values()))
-        return dict(
-            fields=[
-                dict(
-                    (field := source_fields.pop(m["destination"])),
-                    name=m["input" if "input" in m else "destination"],
-                    **(
-                        {
-                            "values": field["values"]
-                            if "map" not in m
-                            else [
-                                {
-                                    input_lookup[k]: v
-                                    for k, v in r.items()
-                                    if k
-                                    in (
-                                        input_lookup := {
-                                            table_m["destination"]: table_m[
-                                                "input"
-                                                if "input" in table_m
-                                                else "destination"
-                                            ]
-                                            for table_m in m["map"]
-                                        }
-                                    )
-                                }
-                                for r in field["values"]
-                            ]
-                        }
-                        if m["type"] == "table"
-                        else {}
-                    ),
-                )
-                for m in self.fields_map
-            ]
-            + list(source_fields.values())
+            return NumpyEncoder.dumps(dict(fields=list(source_fields.values())))
+        return NumpyEncoder.dumps(
+            dict(
+                fields=[
+                    dict(
+                        (field := source_fields.pop(m["destination"])),
+                        name=m["input" if "input" in m else "destination"],
+                        **(
+                            {
+                                "values": field["values"]
+                                if "map" not in m
+                                else [
+                                    {
+                                        input_lookup[k]: v
+                                        for k, v in r.items()
+                                        if k
+                                        in (
+                                            input_lookup := {
+                                                table_m["destination"]: table_m[
+                                                    "input"
+                                                    if "input" in table_m
+                                                    else "destination"
+                                                ]
+                                                for table_m in m["map"]
+                                            }
+                                        )
+                                    }
+                                    for r in field["values"]
+                                ]
+                            }
+                            if m["type"] == "table"
+                            else {}
+                        ),
+                    )
+                    for m in self.fields_map
+                ]
+                + list(source_fields.values())
+            )
         )
 
 

@@ -12,7 +12,7 @@ def populate_api():
     header_template = """# Auto-generated rest api
 from .server import app, protected_route
 from .interface import _DJConnector, dj
-from flask import request
+from flask import request, Response
 from json import loads
 from base64 import b64decode
 from datetime import datetime
@@ -37,7 +37,9 @@ def {method_name}(jwt_payload: dict) -> dict:
                                                               static_config={static_config},
                                                               jwt_payload=jwt_payload,
                                                               {payload})
-            return component_instance.{method_name_type}()
+            return Response(response=component_instance.{method_name_type}(),
+                            status=200,
+                            mimetype=component_instance.{rest_verb}_mimetype)
         except Exception as e:
             return traceback.format_exc(), 500
 """
@@ -57,7 +59,9 @@ def {method_name}() -> dict:
                                                               static_config={static_config},
                                                               jwt_payload=jwt_payload,
                                                               {payload})
-            return component_instance.{method_name_type}()
+            return Response(response=component_instance.{method_name_type}(),
+                            status=200,
+                            mimetype=component_instance.{rest_verb}_mimetype)
         except Exception as e:
             return traceback.format_exc(), 500
 """
