@@ -119,17 +119,18 @@ def {method_name}() -> dict:
                     else grid["components"]
                 ).items():
                     if re.match(
-                        r"^("
-                        + r"table|"
-                        + r"antd-table|"
-                        + r"metadata|"
-                        + r"plot|"
-                        + r"file|"
-                        + r"slider|"
-                        + r"dropdown-query|"
-                        + r"form"
-                        + r").*$",
+                        r"""^(
+                            table|
+                            antd-table|
+                            metadata|
+                            plot|
+                            file|
+                            slider|
+                            dropdown-query|
+                            form
+                            ).*$""",
                         comp["type"],
+                        flags=re.VERBOSE,
                     ):
                         f.write(
                             (active_route_template).format(

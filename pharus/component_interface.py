@@ -334,14 +334,9 @@ class TableComponent(FetchComponent):
         )
 
     def attributes_route(self):
-        attributes_meta = _DJConnector._get_attributes(self.fetch_metadata["query"])
-        query = self.fetch_metadata["query"] & self.restriction[0]
-        unique_values = []
-        for key in query.heading.attributes.keys():
-            result = (dj.U(key) & query).fetch()
-            unique_values.append(
-                [dict({"text": str(x[0]), "value": x[0]}) for x in result]
-            )
+        attributes_meta = _DJConnector._get_attributes(
+            self.fetch_metadata["query"], include_unique_values=True
+        )
         return NumpyEncoder.dumps(
             dict(
                 attributeHeaders=attributes_meta["attribute_headers"],
