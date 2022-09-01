@@ -269,7 +269,7 @@ class _DJConnector:
                         attribute_info.autoincrement,
                         [
                             dict({"text": str(v), "value": v})
-                            for (v,) in (dj.U(attribute_name) & query)
+                            for (v,) in (dj.U(attribute_name) & query).fetch()
                         ]
                         if include_unique_values
                         else None,
