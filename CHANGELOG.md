@@ -4,11 +4,11 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 
 ## [0.5.0] - 2022-09-01
 ### Fixed
-- Bugs with UUID and NaN in component_interface.py JSON encoder PR #128
+- Bugs with returning UUID and NaN values PR #128
 
 ### Added
-- Support for creating virtual modules with `-` in the schema name, use `__` PR #128
-- Support for new `antd-table`, old table filtering will no longer work and the entire table will be deprecated in a later release PR #128
+- Support schemas with a `-` by specifying instead with `__` in dynamic spec PR #128
+- Support for new `antd-table` component. Prior `table` component will be deprecated in the next minor release. PR #128
 
 ## [0.4.1] - 2022-03-24
 ### Fixed
