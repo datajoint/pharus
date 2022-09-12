@@ -123,9 +123,15 @@ class FetchComponent:
         record_header, table_records, total_count = _DJConnector._fetch_records(
             query=fetch_metadata["query"] & self.restriction,
             fetch_args=fetch_metadata["fetch_args"],
+            limit=int(request.args["limit"]) if "limit" in request.args else 1000,
+            page=int(request.args["page"]) if "page" in request.args else 1,
         )
-        return dict(
-            recordHeader=record_header, records=table_records, totalCount=total_count
+        return NumpyEncoder.dumps(
+            dict(
+                recordHeader=record_header,
+                records=table_records,
+                totalCount=total_count,
+            )
         )
 
 
