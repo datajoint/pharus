@@ -27,12 +27,18 @@ services:
     environment:
       - FLASK_ENV=development # enables logging to console from Flask
       - PHARUS_SPEC_PATH=tests/init/test_dynamic_api_spec.yaml # for dynamic api spec
+      # --- only needed if you need OIDC compatability ---
+      - OIDC_CLIENT_SECRET
+      - OIDC_CLIENT_ID
+      - OIDC_REDIRECT_URI
+      - OIDC_CODE_VERIFIER
+      - OIDC_TOKEN_URL
     volumes:
       - ./pharus:/opt/conda/lib/python3.8/site-packages/pharus
     command: pharus
   fakeservices.datajoint.io:
     <<: *net
-    image: datajoint/nginx:v0.2.2
+    image: datajoint/nginx:v0.2.3
     environment:
       - ADD_pharus_TYPE=REST
       - ADD_pharus_ENDPOINT=pharus:5000

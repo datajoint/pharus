@@ -11,8 +11,10 @@ from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend as crypto_default_backend
 
+from requests.auth import HTTPBasicAuth
 from flask import Flask, request
 import jwt
+import requests
 from json import loads
 from base64 import b64decode
 from datajoint.errors import IntegrityError
@@ -64,7 +66,8 @@ def protected_route(function: Callable) -> Callable:
                 environ["PHARUS_PUBLIC_KEY"],
                 algorithms="RS256",
             )
-            return function(jwt_payload, **kwargs)
+            jwt_encoded = request.headers.get("Authorization").split()[1]
+            return function(jwt_payload, jwt_encoded, **kwargs)
         except Exception as e:
             return str(e), 401
 
@@ -181,29 +184,60 @@ def login() -> dict:
         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
     """
     if request.method == "POST":
-        # Check if request.json has the correct fields
-        if not request.json.keys() >= {"databaseAddress", "username", "password"}:
-            return dict(error="Invalid json body")
+        # Check if request has the correct fields
+        # if ( "database_host" not in request.headers and
+        #     not request.json.keys() >= {"databaseAddress", "username", "password"}
+
+        # ):
+        #     return dict(error="Invalid Request, check headers and/or json body")
 
         # Try to login in with the database connection info, if true then create jwt key
+        print("database_host" in request.args, flush=True)
         try:
-            _DJConnector._attempt_login(
-                request.json["databaseAddress"],
-                request.json["username"],
-                request.json["password"],
-            )
-            # Generate JWT key and send it back
-            encoded_jwt = jwt.encode(
-                request.json, environ["PHARUS_PRIVATE_KEY"], algorithm="RS256"
-            )
-            return dict(jwt=encoded_jwt)
+            if "database_host" in request.args:
+                # Oidc token exchange
+
+                body = {
+                    "grant_type": "authorization_code",
+                    "code": request.args["code"],
+                    "code_verifier": environ.get("OIDC_CODE_VERIFIER"),
+                    "client_id": environ.get("OIDC_CLIENT_ID"),
+                    "redirect_uri": environ.get("OIDC_REDIRECT_URI"),
+                }
+                headers = {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                }
+                auth = HTTPBasicAuth(
+                    environ.get("OIDC_CLIENT_ID"),
+                    environ.get("OIDC_CLIENT_SECRET"),
+                )
+                jwt = requests.post(
+                    environ.get("OIDC_TOKEN_URL"),
+                    data=body,
+                    headers=headers,
+                    auth=auth,
+                )
+                print(jwt.json()["access_token"], flush=True)
+                return dict(jwt=jwt.json()["access_token"])
+            else:  # Database login
+                _DJConnector._attempt_login(
+                    request.json["databaseAddress"],
+                    request.json["username"],
+                    request.json["password"],
+                )
+                # Generate JWT key and send it back
+                encoded_jwt = jwt.encode(
+                    request.json, environ["PHARUS_PRIVATE_KEY"], algorithm="RS256"
+                )
+                return dict(jwt=encoded_jwt)
         except Exception as e:
+            print(e.with_traceback(), flush=True)
             return str(e), 500
 
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/schema", methods=["GET"])
 @protected_route
-def schema(jwt_payload: dict) -> dict:
+def schema(jwt_payload: dict, jwt_encoded: str) -> dict:
     """
     Handler for ``/schema`` route.
 
@@ -267,7 +301,7 @@ def schema(jwt_payload: dict) -> dict:
     f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table", methods=["GET"]
 )
 @protected_route
-def table(jwt_payload: dict, schema_name: str) -> dict:
+def table(jwt_payload: dict, schema_name: str, jwt_encoded: str) -> dict:
     """
     Handler for ``/schema/{schema_name}/table`` route.
 
@@ -343,7 +377,7 @@ def table(jwt_payload: dict, schema_name: str) -> dict:
 )
 @protected_route
 def record(
-    jwt_payload: dict, schema_name: str, table_name: str
+    jwt_payload: dict, schema_name: str, table_name: str, jwt_encoded: str
 ) -> Union[dict, str, tuple]:
     (
         """
@@ -716,7 +750,9 @@ def record(
     methods=["GET"],
 )
 @protected_route
-def definition(jwt_payload: dict, schema_name: str, table_name: str) -> str:
+def definition(
+    jwt_payload: dict, schema_name: str, table_name: str, jwt_encoded: str
+) -> str:
     """
     Handler for ``/schema/{schema_name}/table/{table_name}/definition`` route.
 
@@ -795,7 +831,9 @@ def definition(jwt_payload: dict, schema_name: str, table_name: str) -> str:
     methods=["GET"],
 )
 @protected_route
-def attribute(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
+def attribute(
+    jwt_payload: dict, schema_name: str, table_name: str, jwt_encoded: str
+) -> dict:
     """
     Handler for ``/schema/{schema_name}/table/{table_name}/attribute`` route.
 
@@ -969,7 +1007,9 @@ def attribute(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
     methods=["GET"],
 )
 @protected_route
-def dependency(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
+def dependency(
+    jwt_payload: dict, schema_name: str, table_name: str, jwt_encoded: str
+) -> dict:
     (
         """
         Handler for ``/schema/{schema_name}/table/{table_name}/dependency`` route.

@@ -494,7 +494,9 @@ class _DJConnector:
         return f"{attribute_filter['attributeName']}{operation}{value}"
 
     @staticmethod
-    def _set_datajoint_config(jwt_payload: dict) -> dj.connection.Connection:
+    def _set_datajoint_config(
+        jwt_payload: dict, jwt_encoded: str = None, host_name: str = None
+    ) -> dj.connection.Connection:
         """
         Method to set credentials for database.
 
@@ -504,7 +506,12 @@ class _DJConnector:
         :return: DataJoint connection object.
         :rtype: :class:`~datajoint.connection.Connection`
         """
-        dj.config["database.host"] = jwt_payload["databaseAddress"]
-        dj.config["database.user"] = jwt_payload["username"]
-        dj.config["database.password"] = jwt_payload["password"]
+        if not host_name:
+            dj.config["database.host"] = jwt_payload["databaseAddress"]
+            dj.config["database.user"] = jwt_payload["username"]
+            dj.config["database.password"] = jwt_payload["password"]
+        else:  # oidc jwt login
+            dj.config["database.host"] = host_name
+            dj.config["database.user"] = jwt_payload["sub"]
+            dj.config["database.password"] = jwt_encoded
         return dj.conn(reset=True)
