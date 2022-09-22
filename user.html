@@ -14,6 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -74,7 +75,7 @@
            <div itemprop="articleBody">
              
   <section id="user-documentation">
-<h1>User Documentation<a class="headerlink" href="#user-documentation" title="Permalink to this headline"></a></h1>
+<h1>User Documentation<a class="headerlink" href="#user-documentation" title="Permalink to this heading"></a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">pharus</span></code> is a generic REST API server backend for <a class="reference external" href="https://datajoint.io">DataJoint</a> pipelines built on top of <code class="docutils literal notranslate"><span class="pre">flask</span></code>, <code class="docutils literal notranslate"><span class="pre">datajoint</span></code>, and <code class="docutils literal notranslate"><span class="pre">pyjwt</span></code>.</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://datajoint.github.io/pharus">Documentation</a></p></li>
@@ -84,7 +85,7 @@
 <li><p><a class="reference external" href="https://github.com/datajoint/pharus">Source</a></p></li>
 </ul>
 <section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h2>
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h2>
 <p>If you have not done so already, please install the following dependencies.</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://docs.docker.com/get-docker/">Docker</a></p></li>
@@ -92,26 +93,26 @@
 </ul>
 </section>
 <section id="prerequisites">
-<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline"></a></h2>
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this heading"></a></h2>
 <p>Download the <code class="docutils literal notranslate"><span class="pre">docker-compose-deploy.yaml</span></code> docker environment from the source located <a class="reference external" href="https://github.com/datajoint/pharus/releases/latest/download/docker-compose-deploy.yaml">here</a>.</p>
 </section>
 <section id="running-the-api-server">
-<h2>Running the API server<a class="headerlink" href="#running-the-api-server" title="Permalink to this headline"></a></h2>
+<h2>Running the API server<a class="headerlink" href="#running-the-api-server" title="Permalink to this heading"></a></h2>
 <p>To start the API server, use the command:</p>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">PHARUS_VERSION</span><span class="o">=</span><span class="m">0</span>.1.0 docker-compose -f docker-compose-deploy.yaml up -d
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">PHARUS_VERSION</span><span class="o">=</span><span class="m">0</span>.4.1 docker-compose -f docker-compose-deploy.yaml up -d
 </pre></div>
 </div>
 </div></blockquote>
 <p>To stop the API server, use the command:</p>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">PHARUS_VERSION</span><span class="o">=</span><span class="m">0</span>.1.0 docker-compose -f docker-compose-deploy.yaml down
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">PHARUS_VERSION</span><span class="o">=</span><span class="m">0</span>.4.1 docker-compose -f docker-compose-deploy.yaml down
 </pre></div>
 </div>
 </div></blockquote>
 </section>
 <section id="references">
-<h2>References<a class="headerlink" href="#references" title="Permalink to this headline"></a></h2>
+<h2>References<a class="headerlink" href="#references" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p>DataJoint</p>
 <ul>

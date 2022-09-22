@@ -14,6 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -82,9 +83,9 @@
            <div itemprop="articleBody">
              
   <section id="pharus-package">
-<h1>pharus package<a class="headerlink" href="#pharus-package" title="Permalink to this headline"></a></h1>
+<h1>pharus package<a class="headerlink" href="#pharus-package" title="Permalink to this heading"></a></h1>
 <section id="module-pharus.error">
-<span id="pharus-error-module"></span><h2>pharus.error module<a class="headerlink" href="#module-pharus.error" title="Permalink to this headline"></a></h2>
+<span id="pharus-error-module"></span><h2>pharus.error module<a class="headerlink" href="#module-pharus.error" title="Permalink to this heading"></a></h2>
 <p>Error class library.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="pharus.error.InvalidRestriction">
@@ -102,11 +103,11 @@
 
 </section>
 <section id="module-pharus.interface">
-<span id="pharus-interface-module"></span><h2>pharus.interface module<a class="headerlink" href="#module-pharus.interface" title="Permalink to this headline"></a></h2>
+<span id="pharus-interface-module"></span><h2>pharus.interface module<a class="headerlink" href="#module-pharus.interface" title="Permalink to this heading"></a></h2>
 <p>Library for interfaces into DataJoint pipelines.</p>
 </section>
 <section id="module-pharus.server">
-<span id="pharus-server-module"></span><h2>pharus.server module<a class="headerlink" href="#module-pharus.server" title="Permalink to this headline"></a></h2>
+<span id="pharus-server-module"></span><h2>pharus.server module<a class="headerlink" href="#module-pharus.server" title="Permalink to this heading"></a></h2>
 <p>Exposed REST API.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pharus.server.api_version">
@@ -134,9 +135,9 @@
 <span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
 
-<span class="p">{</span>
-    <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.1.0&quot;</span>
-<span class="p">}</span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.4.1&quot;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -432,22 +433,22 @@ strings.</p></li>
 <span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
 
-<span class="p">{</span>
-    <span class="nt">&quot;dependencies&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="p">{</span>
-            <span class="nt">&quot;accessible&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-            <span class="nt">&quot;count&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-            <span class="nt">&quot;schema&quot;</span><span class="p">:</span> <span class="s2">&quot;alpha_company&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;table&quot;</span><span class="p">:</span> <span class="s2">&quot;computer&quot;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="nt">&quot;accessible&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-            <span class="nt">&quot;count&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-            <span class="nt">&quot;schema&quot;</span><span class="p">:</span> <span class="s2">&quot;alpha_company&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;table&quot;</span><span class="p">:</span> <span class="s2">&quot;#employee&quot;</span>
-        <span class="p">}</span>
-    <span class="p">]</span>
-<span class="p">}</span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;accessible&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;alpha_company&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;table&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;computer&quot;</span><span class="w"></span>
+<span class="w">        </span><span class="p">},</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;accessible&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;alpha_company&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;table&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#employee&quot;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">]</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p><strong>Example unexpected response</strong>:</p>
@@ -542,9 +543,9 @@ to the above strategy is currently being tracked in
 <span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
 
-<span class="p">{</span>
-    <span class="nt">&quot;jwt&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;token&gt;&quot;</span>
-<span class="p">}</span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;jwt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;token&gt;&quot;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p><strong>Example unexpected response</strong>:</p>
@@ -627,39 +628,39 @@ returns error.</p>
 <span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
 
-<span class="p">{</span>
-    <span class="nt">&quot;recordHeader&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">&quot;computer_id&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;computer_serial&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;computer_brand&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;computer_built&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;computer_processor&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;computer_memory&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;computer_weight&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;computer_cost&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;computer_preowned&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;computer_purchased&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;computer_updates&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;computer_accessories&quot;</span>
-    <span class="p">],</span>
-    <span class="nt">&quot;records&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="p">[</span>
-            <span class="s2">&quot;4e41491a-86d5-4af7-a013-89bde75528bd&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;DJS1JA17G&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Dell&quot;</span><span class="p">,</span>
-            <span class="mi">1590364800</span><span class="p">,</span>
-            <span class="mf">2.2</span><span class="p">,</span>
-            <span class="mi">16</span><span class="p">,</span>
-            <span class="mf">4.4</span><span class="p">,</span>
-            <span class="s2">&quot;700.99&quot;</span><span class="p">,</span>
-            <span class="mi">0</span><span class="p">,</span>
-            <span class="mi">1603181061</span><span class="p">,</span>
-            <span class="kc">null</span><span class="p">,</span>
-            <span class="s2">&quot;=BLOB=&quot;</span>
-        <span class="p">]</span>
-    <span class="p">],</span>
-    <span class="nt">&quot;totalCount&quot;</span><span class="p">:</span> <span class="mi">2</span>
-<span class="p">}</span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;recordHeader&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">        </span><span class="s2">&quot;computer_id&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="s2">&quot;computer_serial&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="s2">&quot;computer_brand&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="s2">&quot;computer_built&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="s2">&quot;computer_processor&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="s2">&quot;computer_memory&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="s2">&quot;computer_weight&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="s2">&quot;computer_cost&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="s2">&quot;computer_preowned&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="s2">&quot;computer_purchased&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="s2">&quot;computer_updates&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="s2">&quot;computer_accessories&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;records&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">        </span><span class="p">[</span><span class="w"></span>
+<span class="w">            </span><span class="s2">&quot;4e41491a-86d5-4af7-a013-89bde75528bd&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="s2">&quot;DJS1JA17G&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="s2">&quot;Dell&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="mi">1590364800</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="mf">2.2</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="mi">16</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="mf">4.4</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="s2">&quot;700.99&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="mi">0</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="mi">1603181061</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="kc">null</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="s2">&quot;=BLOB=&quot;</span><span class="w"></span>
+<span class="w">        </span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;totalCount&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p><strong>Example unexpected response</strong>:</p>
@@ -863,15 +864,15 @@ Delete Successful
 <span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
 
-<span class="p">{</span>
-    <span class="nt">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;IntegrityError&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;error_msg&quot;</span><span class="p">:</span> <span class="s2">&quot;Cannot delete or update a parent row: a foreign key</span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;IntegrityError&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;error_msg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Cannot delete or update a parent row: a foreign key</span>
 <span class="s2">        constraint fails (`alpha_company`.`#employee`, CONSTRAINT</span>
 <span class="s2">        `#employee_ibfk_1` FOREIGN KEY (`computer_id`) REFERENCES `computer`</span>
-<span class="s2">        (`computer_id`) ON DELETE RESTRICT ON UPDATE CASCADE&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;child_schema&quot;</span><span class="p">:</span> <span class="s2">&quot;alpha_company&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;child_table&quot;</span><span class="p">:</span> <span class="s2">&quot;Employee&quot;</span>
-<span class="p">}</span>
+<span class="s2">        (`computer_id`) ON DELETE RESTRICT ON UPDATE CASCADE&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;child_schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;alpha_company&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;child_table&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Employee&quot;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p><strong>Example unexpected response</strong>:</p>
@@ -955,11 +956,11 @@ string.</p></li>
 <span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
 
-<span class="p">{</span>
-    <span class="nt">&quot;schemaNames&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">&quot;alpha_company&quot;</span>
-    <span class="p">]</span>
-<span class="p">}</span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;schemaNames&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">        </span><span class="s2">&quot;alpha_company&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="p">]</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p><strong>Example unexpected response</strong>:</p>
@@ -1026,19 +1027,19 @@ string.</p></li>
 <span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
 
-<span class="p">{</span>
-    <span class="nt">&quot;tableTypes&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;computed&quot;</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="nt">&quot;imported&quot;</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="nt">&quot;lookup&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="s2">&quot;Employee&quot;</span>
-        <span class="p">],</span>
-        <span class="nt">&quot;manual&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="s2">&quot;Computer&quot;</span>
-        <span class="p">],</span>
-        <span class="nt">&quot;part&quot;</span><span class="p">:</span> <span class="p">[]</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;tableTypes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;computed&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;imported&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;lookup&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">            </span><span class="s2">&quot;Employee&quot;</span><span class="w"></span>
+<span class="w">        </span><span class="p">],</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;manual&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">            </span><span class="s2">&quot;Computer&quot;</span><span class="w"></span>
+<span class="w">        </span><span class="p">],</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;part&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p><strong>Example unexpected response</strong>:</p>
@@ -1079,7 +1080,7 @@ string.</p></li>
 
 </section>
 <section id="module-pharus.version">
-<span id="pharus-version-module"></span><h2>pharus.version module<a class="headerlink" href="#module-pharus.version" title="Permalink to this headline"></a></h2>
+<span id="pharus-version-module"></span><h2>pharus.version module<a class="headerlink" href="#module-pharus.version" title="Permalink to this heading"></a></h2>
 <p>Package metadata.</p>
 </section>
 </section>
