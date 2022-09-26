@@ -2,6 +2,10 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.5.1] - 2022-09-27
+### Added
+- Schema templating for insert queries using query params PR #131
+
 ## [0.5.0] - 2022-09-21
 ### Fixed
 - Bugs with returning UUID and NaN values PR #128
