@@ -2,6 +2,15 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.5.0] - 2022-09-21
+### Fixed
+- Bugs with returning UUID and NaN values PR #128
+
+### Added
+- Support schemas with a `-` by specifying instead with `__` in dynamic spec PR #128
+- Support for new `antd-table` component. Prior `table` component will be deprecated in the next minor release. PR #128
+- Support for InsertComponent
+
 ## [0.4.1] - 2022-03-24
 ### Fixed
 - Bug with otumat version not being tied to the latest PR #119
