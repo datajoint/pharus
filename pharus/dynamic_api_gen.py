@@ -28,7 +28,7 @@ except (ModuleNotFoundError, ImportError):
 
 @app.route('{route}', methods=['{rest_verb}'])
 @protected_route
-def {method_name}(jwt_payload: dict) -> dict:
+def {method_name}(jwt_payload: dict, jwt_encoded: str) -> dict:
 
     if request.method in ['{rest_verb}']:
         try:
@@ -36,6 +36,7 @@ def {method_name}(jwt_payload: dict) -> dict:
                                                               component_config={component},
                                                               static_config={static_config},
                                                               jwt_payload=jwt_payload,
+                                                              jwt_encoded=jwt_encoded,
                                                               {payload})
             return component_instance.{method_name_type}()
         except Exception as e:

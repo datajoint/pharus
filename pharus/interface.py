@@ -35,7 +35,9 @@ class _DJConnector:
         dj.conn(reset=True)
 
     @staticmethod
-    def _list_schemas(jwt_payload: dict) -> list:
+    def _list_schemas(
+        jwt_payload: dict, jwt_encoded: str = None, database_host: str = None
+    ) -> list:
         """
         List all schemas under the database.
 
@@ -46,7 +48,10 @@ class _DJConnector:
             ``sys``, ``performance_schema``, ``mysql``)
         :rtype: list
         """
-        _DJConnector._set_datajoint_config(jwt_payload)
+        if database_host:
+            _DJConnector._set_datajoint_config(jwt_payload, jwt_encoded, database_host)
+        else:
+            _DJConnector._set_datajoint_config(jwt_payload)
 
         # Attempt to connect return true if successful, false is failed
         return [
@@ -63,7 +68,12 @@ class _DJConnector:
         ]
 
     @staticmethod
-    def _list_tables(jwt_payload: dict, schema_name: str) -> dict:
+    def _list_tables(
+        jwt_payload: dict,
+        schema_name: str,
+        jwt_encoded: str = None,
+        database_host: str = None,
+    ) -> dict:
         """
         List all tables and their type given a schema.
 
@@ -76,7 +86,10 @@ class _DJConnector:
             table names
         :rtype: dict
         """
-        _DJConnector._set_datajoint_config(jwt_payload)
+        if database_host:
+            _DJConnector._set_datajoint_config(jwt_payload, jwt_encoded, database_host)
+        else:
+            _DJConnector._set_datajoint_config(jwt_payload)
 
         # Get list of tables names
         tables_name = dj.Schema(schema_name, create_schema=False).list_tables()
@@ -268,7 +281,11 @@ class _DJConnector:
 
     @staticmethod
     def _get_table_definition(
-        jwt_payload: dict, schema_name: str, table_name: str
+        jwt_payload: dict,
+        schema_name: str,
+        table_name: str,
+        jwt_encoded: str = None,
+        database_host: str = None,
     ) -> str:
         """
         Get the table definition.
@@ -283,7 +300,10 @@ class _DJConnector:
         :return: Definition of the table
         :rtype: str
         """
-        _DJConnector._set_datajoint_config(jwt_payload)
+        if database_host:
+            _DJConnector._set_datajoint_config(jwt_payload, jwt_encoded, database_host)
+        else:
+            _DJConnector._set_datajoint_config(jwt_payload)
 
         local_values = locals()
         local_values[schema_name] = dj.VirtualModule(schema_name, schema_name)
@@ -291,7 +311,12 @@ class _DJConnector:
 
     @staticmethod
     def _insert_tuple(
-        jwt_payload: dict, schema_name: str, table_name: str, tuple_to_insert: dict
+        jwt_payload: dict,
+        schema_name: str,
+        table_name: str,
+        tuple_to_insert: dict,
+        jwt_encoded: str = None,
+        database_host: str = None,
     ):
         """
         Insert record as tuple into table.
@@ -306,14 +331,22 @@ class _DJConnector:
         :param tuple_to_insert: Record to be inserted
         :type tuple_to_insert: dict
         """
-        _DJConnector._set_datajoint_config(jwt_payload)
+        if database_host:
+            _DJConnector._set_datajoint_config(jwt_payload, jwt_encoded, database_host)
+        else:
+            _DJConnector._set_datajoint_config(jwt_payload)
 
         schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
         getattr(schema_virtual_module, table_name).insert(tuple_to_insert)
 
     @staticmethod
     def _record_dependency(
-        jwt_payload: dict, schema_name: str, table_name: str, restriction: list = []
+        jwt_payload: dict,
+        schema_name: str,
+        table_name: str,
+        restriction: list = [],
+        jwt_encoded: str = None,
+        database_host: str = None,
     ) -> list:
         """
         Return summary of dependencies associated with a restricted table. Will only show
@@ -332,7 +365,10 @@ class _DJConnector:
         :return: Tables that are dependent on specific records.
         :rtype: list
         """
-        _DJConnector._set_datajoint_config(jwt_payload)
+        if database_host:
+            _DJConnector._set_datajoint_config(jwt_payload, jwt_encoded, database_host)
+        else:
+            _DJConnector._set_datajoint_config(jwt_payload)
         virtual_module = dj.VirtualModule(schema_name, schema_name)
         table = getattr(virtual_module, table_name)
         attributes = table.heading.attributes
@@ -364,7 +400,12 @@ class _DJConnector:
 
     @staticmethod
     def _update_tuple(
-        jwt_payload: dict, schema_name: str, table_name: str, tuple_to_update: dict
+        jwt_payload: dict,
+        schema_name: str,
+        table_name: str,
+        tuple_to_update: dict,
+        jwt_encoded: str = None,
+        database_host: str = None,
     ):
         """
         Update record as tuple into table.
@@ -379,7 +420,12 @@ class _DJConnector:
         :param tuple_to_update: Record to be updated
         :type tuple_to_update: dict
         """
-        conn = _DJConnector._set_datajoint_config(jwt_payload)
+        if database_host:
+            conn = _DJConnector._set_datajoint_config(
+                jwt_payload, jwt_encoded, database_host
+            )
+        else:
+            conn = _DJConnector._set_datajoint_config(jwt_payload)
 
         schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
         with conn.transaction:
@@ -395,6 +441,8 @@ class _DJConnector:
         table_name: str,
         restriction: list = [],
         cascade: bool = False,
+        jwt_encoded: str = None,
+        database_host: str = None,
     ):
         """
         Delete a specific record based on the restriction given.
@@ -412,7 +460,10 @@ class _DJConnector:
         :param cascade: Allow for cascading delete, defaults to ``False``
         :type cascade: bool, optional
         """
-        _DJConnector._set_datajoint_config(jwt_payload)
+        if database_host:
+            _DJConnector._set_datajoint_config(jwt_payload, jwt_encoded, database_host)
+        else:
+            _DJConnector._set_datajoint_config(jwt_payload)
 
         schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
 

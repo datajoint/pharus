@@ -46,7 +46,9 @@ class NumpyEncoder(json.JSONEncoder):
 
 
 class FetchComponent:
-    def __init__(self, name, component_config, static_config, jwt_payload: dict):
+    def __init__(
+        self, name, component_config, static_config, jwt_payload: dict, jwt_encoded: str
+    ):
         lcls = locals()
         self.name = name
         if static_config:
@@ -69,19 +71,34 @@ class FetchComponent:
         else:
             self.dj_restriction = lambda: dict()
 
-        self.vm_list = [
-            dj.VirtualModule(
-                s,
-                s,
-                connection=dj.conn(
-                    host=jwt_payload["databaseAddress"],
-                    user=jwt_payload["username"],
-                    password=jwt_payload["password"],
-                    reset=True,
-                ),
-            )
-            for s in inspect.getfullargspec(self.dj_query).args
-        ]
+        if "database_host" in request.args:
+            self.vm_list = [
+                dj.VirtualModule(
+                    s,
+                    s,
+                    connection=dj.conn(
+                        host=request.args["database_host"],
+                        user=jwt_payload["sub"],
+                        password=jwt_encoded,
+                        reset=True,
+                    ),
+                )
+                for s in inspect.getfullargspec(self.dj_query).args
+            ]
+        else:
+            self.vm_list = [
+                dj.VirtualModule(
+                    s,
+                    s,
+                    connection=dj.conn(
+                        host=jwt_payload["databaseAddress"],
+                        user=jwt_payload["username"],
+                        password=jwt_payload["password"],
+                        reset=True,
+                    ),
+                )
+                for s in inspect.getfullargspec(self.dj_query).args
+            ]
 
     @property
     def fetch_metadata(self):
@@ -124,7 +141,13 @@ class InsertComponent:
     fields_route_format = "{route}/fields"
 
     def __init__(
-        self, name, component_config, static_config, payload, jwt_payload: dict
+        self,
+        name,
+        component_config,
+        static_config,
+        payload,
+        jwt_payload: dict,
+        jwt_encoded: str,
     ):
         self.name = name
         self.payload = payload
@@ -140,12 +163,21 @@ class InsertComponent:
             self.width = component_config["width"]
         self.type = component_config["type"]
         self.route = component_config["route"]
-        self.connection = dj.conn(
-            host=jwt_payload["databaseAddress"],
-            user=jwt_payload["username"],
-            password=jwt_payload["password"],
-            reset=True,
-        )
+        if "database_host" in request.args:
+            self.connection = dj.conn(
+                host=request.args["database_host"],
+                user=jwt_payload["sub"],
+                password=jwt_encoded,
+                reset=True,
+            )
+
+        else:
+            self.connection = dj.conn(
+                host=jwt_payload["databaseAddress"],
+                user=jwt_payload["username"],
+                password=jwt_payload["password"],
+                reset=True,
+            )
         self.fields_map = component_config.get("map")
         self.tables = [
             getattr(
