@@ -36,9 +36,7 @@ class _DJConnector:
         dj.conn(reset=True)
 
     @staticmethod
-    def _list_schemas(
-        connect_creds: dict, jwt_encoded: str = None, database_host: str = None
-    ) -> list:
+    def _list_schemas(connect_creds: dict) -> list:
         """
         List all schemas under the database.
 
@@ -49,12 +47,8 @@ class _DJConnector:
             ``sys``, ``performance_schema``, ``mysql``)
         :rtype: list
         """
-        if database_host:
-            _DJConnector._set_datajoint_config(
-                connect_creds, jwt_encoded, database_host
-            )
-        else:
-            _DJConnector._set_datajoint_config(connect_creds)
+
+        _DJConnector._set_datajoint_config(connect_creds)
 
         # Attempt to connect return true if successful, false is failed
         return [
@@ -74,8 +68,6 @@ class _DJConnector:
     def _list_tables(
         connect_creds: dict,
         schema_name: str,
-        jwt_encoded: str = None,
-        database_host: str = None,
     ) -> dict:
         """
         List all tables and their type given a schema.
@@ -89,12 +81,8 @@ class _DJConnector:
             table names
         :rtype: dict
         """
-        if database_host:
-            _DJConnector._set_datajoint_config(
-                connect_creds, jwt_encoded, database_host
-            )
-        else:
-            _DJConnector._set_datajoint_config(connect_creds)
+
+        _DJConnector._set_datajoint_config(connect_creds)
 
         # Get list of tables names
         tables_name = dj.Schema(schema_name, create_schema=False).list_tables()
@@ -289,8 +277,6 @@ class _DJConnector:
         connect_creds: dict,
         schema_name: str,
         table_name: str,
-        jwt_encoded: str = None,
-        database_host: str = None,
     ) -> str:
         """
         Get the table definition.
@@ -305,12 +291,8 @@ class _DJConnector:
         :return: Definition of the table
         :rtype: str
         """
-        if database_host:
-            _DJConnector._set_datajoint_config(
-                connect_creds, jwt_encoded, database_host
-            )
-        else:
-            _DJConnector._set_datajoint_config(connect_creds)
+
+        _DJConnector._set_datajoint_config(connect_creds)
 
         local_values = locals()
         local_values[schema_name] = dj.VirtualModule(schema_name, schema_name)
@@ -322,8 +304,6 @@ class _DJConnector:
         schema_name: str,
         table_name: str,
         tuple_to_insert: dict,
-        jwt_encoded: str = None,
-        database_host: str = None,
     ):
         """
         Insert record as tuple into table.
@@ -338,12 +318,8 @@ class _DJConnector:
         :param tuple_to_insert: Record to be inserted
         :type tuple_to_insert: dict
         """
-        if database_host:
-            _DJConnector._set_datajoint_config(
-                connect_creds, jwt_encoded, database_host
-            )
-        else:
-            _DJConnector._set_datajoint_config(connect_creds)
+
+        _DJConnector._set_datajoint_config(connect_creds)
 
         schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
         getattr(schema_virtual_module, table_name).insert(tuple_to_insert)
@@ -354,8 +330,6 @@ class _DJConnector:
         schema_name: str,
         table_name: str,
         restriction: list = [],
-        jwt_encoded: str = None,
-        database_host: str = None,
     ) -> list:
         """
         Return summary of dependencies associated with a restricted table. Will only show
@@ -374,12 +348,8 @@ class _DJConnector:
         :return: Tables that are dependent on specific records.
         :rtype: list
         """
-        if database_host:
-            _DJConnector._set_datajoint_config(
-                connect_creds, jwt_encoded, database_host
-            )
-        else:
-            _DJConnector._set_datajoint_config(connect_creds)
+
+        _DJConnector._set_datajoint_config(connect_creds)
         virtual_module = dj.VirtualModule(schema_name, schema_name)
         table = getattr(virtual_module, table_name)
         attributes = table.heading.attributes
@@ -415,8 +385,6 @@ class _DJConnector:
         schema_name: str,
         table_name: str,
         tuple_to_update: dict,
-        jwt_encoded: str = None,
-        database_host: str = None,
     ):
         """
         Update record as tuple into table.
@@ -431,12 +399,7 @@ class _DJConnector:
         :param tuple_to_update: Record to be updated
         :type tuple_to_update: dict
         """
-        if database_host:
-            conn = _DJConnector._set_datajoint_config(
-                connect_creds, jwt_encoded, database_host
-            )
-        else:
-            conn = _DJConnector._set_datajoint_config(connect_creds)
+        conn = _DJConnector._set_datajoint_config(connect_creds)
 
         schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
         with conn.transaction:
@@ -452,8 +415,6 @@ class _DJConnector:
         table_name: str,
         restriction: list = [],
         cascade: bool = False,
-        jwt_encoded: str = None,
-        database_host: str = None,
     ):
         """
         Delete a specific record based on the restriction given.
@@ -471,12 +432,8 @@ class _DJConnector:
         :param cascade: Allow for cascading delete, defaults to ``False``
         :type cascade: bool, optional
         """
-        if database_host:
-            _DJConnector._set_datajoint_config(
-                connect_creds, jwt_encoded, database_host
-            )
-        else:
-            _DJConnector._set_datajoint_config(connect_creds)
+
+        _DJConnector._set_datajoint_config(connect_creds)
 
         schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
 
@@ -558,9 +515,7 @@ class _DJConnector:
         return f"{attribute_filter['attributeName']}{operation}{value}"
 
     @staticmethod
-    def _set_datajoint_config(
-        connect_creds: dict, jwt_encoded: str = None, host_name: str = None
-    ) -> dj.connection.Connection:
+    def _set_datajoint_config(connect_creds: dict) -> dj.connection.Connection:
         """
         Method to set credentials for database.
 
@@ -570,14 +525,7 @@ class _DJConnector:
         :return: DataJoint connection object.
         :rtype: :class:`~datajoint.connection.Connection`
         """
-        if not host_name:
-            dj.config["database.host"] = connect_creds["databaseAddress"]
-            dj.config["database.user"] = connect_creds["username"]
-            dj.config["database.password"] = connect_creds["password"]
-        else:  # oidc jwt login
-            dj.config["database.host"] = host_name
-            dj.config["database.user"] = connect_creds[
-                environ.get("PHARUS_OIDC_SUBJECT_KEY")
-            ]
-            dj.config["database.password"] = jwt_encoded
+        dj.config["database.host"] = connect_creds["databaseAddress"]
+        dj.config["database.user"] = connect_creds["username"]
+        dj.config["database.password"] = connect_creds["password"]
         return dj.conn(reset=True)

@@ -52,7 +52,6 @@ class FetchComponent:
         component_config,
         static_config,
         connect_creds: dict,
-        jwt_encoded: str,
     ):
         lcls = locals()
         self.name = name
@@ -75,35 +74,19 @@ class FetchComponent:
             self.dj_restriction = lcls["restriction"]
         else:
             self.dj_restriction = lambda: dict()
-
-        if "database_host" in request.args:
-            self.vm_list = [
-                dj.VirtualModule(
-                    s,
-                    s,
-                    connection=dj.conn(
-                        host=request.args["database_host"],
-                        user=connect_creds["sub"],
-                        password=jwt_encoded,
-                        reset=True,
-                    ),
-                )
-                for s in inspect.getfullargspec(self.dj_query).args
-            ]
-        else:
-            self.vm_list = [
-                dj.VirtualModule(
-                    s,
-                    s,
-                    connection=dj.conn(
-                        host=connect_creds["databaseAddress"],
-                        user=connect_creds["username"],
-                        password=connect_creds["password"],
-                        reset=True,
-                    ),
-                )
-                for s in inspect.getfullargspec(self.dj_query).args
-            ]
+        self.vm_list = [
+            dj.VirtualModule(
+                s,
+                s,
+                connection=dj.conn(
+                    host=connect_creds["databaseAddress"],
+                    user=connect_creds["username"],
+                    password=connect_creds["password"],
+                    reset=True,
+                ),
+            )
+            for s in inspect.getfullargspec(self.dj_query).args
+        ]
 
     @property
     def fetch_metadata(self):
@@ -152,7 +135,6 @@ class InsertComponent:
         static_config,
         payload,
         connect_creds: dict,
-        jwt_encoded: str,
     ):
         self.name = name
         self.payload = payload
@@ -168,21 +150,12 @@ class InsertComponent:
             self.width = component_config["width"]
         self.type = component_config["type"]
         self.route = component_config["route"]
-        if "database_host" in request.args:
-            self.connection = dj.conn(
-                host=request.args["database_host"],
-                user=connect_creds["sub"],
-                password=jwt_encoded,
-                reset=True,
-            )
-
-        else:
-            self.connection = dj.conn(
-                host=connect_creds["databaseAddress"],
-                user=connect_creds["username"],
-                password=connect_creds["password"],
-                reset=True,
-            )
+        self.connection = dj.conn(
+            host=connect_creds["databaseAddress"],
+            user=connect_creds["username"],
+            password=connect_creds["password"],
+            reset=True,
+        )
         self.fields_map = component_config.get("map")
         self.tables = [
             getattr(

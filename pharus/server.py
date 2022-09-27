@@ -61,15 +61,24 @@ def protected_route(function: Callable) -> Callable:
     @wraps(function)
     def wrapper(**kwargs):
         try:
-            connect_creds = jwt.decode(
-                request.headers.get("Authorization").split()[1],
-                environ["PHARUS_OIDC_PUBLIC_KEY"]
-                if "database_host" in request.args
-                else environ["PHARUS_PUBLIC_KEY"],
-                algorithms="RS256",
-            )
-            jwt_encoded = request.headers.get("Authorization").split()[1]
-            return function(connect_creds, jwt_encoded, **kwargs)
+            if "database_host" in request.args:
+                jwt_payload = jwt.decode(
+                    request.headers.get("Authorization").split()[1],
+                    environ["PHARUS_OIDC_PUBLIC_KEY"],
+                    algorithms="RS256",
+                )
+                connect_creds = dict(
+                    databaseAddress=request.args["database_host"],
+                    username=jwt_payload[environ.get("PHARUS_OIDC_SUBJECT_KEY")],
+                    password=request.headers.get("Authorization").split()[1],
+                )
+            else:
+                connect_creds = jwt.decode(
+                    request.headers.get("Authorization").split()[1],
+                    environ["PHARUS_PUBLIC_KEY"],
+                    algorithms="RS256",
+                )
+            return function(connect_creds, **kwargs)
         except Exception as e:
             return str(e), 401
 
@@ -242,7 +251,7 @@ def login() -> dict:
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/schema", methods=["GET"])
 @protected_route
-def schema(connect_creds: dict, jwt_encoded: str) -> dict:
+def schema(connect_creds: dict) -> dict:
     """
     Handler for ``/schema`` route.
 
@@ -297,12 +306,7 @@ def schema(connect_creds: dict, jwt_encoded: str) -> dict:
     if request.method in {"GET", "HEAD"}:
         # Get all the schemas
         try:
-            if "database_host" in request.args:
-                schemas_name = _DJConnector._list_schemas(
-                    connect_creds, jwt_encoded, request.args["database_host"]
-                )
-            else:
-                schemas_name = _DJConnector._list_schemas(connect_creds)
+            schemas_name = _DJConnector._list_schemas(connect_creds)
             return dict(schemaNames=schemas_name)
         except Exception as e:
             return str(e), 500
@@ -314,7 +318,6 @@ def schema(connect_creds: dict, jwt_encoded: str) -> dict:
 @protected_route
 def table(
     connect_creds: dict,
-    jwt_encoded: str,
     schema_name: str,
 ) -> dict:
     """
@@ -381,15 +384,7 @@ def table(
     """
     if request.method in {"GET", "HEAD"}:
         try:
-            if "database_host" in request.args:
-                tables_dict_list = _DJConnector._list_tables(
-                    connect_creds,
-                    schema_name,
-                    jwt_encoded,
-                    request.args["database_host"],
-                )
-            else:
-                tables_dict_list = _DJConnector._list_tables(connect_creds, schema_name)
+            tables_dict_list = _DJConnector._list_tables(connect_creds, schema_name)
             return dict(tableTypes=tables_dict_list)
         except Exception as e:
             return str(e), 500
@@ -402,7 +397,6 @@ def table(
 @protected_route
 def record(
     connect_creds: dict,
-    jwt_encoded: str,
     schema_name: str,
     table_name: str,
 ) -> Union[dict, str, tuple]:
@@ -693,10 +687,7 @@ def record(
     )
     if request.method in {"GET", "HEAD"}:
         try:
-            if "database_host" in request.args:
-                _DJConnector._set_datajoint_config(
-                    connect_creds, jwt_encoded, request.args["database_host"]
-                )
+            _DJConnector._set_datajoint_config(connect_creds)
 
             schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
 
@@ -725,79 +716,37 @@ def record(
             return str(e), 500
     elif request.method == "POST":
         try:
-            # Attempt to insert
-            if "database_host" in request.args:
-                _DJConnector._insert_tuple(
-                    connect_creds,
-                    schema_name,
-                    table_name,
-                    request.json["records"],
-                    jwt_encoded,
-                    request.args["database_host"],
-                )
-            else:
-                _DJConnector._insert_tuple(
-                    connect_creds, schema_name, table_name, request.json["records"]
-                )
+            _DJConnector._insert_tuple(
+                connect_creds, schema_name, table_name, request.json["records"]
+            )
             return "Insert Successful"
         except Exception as e:
             return str(e), 500
     elif request.method == "PATCH":
         try:
-            # Attempt to insert
-            if "database_host" in request.args:
-                _DJConnector._update_tuple(
-                    connect_creds,
-                    schema_name,
-                    table_name,
-                    request.json["records"],
-                    jwt_encoded,
-                    request.args["database_host"],
-                )
-            else:
-                _DJConnector._update_tuple(
-                    connect_creds, schema_name, table_name, request.json["records"]
-                )
+            _DJConnector._update_tuple(
+                connect_creds, schema_name, table_name, request.json["records"]
+            )
             return "Update Successful"
         except Exception as e:
             return str(e), 500
     elif request.method == "DELETE":
         try:
-            # Attempt to delete tuple
-            if "database_host" in request.args:
-                _DJConnector._delete_records(
-                    connect_creds=connect_creds,
-                    schema_name=schema_name,
-                    table_name=table_name,
-                    jwt_encoded=jwt_encoded,
-                    database_host=request.args["database_host"]
-                    ** {
-                        k: loads(b64decode(v.encode("utf-8")).decode("utf-8"))
-                        for k, v in request.args.items()
-                        if k == "restriction"
-                    },
-                    **{
-                        k: v.lower() == "true"
-                        for k, v in request.args.items()
-                        if k == "cascade"
-                    },
-                )
-            else:
-                _DJConnector._delete_records(
-                    connect_creds,
-                    schema_name,
-                    table_name,
-                    **{
-                        k: loads(b64decode(v.encode("utf-8")).decode("utf-8"))
-                        for k, v in request.args.items()
-                        if k == "restriction"
-                    },
-                    **{
-                        k: v.lower() == "true"
-                        for k, v in request.args.items()
-                        if k == "cascade"
-                    },
-                )
+            _DJConnector._delete_records(
+                connect_creds,
+                schema_name,
+                table_name,
+                **{
+                    k: loads(b64decode(v.encode("utf-8")).decode("utf-8"))
+                    for k, v in request.args.items()
+                    if k == "restriction"
+                },
+                **{
+                    k: v.lower() == "true"
+                    for k, v in request.args.items()
+                    if k == "cascade"
+                },
+            )
             return "Delete Sucessful"
         except IntegrityError as e:
             match = foreign_key_error_regexp.match(e.args[0])
@@ -821,7 +770,6 @@ def record(
 @protected_route
 def definition(
     connect_creds: dict,
-    jwt_encoded: str,
     schema_name: str,
     table_name: str,
 ) -> str:
@@ -891,18 +839,9 @@ def definition(
     """
     if request.method in {"GET", "HEAD"}:
         try:
-            if "database_host" in request.args:
-                table_definition = _DJConnector._get_table_definition(
-                    connect_creds,
-                    schema_name,
-                    table_name,
-                    jwt_encoded,
-                    request.args["database_host"],
-                )
-            else:
-                table_definition = _DJConnector._get_table_definition(
-                    connect_creds, schema_name, table_name
-                )
+            table_definition = _DJConnector._get_table_definition(
+                connect_creds, schema_name, table_name
+            )
             return table_definition
         except Exception as e:
             return str(e), 500
@@ -915,7 +854,6 @@ def definition(
 @protected_route
 def attribute(
     connect_creds: dict,
-    jwt_encoded: str,
     schema_name: str,
     table_name: str,
 ) -> dict:
@@ -1070,12 +1008,7 @@ def attribute(
     """
     if request.method in {"GET", "HEAD"}:
         try:
-            if "database_host" in request.args:
-                _DJConnector._set_datajoint_config(
-                    connect_creds, jwt_encoded, request.args["database_host"]
-                )
-            else:
-                _DJConnector._set_datajoint_config(connect_creds)
+            _DJConnector._set_datajoint_config(connect_creds)
             local_values = locals()
             local_values[schema_name] = dj.VirtualModule(schema_name, schema_name)
 
@@ -1100,7 +1033,6 @@ def attribute(
 @protected_route
 def dependency(
     connect_creds: dict,
-    jwt_encoded: str,
     schema_name: str,
     table_name: str,
 ) -> dict:
@@ -1187,30 +1119,16 @@ def dependency(
     if request.method in {"GET", "HEAD"}:
         # Get dependencies
         try:
-            if "database_host" in request.args:
-                dependencies = _DJConnector._record_dependency(
-                    connect_creds,
-                    schema_name,
-                    table_name,
-                    loads(
-                        b64decode(
-                            request.args.get("restriction").encode("utf-8")
-                        ).decode("utf-8")
-                    ),
-                    jwt_encoded,
-                    request.args["database_host"],
-                )
-            else:
-                dependencies = _DJConnector._record_dependency(
-                    connect_creds,
-                    schema_name,
-                    table_name,
-                    loads(
-                        b64decode(
-                            request.args.get("restriction").encode("utf-8")
-                        ).decode("utf-8")
-                    ),
-                )
+            dependencies = _DJConnector._record_dependency(
+                connect_creds,
+                schema_name,
+                table_name,
+                loads(
+                    b64decode(request.args.get("restriction").encode("utf-8")).decode(
+                        "utf-8"
+                    )
+                ),
+            )
             return dict(dependencies=dependencies)
         except Exception as e:
             return str(e), 500
