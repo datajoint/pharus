@@ -246,7 +246,8 @@ def schema(connect_creds: dict, jwt_encoded: str) -> dict:
     """
     Handler for ``/schema`` route.
 
-    :param connect_creds: Dictionary containing databaseAddress, username, and password strings.
+    :param connect_creds: Dictionary containing databaseAddress, username,
+        and password strings.
     :type connect_creds: dict
     :return: If successful then sends back a list of schemas names otherwise returns error.
     :rtype: dict
@@ -319,7 +320,8 @@ def table(
     """
     Handler for ``/schema/{schema_name}/table`` route.
 
-    :param connect_creds: Dictionary containing databaseAddress, username, and password strings.
+    :param connect_creds: Dictionary containing databaseAddress, username,
+        and password strings.
     :type connect_creds: dict
     :param schema_name: Schema name.
     :type schema_name: str
@@ -826,7 +828,8 @@ def definition(
     """
     Handler for ``/schema/{schema_name}/table/{table_name}/definition`` route.
 
-    :param connect_creds: Dictionary containing databaseAddress, username, and password strings.
+    :param connect_creds: Dictionary containing databaseAddress, username,
+        and password strings.
     :type connect_creds: dict
     :param schema_name: Schema name.
     :type schema_name: str
@@ -919,7 +922,8 @@ def attribute(
     """
     Handler for ``/schema/{schema_name}/table/{table_name}/attribute`` route.
 
-    :param connect_creds: Dictionary containing databaseAddress, username, and password strings.
+    :param connect_creds: Dictionary containing databaseAddress, username,
+        and password strings.
     :type connect_creds: dict
     :param schema_name: Schema name.
     :type schema_name: str
