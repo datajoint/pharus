@@ -5,6 +5,7 @@ from . import __version__ as version
 from typing import Callable
 from functools import wraps
 from typing import Union
+import traceback
 
 # Crypto libaries
 from cryptography.hazmat.primitives import serialization as crypto_serialization
@@ -62,16 +63,19 @@ def protected_route(function: Callable) -> Callable:
     def wrapper(**kwargs):
         try:
             if "database_host" in request.args:
-                jwt_payload = jwt.decode(
-                    request.headers.get("Authorization").split()[1],
-                    environ["PHARUS_OIDC_PUBLIC_KEY"],
-                    algorithms="RS256",
-                )
-                connect_creds = dict(
-                    databaseAddress=request.args["database_host"],
-                    username=jwt_payload[environ.get("PHARUS_OIDC_SUBJECT_KEY")],
-                    password=request.headers.get("Authorization").split()[1],
-                )
+                encoded_jwt = request.headers.get("Authorization").split()[1]
+                connect_creds = {
+                    "databaseAddress": request.args["database_host"],
+                    "username": jwt.decode(
+                        encoded_jwt,
+                        crypto_serialization.load_der_public_key(
+                            b64decode(environ.get("PHARUS_OIDC_PUBLIC_KEY").encode())
+                        ),
+                        algorithms="RS256",
+                        options=dict(verify_aud=False),
+                    )[environ.get("PHARUS_OIDC_SUBJECT_KEY")],
+                    "password": encoded_jwt,
+                }
             else:
                 connect_creds = jwt.decode(
                     request.headers.get("Authorization").split()[1],
@@ -80,7 +84,7 @@ def protected_route(function: Callable) -> Callable:
                 )
             return function(connect_creds, **kwargs)
         except Exception as e:
-            return str(e), 401
+            return traceback.format_exc(), 401
 
     wrapper.__name__ = function.__name__
     return wrapper
@@ -195,13 +199,6 @@ def login() -> dict:
         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
     """
     if request.method == "POST":
-        # Check if request has the correct fields
-        # if ( "database_host" not in request.headers and
-        #     not request.json.keys() >= {"databaseAddress", "username", "password"}
-
-        # ):
-        #     return dict(error="Invalid Request, check headers and/or json body")
-
         # Try to login in with the database connection info, if true then create jwt key
         try:
             if "database_host" in request.args:
@@ -227,26 +224,31 @@ def login() -> dict:
                     headers=headers,
                     auth=auth,
                 )
-                access_token = result.json()["access_token"]
-                _DJConnector._attempt_login(
-                    request.args["database_host"],
-                    jwt.decode(access_token, environ.get("PHARUS_OIDC_PUBLIC_KEY")),
-                    access_token,
-                )
-                return dict(jwt=access_token)
+                encoded_jwt = result.json()["access_token"]
+                connect_creds = {
+                    "databaseAddress": request.args["database_host"],
+                    "username": jwt.decode(
+                        encoded_jwt,
+                        crypto_serialization.load_der_public_key(
+                            b64decode(environ.get("PHARUS_OIDC_PUBLIC_KEY").encode())
+                        ),
+                        algorithms="RS256",
+                        options=dict(verify_aud=False),
+                    )[environ.get("PHARUS_OIDC_SUBJECT_KEY")],
+                    "password": encoded_jwt,
+                }
             else:  # Database login
-                _DJConnector._attempt_login(
-                    request.json["databaseAddress"],
-                    request.json["username"],
-                    request.json["password"],
-                )
                 # Generate JWT key and send it back
                 encoded_jwt = jwt.encode(
                     request.json, environ["PHARUS_PRIVATE_KEY"], algorithm="RS256"
                 )
-                return dict(jwt=encoded_jwt)
+                connect_creds = request.json
+            if connect_creds.keys() < {"databaseAddress", "username", "password"}:
+                return dict(error="Invalid Request, check headers and/or json body")
+            _DJConnector._attempt_login(**connect_creds)
+            return dict(jwt=encoded_jwt)
         except Exception as e:
-            return str(e), 500
+            return traceback.format_exc(), 500
 
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/schema", methods=["GET"])

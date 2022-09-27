@@ -16,21 +16,21 @@ class _DJConnector:
     """Primary connector that communicates with a DataJoint database server."""
 
     @staticmethod
-    def _attempt_login(database_address: str, username: str, password: str):
+    def _attempt_login(databaseAddress: str, username: str, password: str):
         """
         Attempts to authenticate against database with given username and address.
 
-        :param database_address: Address of database
-        :type database_address: str
+        :param databaseAddress: Address of database
+        :type databaseAddress: str
         :param username: Username of user
         :type username: str
         :param password: Password of user
         :type password: str
         """
-        dj.config["database.host"] = database_address
+        dj.config["database.host"] = databaseAddress
         dj.config["database.user"] = username
         dj.config["database.password"] = password
-
+        print(dj.config, flush=True)
         # Attempt to connect return true if successful, false is failed
         dj.conn(reset=True)
 
