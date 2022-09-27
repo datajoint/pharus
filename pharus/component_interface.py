@@ -46,7 +46,13 @@ class NumpyEncoder(json.JSONEncoder):
 
 
 class FetchComponent:
-    def __init__(self, name, component_config, static_config, jwt_payload: dict):
+    def __init__(
+        self,
+        name,
+        component_config,
+        static_config,
+        connect_creds: dict,
+    ):
         lcls = locals()
         self.name = name
         if static_config:
@@ -68,15 +74,14 @@ class FetchComponent:
             self.dj_restriction = lcls["restriction"]
         else:
             self.dj_restriction = lambda: dict()
-
         self.vm_list = [
             dj.VirtualModule(
                 s,
                 s,
                 connection=dj.conn(
-                    host=jwt_payload["databaseAddress"],
-                    user=jwt_payload["username"],
-                    password=jwt_payload["password"],
+                    host=connect_creds["databaseAddress"],
+                    user=connect_creds["username"],
+                    password=connect_creds["password"],
                     reset=True,
                 ),
             )
@@ -124,7 +129,12 @@ class InsertComponent:
     fields_route_format = "{route}/fields"
 
     def __init__(
-        self, name, component_config, static_config, payload, jwt_payload: dict
+        self,
+        name,
+        component_config,
+        static_config,
+        payload,
+        connect_creds: dict,
     ):
         self.name = name
         self.payload = payload
@@ -141,9 +151,9 @@ class InsertComponent:
         self.type = component_config["type"]
         self.route = component_config["route"]
         self.connection = dj.conn(
-            host=jwt_payload["databaseAddress"],
-            user=jwt_payload["username"],
-            password=jwt_payload["password"],
+            host=connect_creds["databaseAddress"],
+            user=connect_creds["username"],
+            password=connect_creds["password"],
             reset=True,
         )
         self.fields_map = component_config.get("map")

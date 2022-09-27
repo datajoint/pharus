@@ -11,8 +11,10 @@ from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend as crypto_default_backend
 
+from requests.auth import HTTPBasicAuth
 from flask import Flask, request
 import jwt
+import requests
 from json import loads
 from base64 import b64decode
 from datajoint.errors import IntegrityError
@@ -59,12 +61,27 @@ def protected_route(function: Callable) -> Callable:
     @wraps(function)
     def wrapper(**kwargs):
         try:
-            jwt_payload = jwt.decode(
-                request.headers.get("Authorization").split()[1],
-                environ["PHARUS_PUBLIC_KEY"],
-                algorithms="RS256",
-            )
-            return function(jwt_payload, **kwargs)
+            if "database_host" in request.args:
+                encoded_jwt = request.headers.get("Authorization").split()[1]
+                connect_creds = {
+                    "databaseAddress": request.args["database_host"],
+                    "username": jwt.decode(
+                        encoded_jwt,
+                        crypto_serialization.load_der_public_key(
+                            b64decode(environ.get("PHARUS_OIDC_PUBLIC_KEY").encode())
+                        ),
+                        algorithms="RS256",
+                        options=dict(verify_aud=False),
+                    )[environ.get("PHARUS_OIDC_SUBJECT_KEY")],
+                    "password": encoded_jwt,
+                }
+            else:
+                connect_creds = jwt.decode(
+                    request.headers.get("Authorization").split()[1],
+                    environ["PHARUS_PUBLIC_KEY"],
+                    algorithms="RS256",
+                )
+            return function(connect_creds, **kwargs)
         except Exception as e:
             return str(e), 401
 
@@ -181,21 +198,53 @@ def login() -> dict:
         :statuscode 500: Unexpected error encountered. Returns the error message as a string.
     """
     if request.method == "POST":
-        # Check if request.json has the correct fields
-        if not request.json.keys() >= {"databaseAddress", "username", "password"}:
-            return dict(error="Invalid json body")
-
         # Try to login in with the database connection info, if true then create jwt key
         try:
-            _DJConnector._attempt_login(
-                request.json["databaseAddress"],
-                request.json["username"],
-                request.json["password"],
-            )
-            # Generate JWT key and send it back
-            encoded_jwt = jwt.encode(
-                request.json, environ["PHARUS_PRIVATE_KEY"], algorithm="RS256"
-            )
+            if "database_host" in request.args:
+                # Oidc token exchange
+
+                body = {
+                    "grant_type": "authorization_code",
+                    "code": request.args["code"],
+                    "code_verifier": environ.get("PHARUS_OIDC_CODE_VERIFIER"),
+                    "client_id": environ.get("PHARUS_OIDC_CLIENT_ID"),
+                    "redirect_uri": environ.get("PHARUS_OIDC_REDIRECT_URI"),
+                }
+                headers = {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                }
+                auth = HTTPBasicAuth(
+                    environ.get("PHARUS_OIDC_CLIENT_ID"),
+                    environ.get("PHARUS_OIDC_CLIENT_SECRET"),
+                )
+                result = requests.post(
+                    environ.get("PHARUS_OIDC_TOKEN_URL"),
+                    data=body,
+                    headers=headers,
+                    auth=auth,
+                )
+                encoded_jwt = result.json()["access_token"]
+                connect_creds = {
+                    "databaseAddress": request.args["database_host"],
+                    "username": jwt.decode(
+                        encoded_jwt,
+                        crypto_serialization.load_der_public_key(
+                            b64decode(environ.get("PHARUS_OIDC_PUBLIC_KEY").encode())
+                        ),
+                        algorithms="RS256",
+                        options=dict(verify_aud=False),
+                    )[environ.get("PHARUS_OIDC_SUBJECT_KEY")],
+                    "password": encoded_jwt,
+                }
+            else:  # Database login
+                # Generate JWT key and send it back
+                encoded_jwt = jwt.encode(
+                    request.json, environ["PHARUS_PRIVATE_KEY"], algorithm="RS256"
+                )
+                connect_creds = request.json
+            if connect_creds.keys() < {"databaseAddress", "username", "password"}:
+                return dict(error="Invalid Request, check headers and/or json body")
+            _DJConnector._attempt_login(**connect_creds)
             return dict(jwt=encoded_jwt)
         except Exception as e:
             return str(e), 500
@@ -203,12 +252,13 @@ def login() -> dict:
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/schema", methods=["GET"])
 @protected_route
-def schema(jwt_payload: dict) -> dict:
+def schema(connect_creds: dict) -> dict:
     """
     Handler for ``/schema`` route.
 
-    :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
-    :type jwt_payload: dict
+    :param connect_creds: Dictionary containing databaseAddress, username,
+        and password strings.
+    :type connect_creds: dict
     :return: If successful then sends back a list of schemas names otherwise returns error.
     :rtype: dict
 
@@ -257,7 +307,7 @@ def schema(jwt_payload: dict) -> dict:
     if request.method in {"GET", "HEAD"}:
         # Get all the schemas
         try:
-            schemas_name = _DJConnector._list_schemas(jwt_payload)
+            schemas_name = _DJConnector._list_schemas(connect_creds)
             return dict(schemaNames=schemas_name)
         except Exception as e:
             return str(e), 500
@@ -267,12 +317,16 @@ def schema(jwt_payload: dict) -> dict:
     f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table", methods=["GET"]
 )
 @protected_route
-def table(jwt_payload: dict, schema_name: str) -> dict:
+def table(
+    connect_creds: dict,
+    schema_name: str,
+) -> dict:
     """
     Handler for ``/schema/{schema_name}/table`` route.
 
-    :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
-    :type jwt_payload: dict
+    :param connect_creds: Dictionary containing databaseAddress, username,
+        and password strings.
+    :type connect_creds: dict
     :param schema_name: Schema name.
     :type schema_name: str
     :return: If successful then sends back a list of table names otherwise returns error.
@@ -331,7 +385,7 @@ def table(jwt_payload: dict, schema_name: str) -> dict:
     """
     if request.method in {"GET", "HEAD"}:
         try:
-            tables_dict_list = _DJConnector._list_tables(jwt_payload, schema_name)
+            tables_dict_list = _DJConnector._list_tables(connect_creds, schema_name)
             return dict(tableTypes=tables_dict_list)
         except Exception as e:
             return str(e), 500
@@ -343,15 +397,17 @@ def table(jwt_payload: dict, schema_name: str) -> dict:
 )
 @protected_route
 def record(
-    jwt_payload: dict, schema_name: str, table_name: str
+    connect_creds: dict,
+    schema_name: str,
+    table_name: str,
 ) -> Union[dict, str, tuple]:
     (
         """
         Handler for ``/schema/{schema_name}/table/{table_name}/record`` route.
 
-        :param jwt_payload: Dictionary containing databaseAddress, username, and password
+        :param connect_creds: Dictionary containing databaseAddress, username, and password
             strings.
-        :type jwt_payload: dict
+        :type connect_creds: dict
         :param schema_name: Schema name.
         :type schema_name: str
         :param table_name: Table name.
@@ -632,7 +688,7 @@ def record(
     )
     if request.method in {"GET", "HEAD"}:
         try:
-            _DJConnector._set_datajoint_config(jwt_payload)
+            _DJConnector._set_datajoint_config(connect_creds)
 
             schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
 
@@ -661,27 +717,24 @@ def record(
             return str(e), 500
     elif request.method == "POST":
         try:
-            # Attempt to insert
             _DJConnector._insert_tuple(
-                jwt_payload, schema_name, table_name, request.json["records"]
+                connect_creds, schema_name, table_name, request.json["records"]
             )
             return "Insert Successful"
         except Exception as e:
             return str(e), 500
     elif request.method == "PATCH":
         try:
-            # Attempt to insert
             _DJConnector._update_tuple(
-                jwt_payload, schema_name, table_name, request.json["records"]
+                connect_creds, schema_name, table_name, request.json["records"]
             )
             return "Update Successful"
         except Exception as e:
             return str(e), 500
     elif request.method == "DELETE":
         try:
-            # Attempt to delete tuple
             _DJConnector._delete_records(
-                jwt_payload,
+                connect_creds,
                 schema_name,
                 table_name,
                 **{
@@ -716,12 +769,17 @@ def record(
     methods=["GET"],
 )
 @protected_route
-def definition(jwt_payload: dict, schema_name: str, table_name: str) -> str:
+def definition(
+    connect_creds: dict,
+    schema_name: str,
+    table_name: str,
+) -> str:
     """
     Handler for ``/schema/{schema_name}/table/{table_name}/definition`` route.
 
-    :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
-    :type jwt_payload: dict
+    :param connect_creds: Dictionary containing databaseAddress, username,
+        and password strings.
+    :type connect_creds: dict
     :param schema_name: Schema name.
     :type schema_name: str
     :param table_name: Table name.
@@ -783,7 +841,7 @@ def definition(jwt_payload: dict, schema_name: str, table_name: str) -> str:
     if request.method in {"GET", "HEAD"}:
         try:
             table_definition = _DJConnector._get_table_definition(
-                jwt_payload, schema_name, table_name
+                connect_creds, schema_name, table_name
             )
             return table_definition
         except Exception as e:
@@ -795,12 +853,17 @@ def definition(jwt_payload: dict, schema_name: str, table_name: str) -> str:
     methods=["GET"],
 )
 @protected_route
-def attribute(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
+def attribute(
+    connect_creds: dict,
+    schema_name: str,
+    table_name: str,
+) -> dict:
     """
     Handler for ``/schema/{schema_name}/table/{table_name}/attribute`` route.
 
-    :param jwt_payload: Dictionary containing databaseAddress, username, and password strings.
-    :type jwt_payload: dict
+    :param connect_creds: Dictionary containing databaseAddress, username,
+        and password strings.
+    :type connect_creds: dict
     :param schema_name: Schema name.
     :type schema_name: str
     :param table_name: Table name.
@@ -946,7 +1009,7 @@ def attribute(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
     """
     if request.method in {"GET", "HEAD"}:
         try:
-            _DJConnector._set_datajoint_config(jwt_payload)
+            _DJConnector._set_datajoint_config(connect_creds)
             local_values = locals()
             local_values[schema_name] = dj.VirtualModule(schema_name, schema_name)
 
@@ -969,14 +1032,18 @@ def attribute(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
     methods=["GET"],
 )
 @protected_route
-def dependency(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
+def dependency(
+    connect_creds: dict,
+    schema_name: str,
+    table_name: str,
+) -> dict:
     (
         """
         Handler for ``/schema/{schema_name}/table/{table_name}/dependency`` route.
 
-        :param jwt_payload: Dictionary containing databaseAddress, username, and password
+        :param connect_creds: Dictionary containing databaseAddress, username, and password
             strings.
-        :type jwt_payload: dict
+        :type connect_creds: dict
         :param schema_name: Schema name.
         :type schema_name: str
         :param table_name: Table name.
@@ -1054,7 +1121,7 @@ def dependency(jwt_payload: dict, schema_name: str, table_name: str) -> dict:
         # Get dependencies
         try:
             dependencies = _DJConnector._record_dependency(
-                jwt_payload,
+                connect_creds,
                 schema_name,
                 table_name,
                 loads(
