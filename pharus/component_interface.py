@@ -166,7 +166,9 @@ class InsertComponent:
                 ),
                 t,
             )
-            for s, t in (_.split(".") for _ in component_config["tables"])
+            for s, t in (
+                _.format(**request.args).split(".") for _ in component_config["tables"]
+            )
         ]
         self.parents = sorted(
             set(

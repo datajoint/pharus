@@ -24,7 +24,7 @@ def test_insert_map(token, client, connection, schemas_simple):
 
 def test_insert_no_map(token, client, connection, schemas_simple):
     REST_response = client.post(
-        "/insert3",
+        "/insert3?group=test_group1",
         json={
             "submissions": [
                 {"a_id": 1, "b_id": 32, "b_number": 1.23, "c_id": 400, "c_int": 99}
@@ -38,7 +38,7 @@ def test_insert_no_map(token, client, connection, schemas_simple):
 
 def test_insert_fail(token, client, connection, schemas_simple):
     REST_response = client.post(
-        "/insert3",
+        "/insert3?group=test_group1",
         json={"submissions": [{"a_id": 1, "b_id": 32, "b_number": 1.23, "c_id": 400}]},
         headers=dict(Authorization=f"Bearer {token}"),
     )
@@ -85,7 +85,7 @@ def test_form_response_no_table_map(token, client, connection, schemas_simple):
 
 def test_form_response_no_map(token, client, connection, schemas_simple):
     REST_response = client.get(
-        "/insert3/fields",
+        "/insert3/fields?group=test_group1",
         headers=dict(Authorization=f"Bearer {token}"),
     )
     assert REST_response.status_code == 200, f"Error: {REST_response.data}"
