@@ -7,7 +7,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 ### Added
 
 - Schema templating for insert queries using query params PR #131
-- Add support for OIDC login flow PR #130
+- Add support for OIDC login flow PR #130 (#125)
 
 ## [0.5.0] - 2022-09-21
 

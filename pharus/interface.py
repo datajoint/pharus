@@ -30,7 +30,6 @@ class _DJConnector:
         dj.config["database.host"] = databaseAddress
         dj.config["database.user"] = username
         dj.config["database.password"] = password
-        print(dj.config, flush=True)
         # Attempt to connect return true if successful, false is failed
         dj.conn(reset=True)
 

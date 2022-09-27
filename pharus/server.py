@@ -5,7 +5,6 @@ from . import __version__ as version
 from typing import Callable
 from functools import wraps
 from typing import Union
-import traceback
 
 # Crypto libaries
 from cryptography.hazmat.primitives import serialization as crypto_serialization
@@ -84,7 +83,7 @@ def protected_route(function: Callable) -> Callable:
                 )
             return function(connect_creds, **kwargs)
         except Exception as e:
-            return traceback.format_exc(), 401
+            return str(e), 401
 
     wrapper.__name__ = function.__name__
     return wrapper
@@ -248,7 +247,7 @@ def login() -> dict:
             _DJConnector._attempt_login(**connect_creds)
             return dict(jwt=encoded_jwt)
         except Exception as e:
-            return traceback.format_exc(), 500
+            return str(e), 500
 
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/schema", methods=["GET"])
