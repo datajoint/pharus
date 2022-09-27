@@ -28,14 +28,14 @@ except (ModuleNotFoundError, ImportError):
 
 @app.route('{route}', methods=['{rest_verb}'])
 @protected_route
-def {method_name}(jwt_payload: dict, jwt_encoded: str) -> dict:
+def {method_name}(connect_creds: dict, jwt_encoded: str) -> dict:
 
     if request.method in ['{rest_verb}']:
         try:
             component_instance = type_map['{component_type}'](name='{component_name}',
                                                               component_config={component},
                                                               static_config={static_config},
-                                                              jwt_payload=jwt_payload,
+                                                              connect_creds=connect_creds,
                                                               jwt_encoded=jwt_encoded,
                                                               {payload})
             return component_instance.{method_name_type}()
@@ -47,7 +47,7 @@ def {method_name}(jwt_payload: dict, jwt_encoded: str) -> dict:
 @app.route('{route}', methods=['{rest_verb}'])
 def {method_name}() -> dict:
     if request.method in ['{rest_verb}']:
-        jwt_payload = dict(
+        connect_creds = dict(
             databaseAddress=os.environ["PHARUS_HOST"],
             username=os.environ["PHARUS_USER"],
             password=os.environ["PHARUS_PASSWORD"],
@@ -56,7 +56,7 @@ def {method_name}() -> dict:
             component_instance = type_map['{component_type}'](name='{component_name}',
                                                               component_config={component},
                                                               static_config={static_config},
-                                                              jwt_payload=jwt_payload,
+                                                              connect_creds=connect_creds,
                                                               {payload})
             return component_instance.{method_name_type}()
         except Exception as e:

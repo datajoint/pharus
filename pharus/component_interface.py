@@ -47,7 +47,12 @@ class NumpyEncoder(json.JSONEncoder):
 
 class FetchComponent:
     def __init__(
-        self, name, component_config, static_config, jwt_payload: dict, jwt_encoded: str
+        self,
+        name,
+        component_config,
+        static_config,
+        connect_creds: dict,
+        jwt_encoded: str,
     ):
         lcls = locals()
         self.name = name
@@ -78,7 +83,7 @@ class FetchComponent:
                     s,
                     connection=dj.conn(
                         host=request.args["database_host"],
-                        user=jwt_payload["sub"],
+                        user=connect_creds["sub"],
                         password=jwt_encoded,
                         reset=True,
                     ),
@@ -91,9 +96,9 @@ class FetchComponent:
                     s,
                     s,
                     connection=dj.conn(
-                        host=jwt_payload["databaseAddress"],
-                        user=jwt_payload["username"],
-                        password=jwt_payload["password"],
+                        host=connect_creds["databaseAddress"],
+                        user=connect_creds["username"],
+                        password=connect_creds["password"],
                         reset=True,
                     ),
                 )
@@ -146,7 +151,7 @@ class InsertComponent:
         component_config,
         static_config,
         payload,
-        jwt_payload: dict,
+        connect_creds: dict,
         jwt_encoded: str,
     ):
         self.name = name
@@ -166,16 +171,16 @@ class InsertComponent:
         if "database_host" in request.args:
             self.connection = dj.conn(
                 host=request.args["database_host"],
-                user=jwt_payload["sub"],
+                user=connect_creds["sub"],
                 password=jwt_encoded,
                 reset=True,
             )
 
         else:
             self.connection = dj.conn(
-                host=jwt_payload["databaseAddress"],
-                user=jwt_payload["username"],
-                password=jwt_payload["password"],
+                host=connect_creds["databaseAddress"],
+                user=connect_creds["username"],
+                password=connect_creds["password"],
                 reset=True,
             )
         self.fields_map = component_config.get("map")
