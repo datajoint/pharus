@@ -16,6 +16,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -153,12 +154,13 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pharus.server.attribute">
-<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">attribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#pharus.server.attribute" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">attribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connect_creds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#pharus.server.attribute" title="Permalink to this definition"></a></dt>
 <dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/schema/{schema_name}/table/{table_name}/attribute</span></code> route.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password strings.</p></li>
+<li><p><strong>connect_creds</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username,
+and password strings.</p></li>
 <li><p><strong>schema_name</strong> (<em>str</em>) – Schema name.</p></li>
 <li><p><strong>table_name</strong> (<em>str</em>) – Table name.</p></li>
 </ul>
@@ -319,12 +321,13 @@ Content-Type: application/json
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pharus.server.definition">
-<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">definition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pharus.server.definition" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">definition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connect_creds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pharus.server.definition" title="Permalink to this definition"></a></dt>
 <dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/schema/{schema_name}/table/{table_name}/definition</span></code> route.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password strings.</p></li>
+<li><p><strong>connect_creds</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username,
+and password strings.</p></li>
 <li><p><strong>schema_name</strong> (<em>str</em>) – Schema name.</p></li>
 <li><p><strong>table_name</strong> (<em>str</em>) – Table name.</p></li>
 </ul>
@@ -400,12 +403,12 @@ computer_accessories=null : longblob             # included additional accessori
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pharus.server.dependency">
-<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">dependency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#pharus.server.dependency" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">dependency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connect_creds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#pharus.server.dependency" title="Permalink to this definition"></a></dt>
 <dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/schema/{schema_name}/table/{table_name}/dependency</span></code> route.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password
+<li><p><strong>connect_creds</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password
 strings.</p></li>
 <li><p><strong>schema_name</strong> (<em>str</em>) – Schema name.</p></li>
 <li><p><strong>table_name</strong> (<em>str</em>) – Table name.</p></li>
@@ -594,12 +597,12 @@ message</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pharus.server.record">
-<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pharus.server.record" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connect_creds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pharus.server.record" title="Permalink to this definition"></a></dt>
 <dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/schema/{schema_name}/table/{table_name}/record</span></code> route.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password
+<li><p><strong>connect_creds</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password
 strings.</p></li>
 <li><p><strong>schema_name</strong> (<em>str</em>) – Schema name.</p></li>
 <li><p><strong>table_name</strong> (<em>str</em>) – Table name.</p></li>
@@ -928,11 +931,12 @@ string.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pharus.server.schema">
-<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#pharus.server.schema" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connect_creds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#pharus.server.schema" title="Permalink to this definition"></a></dt>
 <dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/schema</span></code> route.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password strings.</p>
+<dd class="field-odd"><p><strong>connect_creds</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username,
+and password strings.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>If successful then sends back a list of schemas names otherwise returns error.</p>
@@ -996,12 +1000,13 @@ string.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pharus.server.table">
-<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jwt_payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#pharus.server.table" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connect_creds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#pharus.server.table" title="Permalink to this definition"></a></dt>
 <dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/schema/{schema_name}/table</span></code> route.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>jwt_payload</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password strings.</p></li>
+<li><p><strong>connect_creds</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username,
+and password strings.</p></li>
 <li><p><strong>schema_name</strong> (<em>str</em>) – Schema name.</p></li>
 </ul>
 </dd>
