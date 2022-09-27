@@ -7,6 +7,7 @@ import datetime
 import numpy as np
 import re
 from .error import InvalidRestriction, UnsupportedTableType
+from os import environ
 
 DAY = 24 * 60 * 60
 DEFAULT_FETCH_LIMIT = 1000  # Stop gap measure to deal with super large tables
@@ -563,6 +564,8 @@ class _DJConnector:
             dj.config["database.password"] = jwt_payload["password"]
         else:  # oidc jwt login
             dj.config["database.host"] = host_name
-            dj.config["database.user"] = jwt_payload["sub"]
+            dj.config["database.user"] = jwt_payload[
+                environ.get("PHARUS_OIDC_SUBJECT_KEY")
+            ]
             dj.config["database.password"] = jwt_encoded
         return dj.conn(reset=True)

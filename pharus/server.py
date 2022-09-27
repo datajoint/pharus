@@ -63,12 +63,13 @@ def protected_route(function: Callable) -> Callable:
         try:
             jwt_payload = jwt.decode(
                 request.headers.get("Authorization").split()[1],
-                environ["PHARUS_PUBLIC_KEY"],
+                environ["PHARUS_OIDC_PUBLIC_KEY"]
+                if "database_host" in request.args
+                else environ["PHARUS_PUBLIC_KEY"],
                 algorithms="RS256",
             )
             jwt_encoded = request.headers.get("Authorization").split()[1]
             return function(jwt_payload, jwt_encoded, **kwargs)
-            # return function(jwt_payload, **kwargs)
         except Exception as e:
             return str(e), 401
 
@@ -200,24 +201,30 @@ def login() -> dict:
                 body = {
                     "grant_type": "authorization_code",
                     "code": request.args["code"],
-                    "code_verifier": environ.get("OIDC_CODE_VERIFIER"),
-                    "client_id": environ.get("OIDC_CLIENT_ID"),
-                    "redirect_uri": environ.get("OIDC_REDIRECT_URI"),
+                    "code_verifier": environ.get("PHARUS_OIDC_CODE_VERIFIER"),
+                    "client_id": environ.get("PHARUS_OIDC_CLIENT_ID"),
+                    "redirect_uri": environ.get("PHARUS_OIDC_REDIRECT_URI"),
                 }
                 headers = {
                     "Content-Type": "application/x-www-form-urlencoded",
                 }
                 auth = HTTPBasicAuth(
-                    environ.get("OIDC_CLIENT_ID"),
-                    environ.get("OIDC_CLIENT_SECRET"),
+                    environ.get("PHARUS_OIDC_CLIENT_ID"),
+                    environ.get("PHARUS_OIDC_CLIENT_SECRET"),
                 )
                 result = requests.post(
-                    environ.get("OIDC_TOKEN_URL"),
+                    environ.get("PHARUS_OIDC_TOKEN_URL"),
                     data=body,
                     headers=headers,
                     auth=auth,
                 )
-                return dict(jwt=result.json()["access_token"])
+                access_token = result.json()["access_token"]
+                _DJConnector._attempt_login(
+                    request.args["database_host"],
+                    jwt.decode(access_token, environ.get("PHARUS_OIDC_PUBLIC_KEY")),
+                    access_token,
+                )
+                return dict(jwt=access_token)
             else:  # Database login
                 _DJConnector._attempt_login(
                     request.json["databaseAddress"],

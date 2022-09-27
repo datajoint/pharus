@@ -28,11 +28,13 @@ services:
       - FLASK_ENV=development # enables logging to console from Flask
       - PHARUS_SPEC_PATH=tests/init/test_dynamic_api_spec.yaml # for dynamic api spec
       # --- only needed if you need OIDC compatability ---
-      - OIDC_CLIENT_SECRET
-      - OIDC_CLIENT_ID
-      - OIDC_REDIRECT_URI
-      - OIDC_CODE_VERIFIER
-      - OIDC_TOKEN_URL
+      - PHARUS_OIDC_CLIENT_SECRET
+      - PHARUS_OIDC_CLIENT_ID
+      - PHARUS_OIDC_REDIRECT_URI
+      - PHARUS_OIDC_CODE_VERIFIER
+      - PHARUS_OIDC_TOKEN_URL
+      - PHARUS_OIDC_PUBLIC_KEY
+      - PHARUS_OIDC_SUBJECT_KEY=preferred_username
     volumes:
       - ./pharus:/opt/conda/lib/python3.8/site-packages/pharus
     command: pharus
