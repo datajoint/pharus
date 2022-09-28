@@ -16,37 +16,37 @@ class _DJConnector:
     """Primary connector that communicates with a DataJoint database server."""
 
     @staticmethod
-    def _attempt_login(database_address: str, username: str, password: str):
+    def _attempt_login(databaseAddress: str, username: str, password: str):
         """
         Attempts to authenticate against database with given username and address.
 
-        :param database_address: Address of database
-        :type database_address: str
+        :param databaseAddress: Address of database
+        :type databaseAddress: str
         :param username: Username of user
         :type username: str
         :param password: Password of user
         :type password: str
         """
-        dj.config["database.host"] = database_address
+        dj.config["database.host"] = databaseAddress
         dj.config["database.user"] = username
         dj.config["database.password"] = password
-
         # Attempt to connect return true if successful, false is failed
         dj.conn(reset=True)
 
     @staticmethod
-    def _list_schemas(jwt_payload: dict) -> list:
+    def _list_schemas(connect_creds: dict) -> list:
         """
         List all schemas under the database.
 
-        :param jwt_payload: Dictionary containing databaseAddress, username, and password
+        :param connect_creds: Dictionary containing databaseAddress, username, and password
             strings
-        :type jwt_payload: dict
+        :type connect_creds: dict
         :return: List of schemas names in alphabetical order (excludes ``information_schema``,
             ``sys``, ``performance_schema``, ``mysql``)
         :rtype: list
         """
-        _DJConnector._set_datajoint_config(jwt_payload)
+
+        _DJConnector._set_datajoint_config(connect_creds)
 
         # Attempt to connect return true if successful, false is failed
         return [
@@ -63,20 +63,24 @@ class _DJConnector:
         ]
 
     @staticmethod
-    def _list_tables(jwt_payload: dict, schema_name: str) -> dict:
+    def _list_tables(
+        connect_creds: dict,
+        schema_name: str,
+    ) -> dict:
         """
         List all tables and their type given a schema.
 
-        :param jwt_payload: Dictionary containing databaseAddress, username, and password
+        :param connect_creds: Dictionary containing databaseAddress, username, and password
             strings
-        :type jwt_payload: dict
+        :type connect_creds: dict
         :param schema_name: Name of schema to list all tables from
         :type schema_name: str
         :return: Contains a key for each table type where values are the respective list of
             table names
         :rtype: dict
         """
-        _DJConnector._set_datajoint_config(jwt_payload)
+
+        _DJConnector._set_datajoint_config(connect_creds)
 
         # Get list of tables names
         tables_name = dj.Schema(schema_name, create_schema=False).list_tables()
@@ -268,14 +272,16 @@ class _DJConnector:
 
     @staticmethod
     def _get_table_definition(
-        jwt_payload: dict, schema_name: str, table_name: str
+        connect_creds: dict,
+        schema_name: str,
+        table_name: str,
     ) -> str:
         """
         Get the table definition.
 
-        :param jwt_payload: Dictionary containing databaseAddress, username, and password
+        :param connect_creds: Dictionary containing databaseAddress, username, and password
             strings
-        :type jwt_payload: dict
+        :type connect_creds: dict
         :param schema_name: Name of schema
         :type schema_name: str
         :param table_name: Table name under the given schema; must be in camel case
@@ -283,7 +289,8 @@ class _DJConnector:
         :return: Definition of the table
         :rtype: str
         """
-        _DJConnector._set_datajoint_config(jwt_payload)
+
+        _DJConnector._set_datajoint_config(connect_creds)
 
         local_values = locals()
         local_values[schema_name] = dj.VirtualModule(schema_name, schema_name)
@@ -291,14 +298,17 @@ class _DJConnector:
 
     @staticmethod
     def _insert_tuple(
-        jwt_payload: dict, schema_name: str, table_name: str, tuple_to_insert: dict
+        connect_creds: dict,
+        schema_name: str,
+        table_name: str,
+        tuple_to_insert: dict,
     ):
         """
         Insert record as tuple into table.
 
-        :param jwt_payload: Dictionary containing databaseAddress, username, and password
+        :param connect_creds: Dictionary containing databaseAddress, username, and password
             strings
-        :type jwt_payload: dict
+        :type connect_creds: dict
         :param schema_name: Name of schema
         :type schema_name: str
         :param table_name: Table name under the given schema; must be in camel case
@@ -306,22 +316,26 @@ class _DJConnector:
         :param tuple_to_insert: Record to be inserted
         :type tuple_to_insert: dict
         """
-        _DJConnector._set_datajoint_config(jwt_payload)
+
+        _DJConnector._set_datajoint_config(connect_creds)
 
         schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
         getattr(schema_virtual_module, table_name).insert(tuple_to_insert)
 
     @staticmethod
     def _record_dependency(
-        jwt_payload: dict, schema_name: str, table_name: str, restriction: list = []
+        connect_creds: dict,
+        schema_name: str,
+        table_name: str,
+        restriction: list = [],
     ) -> list:
         """
         Return summary of dependencies associated with a restricted table. Will only show
         dependencies that user has access to.
 
-        :param jwt_payload: Dictionary containing databaseAddress, username, and password
+        :param connect_creds: Dictionary containing databaseAddress, username, and password
             strings
-        :type jwt_payload: dict
+        :type connect_creds: dict
         :param schema_name: Name of schema
         :type schema_name: str
         :param table_name: Table name under the given schema; must be in camel case
@@ -332,7 +346,8 @@ class _DJConnector:
         :return: Tables that are dependent on specific records.
         :rtype: list
         """
-        _DJConnector._set_datajoint_config(jwt_payload)
+
+        _DJConnector._set_datajoint_config(connect_creds)
         virtual_module = dj.VirtualModule(schema_name, schema_name)
         table = getattr(virtual_module, table_name)
         attributes = table.heading.attributes
@@ -364,14 +379,17 @@ class _DJConnector:
 
     @staticmethod
     def _update_tuple(
-        jwt_payload: dict, schema_name: str, table_name: str, tuple_to_update: dict
+        connect_creds: dict,
+        schema_name: str,
+        table_name: str,
+        tuple_to_update: dict,
     ):
         """
         Update record as tuple into table.
 
-        :param jwt_payload: Dictionary containing databaseAddress, username, and password
+        :param connect_creds: Dictionary containing databaseAddress, username, and password
             strings
-        :type jwt_payload: dict
+        :type connect_creds: dict
         :param schema_name: Name of schema
         :type schema_name: str
         :param table_name: Table name under the given schema; must be in camel case
@@ -379,7 +397,7 @@ class _DJConnector:
         :param tuple_to_update: Record to be updated
         :type tuple_to_update: dict
         """
-        conn = _DJConnector._set_datajoint_config(jwt_payload)
+        conn = _DJConnector._set_datajoint_config(connect_creds)
 
         schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
         with conn.transaction:
@@ -390,7 +408,7 @@ class _DJConnector:
 
     @staticmethod
     def _delete_records(
-        jwt_payload: dict,
+        connect_creds: dict,
         schema_name: str,
         table_name: str,
         restriction: list = [],
@@ -399,9 +417,9 @@ class _DJConnector:
         """
         Delete a specific record based on the restriction given.
 
-        :param jwt_payload: Dictionary containing databaseAddress, username, and password
+        :param connect_creds: Dictionary containing databaseAddress, username, and password
             strings
-        :type jwt_payload: dict
+        :type connect_creds: dict
         :param schema_name: Name of schema
         :type schema_name: str
         :param table_name: Table name under the given schema; must be in camel case
@@ -412,7 +430,8 @@ class _DJConnector:
         :param cascade: Allow for cascading delete, defaults to ``False``
         :type cascade: bool, optional
         """
-        _DJConnector._set_datajoint_config(jwt_payload)
+
+        _DJConnector._set_datajoint_config(connect_creds)
 
         schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
 
@@ -494,17 +513,17 @@ class _DJConnector:
         return f"{attribute_filter['attributeName']}{operation}{value}"
 
     @staticmethod
-    def _set_datajoint_config(jwt_payload: dict) -> dj.connection.Connection:
+    def _set_datajoint_config(connect_creds: dict) -> dj.connection.Connection:
         """
         Method to set credentials for database.
 
-        :param jwt_payload: Dictionary containing databaseAddress, username, and password
+        :param connect_creds: Dictionary containing databaseAddress, username, and password
             strings
-        :type jwt_payload: dict
+        :type connect_creds: dict
         :return: DataJoint connection object.
         :rtype: :class:`~datajoint.connection.Connection`
         """
-        dj.config["database.host"] = jwt_payload["databaseAddress"]
-        dj.config["database.user"] = jwt_payload["username"]
-        dj.config["database.password"] = jwt_payload["password"]
+        dj.config["database.host"] = connect_creds["databaseAddress"]
+        dj.config["database.user"] = connect_creds["username"]
+        dj.config["database.password"] = connect_creds["password"]
         return dj.conn(reset=True)

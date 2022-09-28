@@ -46,7 +46,13 @@ class NumpyEncoder(json.JSONEncoder):
 
 
 class FetchComponent:
-    def __init__(self, name, component_config, static_config, jwt_payload: dict):
+    def __init__(
+        self,
+        name,
+        component_config,
+        static_config,
+        connect_creds: dict,
+    ):
         lcls = locals()
         self.name = name
         if static_config:
@@ -68,15 +74,14 @@ class FetchComponent:
             self.dj_restriction = lcls["restriction"]
         else:
             self.dj_restriction = lambda: dict()
-
         self.vm_list = [
             dj.VirtualModule(
                 s,
                 s,
                 connection=dj.conn(
-                    host=jwt_payload["databaseAddress"],
-                    user=jwt_payload["username"],
-                    password=jwt_payload["password"],
+                    host=connect_creds["databaseAddress"],
+                    user=connect_creds["username"],
+                    password=connect_creds["password"],
                     reset=True,
                 ),
             )
@@ -124,7 +129,12 @@ class InsertComponent:
     fields_route_format = "{route}/fields"
 
     def __init__(
-        self, name, component_config, static_config, payload, jwt_payload: dict
+        self,
+        name,
+        component_config,
+        static_config,
+        payload,
+        connect_creds: dict,
     ):
         self.name = name
         self.payload = payload
@@ -141,12 +151,12 @@ class InsertComponent:
         self.type = component_config["type"]
         self.route = component_config["route"]
         self.connection = dj.conn(
-            host=jwt_payload["databaseAddress"],
-            user=jwt_payload["username"],
-            password=jwt_payload["password"],
+            host=connect_creds["databaseAddress"],
+            user=connect_creds["username"],
+            password=connect_creds["password"],
             reset=True,
         )
-        self.fields_map = component_config["map"] if "map" in component_config else None
+        self.fields_map = component_config.get("map")
         self.tables = [
             getattr(
                 dj.VirtualModule(
@@ -156,117 +166,116 @@ class InsertComponent:
                 ),
                 t,
             )
-            for s, t in (_.split(".") for _ in component_config["tables"])
+            for s, t in (
+                _.format(**request.args).split(".") for _ in component_config["tables"]
+            )
         ]
-
-    def _get_datatype_map(self):
-        attributes = reduce(
-            lambda a0, a1: {**a0, **a1}, (t.heading.attributes for t in self.tables)
+        self.parents = sorted(
+            set(
+                [
+                    p
+                    for t in self.tables
+                    for p in t.parents(as_objects=True)
+                    if p.full_table_name not in (t.full_table_name for t in self.tables)
+                ]
+            ),
+            key=lambda p: p.full_table_name,
         )
-        datatype_map = {k: v.type for k, v in attributes.items()}
-        return datatype_map
 
     def dj_query_route(self):
         with self.connection.transaction:
-            if self.fields_map:
-                field_name_map = {}
-                for field in self.fields_map:
-                    if field["type"] != "table":
-                        field_name_map[
-                            field["input"] if "input" in field else field["destination"]
-                        ] = field["destination"]
-                    else:
-                        for submap in field["map"]:
-                            field_name_map[
-                                submap["input"]
-                                if "input" in submap
-                                else submap["destination"]
-                            ] = submap["destination"]
-                self.payload = {field_name_map[k]: v for k, v in self.payload.items()}
+            destination_lookup = reduce(
+                lambda m0, m1: dict(
+                    m0,
+                    **(
+                        {
+                            m_t["input"]
+                            if "input" in m_t
+                            else m_t["destination"]: m_t["destination"]
+                            for m_t in m1["map"]
+                        }
+                        if m1["type"] == "table"
+                        else {
+                            m1["input"]
+                            if "input" in m1
+                            else m1["destination"]: m1["destination"]
+                        }
+                    ),
+                ),
+                self.fields_map or [],
+                {},
+            )
             for t in self.tables:
-                t.insert1(
-                    {k: v for k, v in self.payload.items() if k in t.heading.attributes}
+                t.insert(
+                    [
+                        {
+                            a: v
+                            for k, v in r.items()
+                            if (a := destination_lookup.get(k, k))
+                            in t.heading.attributes
+                        }
+                        for r in self.payload["submissions"]
+                    ]
                 )
         return "Insert successful"
 
     def fields_route(self):
-        fields = []
-        if self.fields_map:
-            datatype_map = self._get_datatype_map()
-            for field in self.fields_map:
-                field_type = field["type"]
-                field_name = (
-                    field["input"] if "input" in field else field["destination"]
-                )
-                if field_type == "attribute":
-                    field_datatype = datatype_map[field["destination"]]
-                    fields.append(
-                        dict(type=field_type, datatype=field_datatype, name=field_name)
-                    )
-                elif field_type == "table":
-                    s, t = field["destination"].split(".")
-                    if "map" in field:
-                        proj_map = {
-                            attr["input"]
-                            if "input" in attr
-                            else attr["destination"]: attr["destination"]
-                            for attr in field["map"]
-                        }
-                        records = (
-                            getattr(
-                                dj.VirtualModule(
-                                    s,
-                                    s,
-                                    connection=self.connection,
-                                ),
-                                t,
-                            )
-                            .proj(**proj_map)
-                            .fetch("KEY")
-                        )
-                    else:
-                        records = getattr(
-                            dj.VirtualModule(
-                                s,
-                                s,
-                                connection=self.connection,
-                            ),
-                            t,
-                        ).fetch("KEY")
-                    fields.append(
-                        dict(type=field_type, values=records, name=field_name)
-                    )
-        else:
-            for t in self.tables:
-                for v in t.heading.attributes.values():
-                    is_fk = False
-                    for p in t.parents(as_objects=True):
-                        if v.name in p.primary_key:
-                            is_fk = True
-                            field_name = (
-                                f"{p.database}.{dj.utils.to_camel_case(p.table_name)}"
-                            )
-                            if field_name not in [
-                                field["name"] for field in fields
-                            ] and field_name not in [
-                                f"{t.database}.{t.__name__}" for t in self.tables
-                            ]:
-                                fields.append(
-                                    dict(
-                                        type="table",
-                                        values=p.fetch("KEY"),
-                                        name=field_name,
+        parent_attributes = sorted(set(sum([p.primary_key for p in self.parents], [])))
+        source_fields = {
+            **{
+                (p_name := f"{p.database}.{dj.utils.to_camel_case(p.table_name)}"): {
+                    "values": p.fetch("KEY"),
+                    "type": "table",
+                    "name": p_name,
+                }
+                for p in self.parents
+            },
+            **{
+                a: {"datatype": v.type, "type": "attribute", "name": v.name}
+                for t in self.tables
+                for a, v in t.heading.attributes.items()
+                if a not in parent_attributes
+            },
+        }
+
+        if not self.fields_map:
+            return dict(fields=list(source_fields.values()))
+        return dict(
+            fields=[
+                dict(
+                    (field := source_fields.pop(m["destination"])),
+                    name=m["input" if "input" in m else "destination"],
+                    **(
+                        {
+                            "values": field["values"]
+                            if "map" not in m
+                            else [
+                                {
+                                    input_lookup[k]: v
+                                    for k, v in r.items()
+                                    if k
+                                    in (
+                                        input_lookup := {
+                                            table_m["destination"]: table_m[
+                                                "input"
+                                                if "input" in table_m
+                                                else "destination"
+                                            ]
+                                            for table_m in m["map"]
+                                        }
                                     )
-                                )
-                    if not is_fk:
-                        fields.append(
-                            dict(
-                                type="attribute",
-                                datatype=v.type,
-                                name=v.name,
-                            )
-                        )
-        return dict(fields=fields)
+                                }
+                                for r in field["values"]
+                            ]
+                        }
+                        if m["type"] == "table"
+                        else {}
+                    ),
+                )
+                for m in self.fields_map
+            ]
+            + list(source_fields.values())
+        )
 
 
 class TableComponent(FetchComponent):
