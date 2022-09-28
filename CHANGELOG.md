@@ -8,8 +8,6 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 
 - Component type check condition to allow form POST route overriding
 
-### Added
-
 ## [0.5.1] - 2022-09-27
 
 ### Added
