@@ -126,14 +126,16 @@ def {method_name}() -> dict:
                         f.write(
                             (active_route_template).format(
                                 route=comp["route"],
-                                rest_verb="POST" if comp["type"] == "form" else "GET",
+                                rest_verb="POST"
+                                if comp["type"].split(":", 1)[0] == "form"
+                                else "GET",
                                 method_name=comp["route"].replace("/", ""),
                                 component_type=comp["type"],
                                 component_name=comp_name,
                                 component=json.dumps(comp),
                                 static_config=static_config,
                                 payload="payload=request.get_json()"
-                                if comp["type"] == "form"
+                                if comp["type"].split(":", 1)[0] == "form"
                                 else "",
                                 method_name_type="dj_query_route",
                             )

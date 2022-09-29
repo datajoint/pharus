@@ -2,6 +2,12 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.5.2] - TBD
+
+### Fixed
+
+- Component type check condition to allow form POST route overriding
+
 ## [0.5.1] - 2022-09-27
 
 ### Added
