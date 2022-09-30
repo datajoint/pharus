@@ -698,17 +698,14 @@ def record(
             record_header, table_tuples, total_count = _DJConnector._fetch_records(
                 query=dj_table,
                 **{
-                    k: (
-                        int(v)
-                        if k in ("limit", "page")
-                        else (
-                            v.split(",")
-                            if k == "order"
-                            else loads(b64decode(v.encode("utf-8")).decode("utf-8"))
-                        )
-                    )
-                    for k, v in request.args.items()
+                    k: int(v) for k, v in request.args.items() if k in ("limit", "page")
                 },
+                **{
+                    k: loads(b64decode(v.encode("utf-8")).decode("utf-8"))
+                    for k, v in request.args.items()
+                    if k == "restriction"
+                },
+                **{k: v.split(",") for k, v in request.args.items() if k == "order"},
             )
             return dict(
                 recordHeader=record_header, records=table_tuples, totalCount=total_count
