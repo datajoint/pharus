@@ -12,7 +12,6 @@ from pathlib import Path
 import types
 import io
 import numpy as np
-from functools import reduce
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -45,18 +44,18 @@ class NumpyEncoder(json.JSONEncoder):
         return json.dumps(obj, cls=cls)
 
 
-class FetchComponent:
+class Component:
     def __init__(
         self,
         name,
         component_config,
         static_config,
         connect_creds: dict,
+        payload=None,
     ):
-        lcls = locals()
         self.name = name
-        if static_config:
-            self.static_variables = types.MappingProxyType(static_config)
+        self.type = component_config["type"]
+        self.route = component_config["route"]
         if not all(k in component_config for k in ("x", "y", "height", "width")):
             self.mode = "dynamic"
         else:
@@ -65,8 +64,22 @@ class FetchComponent:
             self.y = component_config["y"]
             self.height = component_config["height"]
             self.width = component_config["width"]
-        self.type = component_config["type"]
-        self.route = component_config["route"]
+        if static_config:
+            self.static_variables = types.MappingProxyType(static_config)
+        self.connection = dj.conn(
+            host=connect_creds["databaseAddress"],
+            user=connect_creds["username"],
+            password=connect_creds["password"],
+            reset=True,
+        )
+        self.payload = payload
+
+
+class FetchComponent(Component):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        component_config = kwargs.get("component_config", args[1] if args else None)
+        lcls = locals()
         exec(component_config["dj_query"], globals(), lcls)
         self.dj_query = lcls["dj_query"]
         if "restriction" in component_config:
@@ -78,12 +91,7 @@ class FetchComponent:
             dj.VirtualModule(
                 s,
                 s,
-                connection=dj.conn(
-                    host=connect_creds["databaseAddress"],
-                    user=connect_creds["username"],
-                    password=connect_creds["password"],
-                    reset=True,
-                ),
+                connection=self.connection,
             )
             for s in inspect.getfullargspec(self.dj_query).args
         ]
@@ -125,37 +133,12 @@ class FetchComponent:
         )
 
 
-class InsertComponent:
+class InsertComponent(Component):
     fields_route_format = "{route}/fields"
 
-    def __init__(
-        self,
-        name,
-        component_config,
-        static_config,
-        payload,
-        connect_creds: dict,
-    ):
-        self.name = name
-        self.payload = payload
-        if static_config:
-            self.static_variables = types.MappingProxyType(static_config)
-        if not all(k in component_config for k in ("x", "y", "height", "width")):
-            self.mode = "dynamic"
-        else:
-            self.mode = "fixed"
-            self.x = component_config["x"]
-            self.y = component_config["y"]
-            self.height = component_config["height"]
-            self.width = component_config["width"]
-        self.type = component_config["type"]
-        self.route = component_config["route"]
-        self.connection = dj.conn(
-            host=connect_creds["databaseAddress"],
-            user=connect_creds["username"],
-            password=connect_creds["password"],
-            reset=True,
-        )
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        component_config = kwargs.get("component_config", args[1] if args else None)
         self.fields_map = component_config.get("map")
         self.tables = [
             getattr(
@@ -181,37 +164,22 @@ class InsertComponent:
             ),
             key=lambda p: p.full_table_name,
         )
+        self.destination_lookup = {
+            sub_m.get("input", sub_m["destination"]): sub_m["destination"]
+            for m in (self.fields_map or [])
+            for sub_m in (m.get("map", []) + [m])
+        }
+        self.input_lookup = {v: k for k, v in self.destination_lookup.items()}
 
     def dj_query_route(self):
         with self.connection.transaction:
-            destination_lookup = reduce(
-                lambda m0, m1: dict(
-                    m0,
-                    **(
-                        {
-                            m_t["input"]
-                            if "input" in m_t
-                            else m_t["destination"]: m_t["destination"]
-                            for m_t in m1["map"]
-                        }
-                        if m1["type"] == "table"
-                        else {
-                            m1["input"]
-                            if "input" in m1
-                            else m1["destination"]: m1["destination"]
-                        }
-                    ),
-                ),
-                self.fields_map or [],
-                {},
-            )
             for t in self.tables:
                 t.insert(
                     [
                         {
                             a: v
                             for k, v in r.items()
-                            if (a := destination_lookup.get(k, k))
+                            if (a := self.destination_lookup.get(k, k))
                             in t.heading.attributes
                         }
                         for r in self.payload["submissions"]
@@ -244,27 +212,11 @@ class InsertComponent:
             fields=[
                 dict(
                     (field := source_fields.pop(m["destination"])),
-                    name=m["input" if "input" in m else "destination"],
+                    name=m.get("input", m["destination"]),
                     **(
                         {
-                            "values": field["values"]
-                            if "map" not in m
-                            else [
-                                {
-                                    input_lookup[k]: v
-                                    for k, v in r.items()
-                                    if k
-                                    in (
-                                        input_lookup := {
-                                            table_m["destination"]: table_m[
-                                                "input"
-                                                if "input" in table_m
-                                                else "destination"
-                                            ]
-                                            for table_m in m["map"]
-                                        }
-                                    )
-                                }
+                            "values": [
+                                {self.input_lookup.get(k, k): v for k, v in r.items()}
                                 for r in field["values"]
                             ]
                         }
