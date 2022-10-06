@@ -2,11 +2,15 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
-## [0.5.2] - TBD
+## [0.5.2] - 2022-10-06
+
+### Added
+
+- Create generic component class for custom routes PR [#135](https://github.com/datajoint/pharus/pull/135)
 
 ### Fixed
 
-- Component type check condition to allow form POST route overriding
+- Component type check condition to allow form POST route overriding PR [#132](https://github.com/datajoint/pharus/pull/132)
 
 ## [0.5.1] - 2022-09-27
 
@@ -172,6 +176,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
+[0.5.2]: https://github.com/datajoint/pharus/compare/0.5.1...0.5.2
 [0.5.1]: https://github.com/datajoint/pharus/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/datajoint/pharus/compare/0.4.1...0.5.0
 [0.4.1]: https://github.com/datajoint/pharus/compare/0.4.0...0.4.1
