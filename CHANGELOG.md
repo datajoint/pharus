@@ -2,6 +2,12 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.5.3] - 2022-10-11
+
+### Fixed
+
+- Flask would add empty body to request method PR [#137](https://github.com/datajoint/pharus/pull/137)
+
 ## [0.5.2] - 2022-10-06
 
 ### Added
@@ -176,6 +182,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
+[0.5.3]: https://github.com/datajoint/pharus/compare/0.5.2...0.5.3
 [0.5.2]: https://github.com/datajoint/pharus/compare/0.5.1...0.5.2
 [0.5.1]: https://github.com/datajoint/pharus/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/datajoint/pharus/compare/0.4.1...0.5.0
