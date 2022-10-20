@@ -2,6 +2,12 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.5.4] - 2022-10-20
+
+### Fixed
+
+- Allow form component table map destination templating PR [#138](https://github.com/datajoint/pharus/pull/138)
+
 ## [0.5.3] - 2022-10-11
 
 ### Fixed
