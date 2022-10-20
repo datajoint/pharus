@@ -211,7 +211,11 @@ class InsertComponent(Component):
         return dict(
             fields=[
                 dict(
-                    (field := source_fields.pop((m_destination:=m["destination"].format(**request.args)))),
+                    (
+                        field := source_fields.pop(
+                            (m_destination := m["destination"].format(**request.args))
+                        )
+                    ),
                     name=m.get("input", m_destination),
                     **(
                         {
