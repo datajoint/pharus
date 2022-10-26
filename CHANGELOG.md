@@ -2,6 +2,12 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.5.5] - 2022-10-26
+
+### Fixed
+
+- Return `id_token` on login since it can be useful in OIDC logout flow PR [#139](https://github.com/datajoint/pharus/pull/139)
+
 ## [0.5.4] - 2022-10-20
 
 ### Fixed
@@ -188,6 +194,8 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
+[0.5.5]: https://github.com/datajoint/pharus/compare/0.5.4...0.5.5
+[0.5.4]: https://github.com/datajoint/pharus/compare/0.5.3...0.5.4
 [0.5.3]: https://github.com/datajoint/pharus/compare/0.5.2...0.5.3
 [0.5.2]: https://github.com/datajoint/pharus/compare/0.5.1...0.5.2
 [0.5.1]: https://github.com/datajoint/pharus/compare/0.5.0...0.5.1
