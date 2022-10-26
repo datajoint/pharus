@@ -223,29 +223,33 @@ def login() -> dict:
                     headers=headers,
                     auth=auth,
                 )
-                encoded_jwt = result.json()["access_token"]
+                auth_info = dict(
+                    jwt=result.json()["access_token"], id=result.json()["id_token"]
+                )
                 connect_creds = {
                     "databaseAddress": request.args["database_host"],
                     "username": jwt.decode(
-                        encoded_jwt,
+                        auth_info["jwt"],
                         crypto_serialization.load_der_public_key(
                             b64decode(environ.get("PHARUS_OIDC_PUBLIC_KEY").encode())
                         ),
                         algorithms="RS256",
                         options=dict(verify_aud=False),
                     )[environ.get("PHARUS_OIDC_SUBJECT_KEY")],
-                    "password": encoded_jwt,
+                    "password": auth_info["jwt"],
                 }
             else:  # Database login
                 # Generate JWT key and send it back
-                encoded_jwt = jwt.encode(
-                    request.json, environ["PHARUS_PRIVATE_KEY"], algorithm="RS256"
+                auth_info = dict(
+                    jwt=jwt.encode(
+                        request.json, environ["PHARUS_PRIVATE_KEY"], algorithm="RS256"
+                    )
                 )
                 connect_creds = request.json
             if connect_creds.keys() < {"databaseAddress", "username", "password"}:
                 return dict(error="Invalid Request, check headers and/or json body")
             _DJConnector._attempt_login(**connect_creds)
-            return dict(jwt=encoded_jwt)
+            return dict(**auth_info)
         except Exception as e:
             return str(e), 500
 
