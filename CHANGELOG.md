@@ -6,7 +6,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 
 ### Added
 
-- Add option to flush user privileges if root user available using env vars: `DJ_HOST`, `DJ_ROOT_USER`, `DJ_ROOT_PASSWORD` [#140](https://github.com/datajoint/pharus/pull/140)
+- Add option to flush user privileges if root user available using env vars: `DJ_HOST`, `DJ_ROOT_USER`, `DJ_ROOT_PASS` [#140](https://github.com/datajoint/pharus/pull/140)
 
 ## [0.5.5] - 2022-10-26
 

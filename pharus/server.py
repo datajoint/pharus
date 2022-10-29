@@ -255,7 +255,7 @@ def login() -> dict:
                 if (
                     (root_host := environ.get("DJ_HOST"))
                     and (root_user := environ.get("DJ_ROOT_USER"))
-                    and (root_password := environ.get("DJ_ROOT_PASSWORD"))
+                    and (root_password := environ.get("DJ_ROOT_PASS"))
                 ):
                     conn = dj.conn(
                         host=root_host,
