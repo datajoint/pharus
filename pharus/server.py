@@ -5,6 +5,7 @@ from . import __version__ as version
 from typing import Callable
 from functools import wraps
 from typing import Union
+import pymysql
 
 # Crypto libaries
 from cryptography.hazmat.primitives import serialization as crypto_serialization
@@ -117,7 +118,7 @@ def api_version() -> str:
             Content-Type: application/json
 
             {
-                "version": "0.5.5"
+                "version": "0.5.6"
             }
 
         :statuscode 200: No error.
@@ -248,7 +249,24 @@ def login() -> dict:
                 connect_creds = request.json
             if connect_creds.keys() < {"databaseAddress", "username", "password"}:
                 return dict(error="Invalid Request, check headers and/or json body")
-            _DJConnector._attempt_login(**connect_creds)
+            try:
+                _DJConnector._attempt_login(**connect_creds)
+            except pymysql.err.OperationalError as e:
+                if (
+                    (root_host := environ.get("DJ_HOST"))
+                    and (root_user := environ.get("DJ_ROOT_USER"))
+                    and (root_password := environ.get("DJ_ROOT_PASS"))
+                ):
+                    conn = dj.conn(
+                        host=root_host,
+                        user=root_user,
+                        password=root_password,
+                        reset=True,
+                    )
+                    conn.query("FLUSH PRIVILEGES")
+                    _DJConnector._attempt_login(**connect_creds)
+                else:
+                    raise e
             return dict(**auth_info)
         except Exception as e:
             return str(e), 500
