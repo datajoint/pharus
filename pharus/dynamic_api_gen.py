@@ -120,7 +120,7 @@ def {method_name}() -> dict:
                     else grid["components"]
                 ).items():
                     if re.match(
-                        r"^(table|metadata|plot|file|slider|dropdown-query|basicquery|form).*$",
+                        r"^(table|metadata|plot|file|slider|dropdown-query|form).*$",
                         comp["type"],
                     ):
                         f.write(
