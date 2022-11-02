@@ -17,16 +17,14 @@ class _DJConnector:
 
     @staticmethod
     def _attempt_login(databaseAddress: str, username: str, password: str):
-        """
-        Attempts to authenticate against database with given username and address.
+        """Attempts to authenticate against database with given username and address.
 
-        :param databaseAddress: Address of database
-        :type databaseAddress: str
-        :param username: Username of user
-        :type username: str
-        :param password: Password of user
-        :type password: str
+        Args:
+            databaseAddress (str): Address of database
+            username (str): Username of user
+            password (str): Password of user
         """
+
         dj.config["database.host"] = databaseAddress
         dj.config["database.user"] = username
         dj.config["database.password"] = password
@@ -35,15 +33,15 @@ class _DJConnector:
 
     @staticmethod
     def _list_schemas(connect_creds: dict) -> list:
-        """
-        List all schemas under the database.
+        """List all schemas in the database.
+        
+        Args:
+            connect_creds (dict): A dictionary of databaseAddress, username, and
+            password strings.
 
-        :param connect_creds: Dictionary containing databaseAddress, username, and password
-            strings
-        :type connect_creds: dict
-        :return: List of schemas names in alphabetical order (excludes ``information_schema``,
+        Returns:
+            Schemas names in alphabetical order (excludes ``information_schema``,
             ``sys``, ``performance_schema``, ``mysql``)
-        :rtype: list
         """
 
         _DJConnector._set_datajoint_config(connect_creds)
@@ -67,17 +65,16 @@ class _DJConnector:
         connect_creds: dict,
         schema_name: str,
     ) -> dict:
-        """
-        List all tables and their type given a schema.
+        """List all tables and their type given a schema.
 
-        :param connect_creds: Dictionary containing databaseAddress, username, and password
-            strings
-        :type connect_creds: dict
-        :param schema_name: Name of schema to list all tables from
-        :type schema_name: str
-        :return: Contains a key for each table type where values are the respective list of
-            table names
-        :rtype: dict
+        Args:
+            connect_creds (dict): A dictionary containing databaseAddress,
+            username, and password strings.
+            schema_name (str): Name of schema to list all tables from.
+        
+        Returns:
+            Containing a key for each table type where values are the
+            respective list of table names.
         """
 
         _DJConnector._set_datajoint_config(connect_creds)
@@ -121,24 +118,21 @@ class _DJConnector:
         fetch_blobs=False,
         fetch_args=[],
     ) -> tuple:
-        """
-        Get records from query.
+        """Get records from query.
 
-        :param query: any datajoint object related to QueryExpression
-        :type query: datajoint ``QueryExpression`` or related object
-        :param restriction: Sequence of filters as ``dict`` with ``attributeName``,
-            ``operation``, ``value`` keys defined, defaults to ``[]``
-        :type restriction: list, optional
-        :param limit: Max number of records to return, defaults to ``1000``
-        :type limit: int, optional
-        :param page: Page number to return, defaults to ``1``
-        :type page: int, optional
-        :param order: Sequence to order records, defaults to ``['KEY ASC']``. See
-            :class:`~datajoint.fetch.Fetch` for more info.
-        :type order: list, optional
-        :return: Attribute headers, records in dict form, and the total number of records that
-            can be paged
-        :rtype: tuple
+        Args:
+            query (query): any datajoint object related to QueryExpression
+            restriction (list): Optional. Sequence of filters as ``dict`` with
+            ``attributeName``, ``operation``, ``value`` keys defined, defaults
+            to ``[]``.
+            limit (int): Optional. Max number of records to return, defaults to ``1000``.
+            page (int): Optional. Page number to return, defaults to ``1``.
+            order (list): Sequence to order records, defaults to ``['KEY
+            ASC']``. See :class:`~datajoint.fetch.Fetch` for more info.
+        
+        Returns:
+            Containing attribute headers, records as a dictonary, and the total
+            number of records that can be paged.
         """
 
         # Get table object from name
@@ -230,16 +224,16 @@ class _DJConnector:
 
     @staticmethod
     def _get_attributes(query) -> dict:
-        """
-        Method to get primary and secondary attributes of a query.
+        """Method to get primary and secondary attributes of a query.
 
-        :param query: any datajoint object related to QueryExpression
-        :type query: datajoint ``QueryExpression`` or related object
-        :return: Dict with keys ``attribute_headers`` and ``attributes`` containing
+        Args:
+            query (query): any datajoint object related to QueryExpression
+        
+        Returns:
+            A dictionary with keys ``attribute_headers`` and ``attributes`` containing
             ``primary``, ``secondary`` which each contain a
             ``list`` of ``tuples`` specifying: ``attribute_name``, ``type``, ``nullable``,
             ``default``, ``autoincrement``.
-        :rtype: dict
         """
 
         query_attributes = dict(primary=[], secondary=[])
@@ -276,18 +270,16 @@ class _DJConnector:
         schema_name: str,
         table_name: str,
     ) -> str:
-        """
-        Get the table definition.
+        """Get the table definition.
 
-        :param connect_creds: Dictionary containing databaseAddress, username, and password
-            strings
-        :type connect_creds: dict
-        :param schema_name: Name of schema
-        :type schema_name: str
-        :param table_name: Table name under the given schema; must be in camel case
-        :type table_name: str
-        :return: Definition of the table
-        :rtype: str
+        Args:
+        connect_creds (dict): A dictionary containing databaseAddress, username,
+        and password strings.
+        schema_name (str): Name of the schema.
+        table_name (str): Table name under the given schema; must be in camel case.
+        
+        Returns:
+            The definition of the table as a string.
         """
 
         _DJConnector._set_datajoint_config(connect_creds)
@@ -303,18 +295,14 @@ class _DJConnector:
         table_name: str,
         tuple_to_insert: dict,
     ):
-        """
-        Insert record as tuple into table.
+        """Insert record as tuple into table.
 
-        :param connect_creds: Dictionary containing databaseAddress, username, and password
-            strings
-        :type connect_creds: dict
-        :param schema_name: Name of schema
-        :type schema_name: str
-        :param table_name: Table name under the given schema; must be in camel case
-        :type table_name: str
-        :param tuple_to_insert: Record to be inserted
-        :type tuple_to_insert: dict
+        Args:
+            connect_creds (dict): Dictionary containing databaseAddress,
+            username, and password strings.
+            schema_name (str): Name of schema.
+            table_name (str): Table name under the given schema; must be in camel case.
+            tuple_to_insert (dict): Record to be inserted.
         """
 
         _DJConnector._set_datajoint_config(connect_creds)
@@ -329,22 +317,22 @@ class _DJConnector:
         table_name: str,
         restriction: list = [],
     ) -> list:
-        """
-        Return summary of dependencies associated with a restricted table. Will only show
-        dependencies that user has access to.
+        """Return summary of dependencies associated with a restricted table. 
+        
+        This method only shows dependencies that a user can access.
 
-        :param connect_creds: Dictionary containing databaseAddress, username, and password
-            strings
-        :type connect_creds: dict
-        :param schema_name: Name of schema
-        :type schema_name: str
-        :param table_name: Table name under the given schema; must be in camel case
-        :type table_name: str
-        :param restriction: Sequence of filters as ``dict`` with ``attributeName``,
-            ``operation``, ``value`` keys defined, defaults to ``[]``
-        :type restriction: list
-        :return: Tables that are dependent on specific records.
-        :rtype: list
+        Args:
+            connect_creds (dict): Dictionary containing databaseAddress, username,
+            and password strings.
+            schema_name (str): Name of schema
+            table_name (str): Table name under the given schema; must be in camel
+            case. 
+            restriction (dict): Sequence of filters as ``dict`` with
+            ``attributeName``, 
+                ``operation``, ``value`` keys defined, defaults to ``[]``.
+        
+        Returns: 
+            Tables that are dependent on specific records.
         """
 
         _DJConnector._set_datajoint_config(connect_creds)
@@ -384,18 +372,14 @@ class _DJConnector:
         table_name: str,
         tuple_to_update: dict,
     ):
-        """
-        Update record as tuple into table.
+        """Update record as tuple into table.
 
-        :param connect_creds: Dictionary containing databaseAddress, username, and password
-            strings
-        :type connect_creds: dict
-        :param schema_name: Name of schema
-        :type schema_name: str
-        :param table_name: Table name under the given schema; must be in camel case
-        :type table_name: str
-        :param tuple_to_update: Record to be updated
-        :type tuple_to_update: dict
+        Args:
+            connect_creds (dict): Dictionary containing databaseAddress,
+            username, and password strings.
+            schema_name (str): Name of schema.
+            table_name (str): Table name under the given schema; must be in camel case.
+            tuple_to_update (dict): Record to be updated.
         """
         conn = _DJConnector._set_datajoint_config(connect_creds)
 
@@ -414,21 +398,18 @@ class _DJConnector:
         restriction: list = [],
         cascade: bool = False,
     ):
-        """
-        Delete a specific record based on the restriction given.
+        """Delete a specific record based on the restriction given.
 
-        :param connect_creds: Dictionary containing databaseAddress, username, and password
-            strings
-        :type connect_creds: dict
-        :param schema_name: Name of schema
-        :type schema_name: str
-        :param table_name: Table name under the given schema; must be in camel case
-        :type table_name: str
-        :param restriction: Sequence of filters as ``dict`` with ``attributeName``,
-            ``operation``, ``value`` keys defined, defaults to ``[]``
-        :type restriction: list, optional
-        :param cascade: Allow for cascading delete, defaults to ``False``
-        :type cascade: bool, optional
+        Args:
+            connect_creds (dict): Dictionary containing
+            databaseAddress,username, and password strings.
+            schema_name (str): Name of schema
+            table_name (str): Table name under the given schema; must be in camel
+            case. 
+            restriction (dict): Sequence of filters as ``dict`` with
+            ``attributeName``, 
+                ``operation``, ``value`` keys defined, defaults to ``[]``.
+            cascade (bool): Optional. Allow for cascading delete, defaults to ``False``.
         """
 
         _DJConnector._set_datajoint_config(connect_creds)
@@ -456,15 +437,14 @@ class _DJConnector:
     def _get_table_object(
         schema_virtual_module: VirtualModule, table_name: str
     ) -> UserTable:
-        """
-        Helper method for getting the table object based on the table name provided.
+        """Helper method for getting the table object based on the table name provided.
 
-        :param schema_virtual_module: Virtual module for accesing the schema
-        :type schema_virtual_module: :class:`~datajoint.schemas.VirtualModule`
-        :param table_name: Name of the table; for part it should be ``Parent.Part``
-        :type table_name: str
-        :return: DataJoint table object.
-        :rtype: :class:`~datajoint.user_tables.UserTable`
+        Args:
+        schema_virtual_module (class): Virtual module for accesing the schema.
+        table_name (str): Name of the table; for part it should be
+        ``Parent.Part``.
+        Returns:
+            DataJoint table object.
         """
         # Split the table name by '.' for dealing with part tables
         table_name_parts = table_name.split(".")
@@ -477,16 +457,14 @@ class _DJConnector:
 
     @staticmethod
     def _filter_to_restriction(attribute_filter: dict, attribute_type: str) -> str:
-        """
-        Convert attribute filter to a restriction.
+        """Convert attribute filter to a restriction.
 
-        :param attribute_filter: A filter as ``dict`` with ``attributeName``, ``operation``,
-            ``value`` keys defined, defaults to ``[]``
-        :type attribute_filter: dict
-        :param attribute_type: Attribute type
-        :type attribute_type: str
-        :return: DataJoint-compatible restriction
-        :rtype: str
+        Args:
+            attribute_filter (dict): A filter as ``dict`` with ``attributeName``, ``operation``,
+            ``value`` keys defined, defaults to ``[]``.
+            attribute_type (str): Attribute type.
+        Returns:
+            A string defining a DataJoint-compatible restriction
         """
         if attribute_filter["operation"] in (">", "<", ">=", "<="):
             operation = attribute_filter["operation"]
@@ -514,14 +492,14 @@ class _DJConnector:
 
     @staticmethod
     def _set_datajoint_config(connect_creds: dict) -> dj.connection.Connection:
-        """
-        Method to set credentials for database.
-
-        :param connect_creds: Dictionary containing databaseAddress, username, and password
-            strings
-        :type connect_creds: dict
-        :return: DataJoint connection object.
-        :rtype: :class:`~datajoint.connection.Connection`
+        """Method to set credentials for database.
+        
+        Args:
+        connect_creds (dict): Dictionary containing databaseAddress, username,
+        and password as strings.
+        
+        Returns:
+            DataJoint connection object.
         """
         dj.config["database.host"] = connect_creds["databaseAddress"]
         dj.config["database.user"] = connect_creds["username"]

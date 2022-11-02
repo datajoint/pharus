@@ -23,8 +23,8 @@ from datajoint.table import foreign_key_error_regexp
 from datajoint.utils import to_camel_case
 
 app = Flask(__name__)
-# Check if PRIVATE_KEY and PUBIC_KEY is set, if not generate them.
-# NOTE: For web deployment, please set the these enviorment variable to be the same between
+# Check if PRIVATE_KEY and PUBIC_KEY is set, if not generate them. NOTE: For web
+# deployment, please set the these enviorment variable to be the same between
 # the instance
 if (
     environ.get("PHARUS_PRIVATE_KEY") is None
@@ -49,14 +49,13 @@ if (
 
 
 def protected_route(function: Callable) -> Callable:
-    """
-    Protected route function decorator which authenticates requests.
+    """Protected route function decorator which authenticates requests.
 
-    :param function: Function to decorate, typically routes
-    :type function: :class:`~typing.Callable`
-    :return: Function output if JWT authetication is successful, otherwise return error
-        message
-    :rtype: :class:`~typing.Callable`
+    Args:
+        function (callable): Function to decorate, typically routes
+    
+    Returns:
+        Function output if JWT authetication is successful, otherwise returns error message.
     """
 
     @wraps(function)
@@ -92,65 +91,68 @@ def protected_route(function: Callable) -> Callable:
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/version", methods=["GET"])
 def api_version() -> str:
+    """Handler for ``/version`` route.
+    
+    Returns: 
+        A string of the API version
     """
-    Handler for ``/version`` route.
+    (
+        """
+    http:get:: /version - Route to check server health returning the API
+    version. **Example request**:
+    
+    sourcecode:: http
 
-    :return: API version
-    :rtype: str
+        GET /version HTTP/1.1 Host: fakeservices.datajoint.io
 
-    .. http:get:: /version
+    **Example response**:
 
-        Route to check server health returning the API version.
+    sourcecode:: http
 
-        **Example request**:
+        HTTP/1.1 200 OK Vary: Accept Content-Type: application/json
 
-        .. sourcecode:: http
+        {
+            "version": "0.5.6"
+        }
 
-            GET /version HTTP/1.1
-            Host: fakeservices.datajoint.io
+    :statuscode 200: No error.
+        """
+    )
 
-        **Example response**:
-
-        .. sourcecode:: http
-
-            HTTP/1.1 200 OK
-            Vary: Accept
-            Content-Type: application/json
-
-            {
-                "version": "0.5.6"
-            }
-
-        :statuscode 200: No error.
-    """
     if request.method in {"GET", "HEAD"}:
         return dict(version=version)
 
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/login", methods=["POST"])
 def login() -> dict:
+    """Handler for ``/login`` route.
+    
+    Returns:
+        Function output is an encoded JWT if successful, otherwise return error message.
     """
-    **WARNING**: Currently, this implementation exposes user database credentials as plain
-    text in POST body once and stores it within a bearer token as Base64 encoded for
-    subsequent requests. That is how the server is able to submit queries on user's behalf.
-    Due to this, it is required that remote hosts expose the server only under HTTPS to ensure
-    end-to-end encryption. Sending passwords in plain text over HTTPS in POST request body is
-    common and utilized by companies such as GitHub (2021) and Chase Bank (2021). On server
-    side, there is no caching, logging, or storage of received passwords or tokens and thus
-    available only briefly in memory. This means the primary vulnerable point is client side.
-    Users should be responsible with their passwords and bearer tokens treating them as
-    one-in-the-same. Be aware that if your client system happens to be compromised, a bad
-    actor could monitor your outgoing network requests and capture/log your credentials.
-    However, in such a terrible scenario, a bad actor would not only collect credentials for
-    your DataJoint database but also other sites such as github.com, chase.com, etc. Please be
-    responsible and vigilant with credentials and tokens on client side systems. Improvements
-    to the above strategy is currently being tracked in
+    (
+        """
+    **WARNING**: Currently, this implementation exposes user database
+    credentials as plain text in POST body once and stores it within a bearer
+    token as Base64 encoded for subsequent requests. That is how the server is
+    able to submit queries on user's behalf. Due to this, it is required that
+    remote hosts expose the server only under HTTPS to ensure end-to-end
+    encryption. Sending passwords in plain text over HTTPS in POST request body
+    is common and utilized by companies such as GitHub (2021) and Chase Bank
+    (2021). On server side, there is no caching, logging, or storage of received
+    passwords or tokens and thus available only briefly in memory. This means
+    the primary vulnerable point is client side. Users should be responsible
+    with their passwords and bearer tokens treating them as one-in-the-same. Be
+    aware that if your client system happens to be compromised, a bad actor
+    could monitor your outgoing network requests and capture/log your
+    credentials. However, in such a terrible scenario, a bad actor would not
+    only collect credentials for your DataJoint database but also other sites
+    such as github.com, chase.com, etc. Please be responsible and vigilant with
+    credentials and tokens on client side systems. Improvements to the above
+    strategy is currently being tracked in
     https://github.com/datajoint/pharus/issues/82.
 
     Handler for ``/login`` route.
-
-    :return: Function output is an encoded JWT if successful, otherwise return error message
-    :rtype: dict
 
     .. http:post:: /login
 
@@ -160,23 +162,19 @@ def login() -> dict:
 
         .. sourcecode:: http
 
-            POST /login HTTP/1.1
-            Host: fakeservices.datajoint.io
-            Accept: application/json
+            POST /login HTTP/1.1 Host: fakeservices.datajoint.io Accept:
+            application/json
 
             {
-                "databaseAddress": "tutorial-db.datajoint.io",
-                "username": "user1",
-                "password": "password1"
+                "databaseAddress": "tutorial-db.datajoint.io", "username":
+                "user1", "password": "password1"
             }
 
         **Example successful response**:
 
         .. sourcecode:: http
 
-            HTTP/1.1 200 OK
-            Vary: Accept
-            Content-Type: application/json
+            HTTP/1.1 200 OK Vary: Accept Content-Type: application/json
 
             {
                 "jwt": "<token>"
@@ -187,19 +185,22 @@ def login() -> dict:
 
         .. sourcecode:: http
 
-            HTTP/1.1 500 Internal Server Error
-            Vary: Accept
-            Content-Type: text/plain
+            HTTP/1.1 500 Internal Server Error Vary: Accept Content-Type:
+            text/plain
 
-            400 Bad Request: The browser (or proxy) sent a request that this server could not
+            400 Bad Request: The browser (or proxy) sent a request that this
+            server could not
                 understand.
 
         :resheader Content-Type: text/plain, application/json
         :statuscode 200: No error.
-        :statuscode 500: Unexpected error encountered. Returns the error message as a string.
-    """
+        :statuscode 500: Unexpected error encountered. Returns the error message
+        as a string.
+        """
+    )
     if request.method == "POST":
-        # Try to login in with the database connection info, if true then create jwt key
+        # Try to login in with the database connection info, if true then create
+        # jwt key
         try:
             if "database_host" in request.args:
                 # Oidc token exchange
@@ -275,15 +276,16 @@ def login() -> dict:
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/schema", methods=["GET"])
 @protected_route
 def schema(connect_creds: dict) -> dict:
+    """Handler for ``/schema`` route.
+    
+    Args:
+        connect_creds (dict): Dictionary containing databaseAddress, username,and password strings.
+    
+    Returns:
+        If successful then sends back a list of schemas names otherwise returns error.
     """
-    Handler for ``/schema`` route.
-
-    :param connect_creds: Dictionary containing databaseAddress, username,
-        and password strings.
-    :type connect_creds: dict
-    :return: If successful then sends back a list of schemas names otherwise returns error.
-    :rtype: dict
-
+    (
+        """
     .. http:get:: /schema
 
         Route to get list of schemas.
@@ -292,17 +294,14 @@ def schema(connect_creds: dict) -> dict:
 
         .. sourcecode:: http
 
-            GET /schema HTTP/1.1
-            Host: fakeservices.datajoint.io
-            Authorization: Bearer <token>
+            GET /schema HTTP/1.1 Host: fakeservices.datajoint.io Authorization:
+            Bearer <token>
 
         **Example successful response**:
 
         .. sourcecode:: http
 
-            HTTP/1.1 200 OK
-            Vary: Accept
-            Content-Type: application/json
+            HTTP/1.1 200 OK Vary: Accept Content-Type: application/json
 
             {
                 "schemaNames": [
@@ -314,18 +313,20 @@ def schema(connect_creds: dict) -> dict:
 
         .. sourcecode:: http
 
-            HTTP/1.1 500 Internal Server Error
-            Vary: Accept
-            Content-Type: text/plain
+            HTTP/1.1 500 Internal Server Error Vary: Accept Content-Type:
+            text/plain
 
-            400 Bad Request: The browser (or proxy) sent a request that this server could not
+            400 Bad Request: The browser (or proxy) sent a request that this
+            server could not
                 understand.
 
         :reqheader Authorization: Bearer <OAuth2_token>
         :resheader Content-Type: text/plain, application/json
         :statuscode 200: No error.
-        :statuscode 500: Unexpected error encountered. Returns the error message as a string.
+        :statuscode 500: Unexpected error encountered. Returns the error message
+        as a string.
     """
+    )
     if request.method in {"GET", "HEAD"}:
         # Get all the schemas
         try:
@@ -343,17 +344,17 @@ def table(
     connect_creds: dict,
     schema_name: str,
 ) -> dict:
+    """Handler for ``/schema/{schema_name}/table`` route.
+    
+    Args:
+        connect_creds (dict): Dictionary containing databaseAddress, username,and password strings. 
+        schema_name (str): Schema name.
+    
+    Returns:
+        If successful then sends back a list of table names otherwise returns error.
     """
-    Handler for ``/schema/{schema_name}/table`` route.
-
-    :param connect_creds: Dictionary containing databaseAddress, username,
-        and password strings.
-    :type connect_creds: dict
-    :param schema_name: Schema name.
-    :type schema_name: str
-    :return: If successful then sends back a list of table names otherwise returns error.
-    :rtype: dict
-
+    (
+        """
     .. http:get:: /schema/{schema_name}/table
 
         Route to get tables within a schema.
@@ -362,29 +363,22 @@ def table(
 
         .. sourcecode:: http
 
-            GET /schema/alpha_company/table HTTP/1.1
-            Host: fakeservices.datajoint.io
-            Authorization: Bearer <token>
+            GET /schema/alpha_company/table HTTP/1.1 Host:
+            fakeservices.datajoint.io Authorization: Bearer <token>
 
         **Example successful response**:
 
         .. sourcecode:: http
 
-            HTTP/1.1 200 OK
-            Vary: Accept
-            Content-Type: application/json
+            HTTP/1.1 200 OK Vary: Accept Content-Type: application/json
 
             {
                 "tableTypes": {
-                    "computed": [],
-                    "imported": [],
-                    "lookup": [
+                    "computed": [], "imported": [], "lookup": [
                         "Employee"
-                    ],
-                    "manual": [
+                    ], "manual": [
                         "Computer"
-                    ],
-                    "part": []
+                    ], "part": []
                 }
             }
 
@@ -392,19 +386,21 @@ def table(
 
         .. sourcecode:: http
 
-            HTTP/1.1 500 Internal Server Error
-            Vary: Accept
-            Content-Type: text/plain
+            HTTP/1.1 500 Internal Server Error Vary: Accept Content-Type:
+            text/plain
 
-            400 Bad Request: The browser (or proxy) sent a request that this server could not
+            400 Bad Request: The browser (or proxy) sent a request that this
+            server could not
                 understand.
 
         :query schema_name: Schema name.
         :reqheader Authorization: Bearer <OAuth2_token>
         :resheader Content-Type: text/plain, application/json
         :statuscode 200: No error.
-        :statuscode 500: Unexpected error encountered. Returns the error message as a string.
-    """
+        :statuscode 500: Unexpected error encountered. Returns the error message
+        as a string.
+        """
+    )
     if request.method in {"GET", "HEAD"}:
         try:
             tables_dict_list = _DJConnector._list_tables(connect_creds, schema_name)
@@ -423,21 +419,19 @@ def record(
     schema_name: str,
     table_name: str,
 ) -> Union[dict, str, tuple]:
+    
+    """Handler for ``/schema/{schema_name}/table/{table_name}/record`` route.
+    
+    Args:
+        connect_creds (dict): Dictionary containing databaseAddress, username,and password strings. 
+        schema_name (str): Schema name.
+        table_name (str): Table name.
+    
+    Returns:
+        If succesful, performs desired operation based on HTTP method or returns error.
+    """
     (
         """
-        Handler for ``/schema/{schema_name}/table/{table_name}/record`` route.
-
-        :param connect_creds: Dictionary containing databaseAddress, username, and password
-            strings.
-        :type connect_creds: dict
-        :param schema_name: Schema name.
-        :type schema_name: str
-        :param table_name: Table name.
-        :type table_name: str
-        :return: If successful performs desired operation based on HTTP method, otherwise
-            returns error.
-        :rtype: :class:`~typing.Union[dict, str, tuple]`
-
         .. http:get:: /schema/{schema_name}/table/{table_name}/record
 
             Route to fetch records.
@@ -446,109 +440,89 @@ def record(
 
             .. sourcecode:: http
 
-                GET /schema/alpha_company/table/Computer/record?limit=1&page=2&"""
+                GET
+                /schema/alpha_company/table/Computer/record?limit=1&page=2&"""
         "order=computer_id%20DESC&restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnk"
         "iLCAib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo="
         """ HTTP/1.1
-                Host: fakeservices.datajoint.io
-                Authorization: Bearer <token>
+                Host: fakeservices.datajoint.io Authorization: Bearer <token>
 
             **Example successful response**:
 
             .. sourcecode:: http
 
-                HTTP/1.1 200 OK
-                Vary: Accept
-                Content-Type: application/json
+                HTTP/1.1 200 OK Vary: Accept Content-Type: application/json
 
                 {
                     "recordHeader": [
-                        "computer_id",
-                        "computer_serial",
-                        "computer_brand",
-                        "computer_built",
-                        "computer_processor",
-                        "computer_memory",
-                        "computer_weight",
-                        "computer_cost",
-                        "computer_preowned",
-                        "computer_purchased",
-                        "computer_updates",
-                        "computer_accessories"
-                    ],
-                    "records": [
+                        "computer_id", "computer_serial", "computer_brand",
+                        "computer_built", "computer_processor",
+                        "computer_memory", "computer_weight", "computer_cost",
+                        "computer_preowned", "computer_purchased",
+                        "computer_updates", "computer_accessories"
+                    ], "records": [
                         [
-                            "4e41491a-86d5-4af7-a013-89bde75528bd",
-                            "DJS1JA17G",
-                            "Dell",
-                            1590364800,
-                            2.2,
-                            16,
-                            4.4,
-                            "700.99",
-                            0,
-                            1603181061,
-                            null,
-                            "=BLOB="
+                            "4e41491a-86d5-4af7-a013-89bde75528bd", "DJS1JA17G",
+                            "Dell", 1590364800, 2.2, 16, 4.4, "700.99", 0,
+                            1603181061, null, "=BLOB="
                         ]
-                    ],
-                    "totalCount": 2
+                    ], "totalCount": 2
                 }
 
             **Example unexpected response**:
 
             .. sourcecode:: http
 
-                HTTP/1.1 500 Internal Server Error
-                Vary: Accept
-                Content-Type: text/plain
+                HTTP/1.1 500 Internal Server Error Vary: Accept Content-Type:
+                text/plain
 
-                400 Bad Request: The browser (or proxy) sent a request that this server could
+                400 Bad Request: The browser (or proxy) sent a request that this
+                server could
                     not understand.
 
             :query schema_name: Schema name.
             :query table_name: Table name.
-            :query limit: Limit of how many records per page. Defaults to ``1000``.
+            :query limit: Limit of how many records per page. Defaults to
+            ``1000``.
             :query page: Page requested. Defaults to ``1``.
             :query order: Sort order. Defaults to ``KEY ASC``.
-            :query restriction: Base64-encoded ``AND`` sequence of restrictions. For example,
-                you could restrict as ``[{"attributeName": "computer_memory", "operation": ``-
-                ``">=", "value": 16}]`` with this param set as
+            :query restriction: Base64-encoded ``AND`` sequence of restrictions.
+                For example, you could restrict as ``[{"attributeName":
+                "computer_memory", "operation": ``- ``">=", "value": 16}]`` with
+                this param set as
                 ``W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl``-
-                ``cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=``. Defaults to no restriction.
+                ``cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=``. Defaults to no
+                restriction.
             :reqheader Authorization: Bearer <OAuth2_token>
             :resheader Content-Type: text/plain, application/json
             :statuscode 200: No error.
-            :statuscode 500: Unexpected error encountered. Returns the error message as a
-                string.
+            :statuscode 500: Unexpected error encountered. Returns the error
+                message as a string.
 
         .. http:post:: /schema/{schema_name}/table/{table_name}/record
 
-            Route to insert a record. Omitted attributes utilize the default if set.
+            Route to insert a record. Omitted attributes utilize the default if
+            set.
 
             **Example request**:
 
             .. sourcecode:: http
 
-                POST /schema/alpha_company/table/Computer/record HTTP/1.1
-                Host: fakeservices.datajoint.io
-                Accept: application/json
+                POST /schema/alpha_company/table/Computer/record HTTP/1.1 Host:
+                fakeservices.datajoint.io Accept: application/json
                 Authorization: Bearer <token>
 
                 {
                     "records": [
                         {
-                            "computer_id": "ffffffff-86d5-4af7-a013-89bde75528bd",
-                            "computer_serial": "ZYXWVEISJ",
-                            "computer_brand": "HP",
-                            "computer_built": "2021-01-01",
-                            "computer_processor": 2.7,
-                            "computer_memory": 32,
-                            "computer_weight": 3.7,
-                            "computer_cost": 599.99,
-                            "computer_preowned": 0,
-                            "computer_purchased": "2021-02-01 13:00:00",
-                            "computer_updates": 0
+                            "computer_id":
+                            "ffffffff-86d5-4af7-a013-89bde75528bd",
+                            "computer_serial": "ZYXWVEISJ", "computer_brand":
+                            "HP", "computer_built": "2021-01-01",
+                            "computer_processor": 2.7, "computer_memory": 32,
+                            "computer_weight": 3.7, "computer_cost": 599.99,
+                            "computer_preowned": 0, "computer_purchased":
+                            "2021-02-01 13:00:00", "computer_updates": 0
                         }
                     ]
                 }
@@ -557,9 +531,7 @@ def record(
 
             .. sourcecode:: http
 
-                HTTP/1.1 200 OK
-                Vary: Accept
-                Content-Type: text/plain
+                HTTP/1.1 200 OK Vary: Accept Content-Type: text/plain
 
                 Insert Successful
 
@@ -567,46 +539,43 @@ def record(
 
             .. sourcecode:: http
 
-                HTTP/1.1 500 Internal Server Error
-                Vary: Accept
-                Content-Type: text/plain
+                HTTP/1.1 500 Internal Server Error Vary: Accept Content-Type:
+                text/plain
 
-                400 Bad Request: The browser (or proxy) sent a request that this server could
+                400 Bad Request: The browser (or proxy) sent a request that this
+                server could
                     not understand.
 
             :reqheader Authorization: Bearer <OAuth2_token>
             :resheader Content-Type: text/plain
             :statuscode 200: No error.
-            :statuscode 500: Unexpected error encountered. Returns the error message as a
-                string.
+            :statuscode 500: Unexpected error encountered. Returns the error
+                message as a string.
 
         .. http:patch:: /schema/{schema_name}/table/{table_name}/record
 
-            Route to update a record. Omitted attributes utilize the default if set.
+            Route to update a record. Omitted attributes utilize the default if
+            set.
 
             **Example request**:
 
             .. sourcecode:: http
 
-                PATCH /schema/alpha_company/table/Computer/record HTTP/1.1
-                Host: fakeservices.datajoint.io
-                Accept: application/json
+                PATCH /schema/alpha_company/table/Computer/record HTTP/1.1 Host:
+                fakeservices.datajoint.io Accept: application/json
                 Authorization: Bearer <token>
 
                 {
                     "records": [
                         {
-                            "computer_id": "ffffffff-86d5-4af7-a013-89bde75528bd",
-                            "computer_serial": "ZYXWVEISJ",
-                            "computer_brand": "HP",
-                            "computer_built": "2021-01-01",
-                            "computer_processor": 2.7,
-                            "computer_memory": 32,
-                            "computer_weight": 3.7,
-                            "computer_cost": 601.01,
-                            "computer_preowned": 0,
-                            "computer_purchased": "2021-02-01 13:00:00",
-                            "computer_updates": 0
+                            "computer_id":
+                            "ffffffff-86d5-4af7-a013-89bde75528bd",
+                            "computer_serial": "ZYXWVEISJ", "computer_brand":
+                            "HP", "computer_built": "2021-01-01",
+                            "computer_processor": 2.7, "computer_memory": 32,
+                            "computer_weight": 3.7, "computer_cost": 601.01,
+                            "computer_preowned": 0, "computer_purchased":
+                            "2021-02-01 13:00:00", "computer_updates": 0
                         }
                     ]
                 }
@@ -615,9 +584,7 @@ def record(
 
             .. sourcecode:: http
 
-                HTTP/1.1 200 OK
-                Vary: Accept
-                Content-Type: text/plain
+                HTTP/1.1 200 OK Vary: Accept Content-Type: text/plain
 
                 Update Successful
 
@@ -625,18 +592,18 @@ def record(
 
             .. sourcecode:: http
 
-                HTTP/1.1 500 Internal Server Error
-                Vary: Accept
-                Content-Type: text/plain
+                HTTP/1.1 500 Internal Server Error Vary: Accept Content-Type:
+                text/plain
 
-                400 Bad Request: The browser (or proxy) sent a request that this server could
+                400 Bad Request: The browser (or proxy) sent a request that this
+                server could
                     not understand.
 
             :reqheader Authorization: Bearer <OAuth2_token>
             :resheader Content-Type: text/plain
             :statuscode 200: No error.
-            :statuscode 500: Unexpected error encountered. Returns the error message as a
-                string.
+            :statuscode 500: Unexpected error encountered. Returns the error
+                message as a string.
 
         .. http:delete:: /schema/{schema_name}/table/{table_name}/record
 
@@ -646,20 +613,18 @@ def record(
 
             .. sourcecode:: http
 
-                DELETE /schema/alpha_company/table/Computer/record?cascade=false&"""
+                DELETE
+                /schema/alpha_company/table/Computer/record?cascade=false&"""
         "restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49"
         "IiwgInZhbHVlIjogMTZ9XQo="
         """ HTTP/1.1
-                Host: fakeservices.datajoint.io
-                Authorization: Bearer <token>
+                Host: fakeservices.datajoint.io Authorization: Bearer <token>
 
             **Example successful response**:
 
             .. sourcecode:: http
 
-                HTTP/1.1 200 OK
-                Vary: Accept
-                Content-Type: text/plain
+                HTTP/1.1 200 OK Vary: Accept Content-Type: text/plain
 
                 Delete Successful
 
@@ -667,45 +632,46 @@ def record(
 
             .. sourcecode:: http
 
-                HTTP/1.1 409 Conflict
-                Vary: Accept
-                Content-Type: application/json
+                HTTP/1.1 409 Conflict Vary: Accept Content-Type:
+                application/json
 
                 {
-                    "error": "IntegrityError",
-                    "error_msg": "Cannot delete or update a parent row: a foreign key
-                        constraint fails (`alpha_company`.`#employee`, CONSTRAINT
-                        `#employee_ibfk_1` FOREIGN KEY (`computer_id`) REFERENCES `computer`
-                        (`computer_id`) ON DELETE RESTRICT ON UPDATE CASCADE",
-                    "child_schema": "alpha_company",
-                    "child_table": "Employee"
+                    "error": "IntegrityError", "error_msg": "Cannot delete or
+                    update a parent row: a foreign key
+                        constraint fails (`alpha_company`.`#employee`,
+                        CONSTRAINT `#employee_ibfk_1` FOREIGN KEY
+                        (`computer_id`) REFERENCES `computer` (`computer_id`) ON
+                        DELETE RESTRICT ON UPDATE CASCADE",
+                    "child_schema": "alpha_company", "child_table": "Employee"
                 }
 
             **Example unexpected response**:
 
             .. sourcecode:: http
 
-                HTTP/1.1 500 Internal Server Error
-                Vary: Accept
-                Content-Type: text/plain
+                HTTP/1.1 500 Internal Server Error Vary: Accept Content-Type:
+                text/plain
 
-                400 Bad Request: The browser (or proxy) sent a request that this server could
+                400 Bad Request: The browser (or proxy) sent a request that this
+                server could
                     not understand.
 
-            :query cascade: Enable cascading delete. Accepts ``true`` or ``false``.
-                Defaults to ``false``.
-            :query restriction: Base64-encoded ``AND`` sequence of restrictions. For example,
-                you could restrict as ``[{"attributeName": "computer_memory", "operation": ``-
-                ``">=", "value": 16}]`` with this param set as
+            :query cascade: Enable cascading delete. Accepts ``true`` or
+                ``false``. Defaults to ``false``.
+            :query restriction: Base64-encoded ``AND`` sequence of restrictions.
+                For example, you could restrict as ``[{"attributeName":
+                "computer_memory", "operation": ``- ``">=", "value": 16}]`` with
+                this param set as
                 ``W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl``-
-                ``cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=``. Defaults to no restriction.
+                ``cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=``. Defaults to no
+                restriction.
             :reqheader Authorization: Bearer <OAuth2_token>
             :resheader Content-Type: text/plain, application/json
             :statuscode 200: No error.
-            :statuscode 409: Attempting to delete a record with dependents while ``cascade``
-                set to ``false``.
-            :statuscode 500: Unexpected error encountered. Returns the error message as a
-                string.
+            :statuscode 409: Attempting to delete a record with dependents while
+                ``cascade`` set to ``false``.
+            :statuscode 500: Unexpected error encountered. Returns the error
+                message as a string.
         """
     )
     if request.method in {"GET", "HEAD"}:
@@ -793,19 +759,20 @@ def definition(
     schema_name: str,
     table_name: str,
 ) -> str:
+    """Handler for ``/schema/{schema_name}/table/{table_name}/definition``
+    route.
+    
+    Args:
+        connect_creds (dict): Dictionary containing databaseAddress, username,and password strings. 
+        schema_name (str): Schema name.
+        table_name (str): Table name.
+    
+    Returns:
+        If successful then sends back definition for table otherwise returns error.
     """
-    Handler for ``/schema/{schema_name}/table/{table_name}/definition`` route.
-
-    :param connect_creds: Dictionary containing databaseAddress, username,
-        and password strings.
-    :type connect_creds: dict
-    :param schema_name: Schema name.
-    :type schema_name: str
-    :param table_name: Table name.
-    :type table_name: str
-    :return: If successful then sends back definition for table otherwise returns error.
-    :rtype: str
-
+    
+    (
+        """
     .. http:get:: /schema/{schema_name}/table/{table_name}/definition
 
         Route to get DataJoint table definition.
@@ -814,49 +781,47 @@ def definition(
 
         .. sourcecode:: http
 
-            GET /schema/alpha_company/table/Computer/definition HTTP/1.1
-            Host: fakeservices.datajoint.io
-            Authorization: Bearer <token>
+            GET /schema/alpha_company/table/Computer/definition HTTP/1.1 Host:
+            fakeservices.datajoint.io Authorization: Bearer <token>
 
         **Example successful response**:
 
         .. sourcecode:: http
 
-            HTTP/1.1 200 OK
-            Vary: Accept
-            Content-Type: text/plain
+            HTTP/1.1 200 OK Vary: Accept Content-Type: text/plain
 
-            # Computers that belong to the company
-            computer_id          : uuid                      # unique id
-            ---
-            computer_serial="ABC101" : varchar(9)            # manufacturer serial number
-            computer_brand       : enum('HP','Dell')         # manufacturer brand
-            computer_built       : date                      # manufactured date
-            computer_processor   : double                    # processing power in GHz
-            computer_memory      : int                       # RAM in GB
-            computer_weight      : float                     # weight in lbs
-            computer_cost        : decimal(6,2)              # purchased price
-            computer_preowned    : tinyint                   # purchased as new or used
-            computer_purchased   : datetime                  # purchased date and time
-            computer_updates=null : time                     # scheduled daily update timeslot
-            computer_accessories=null : longblob             # included additional accessories
+            # Computers that belong to the company computer_id          : uuid
+            # unique id --- computer_serial="ABC101" : varchar(9)            #
+            manufacturer serial number computer_brand       : enum('HP','Dell')
+            # manufacturer brand computer_built       : date
+            # manufactured date computer_processor   : double
+            # processing power in GHz computer_memory      : int
+            # RAM in GB computer_weight      : float                     #
+            weight in lbs computer_cost        : decimal(6,2)              #
+            purchased price computer_preowned    : tinyint                   #
+            purchased as new or used computer_purchased   : datetime
+            # purchased date and time computer_updates=null : time
+            # scheduled daily update timeslot computer_accessories=null :
+            longblob             # included additional accessories
 
         **Example unexpected response**:
 
         .. sourcecode:: http
 
-            HTTP/1.1 500 Internal Server Error
-            Vary: Accept
-            Content-Type: text/plain
+            HTTP/1.1 500 Internal Server Error Vary: Accept Content-Type:
+            text/plain
 
-            400 Bad Request: The browser (or proxy) sent a request that this server could not
+            400 Bad Request: The browser (or proxy) sent a request that this
+            server could not
                 understand.
 
         :reqheader Authorization: Bearer <OAuth2_token>
         :resheader Content-Type: text/plain
         :statuscode 200: No error.
-        :statuscode 500: Unexpected error encountered. Returns the error message as a string.
-    """
+        :statuscode 500: Unexpected error encountered. Returns the error message
+        as a string.
+        """
+    )
     if request.method in {"GET", "HEAD"}:
         try:
             table_definition = _DJConnector._get_table_definition(
@@ -877,18 +842,19 @@ def attribute(
     schema_name: str,
     table_name: str,
 ) -> dict:
+    """Handler for ``/schema/{schema_name}/table/{table_name}/attribute``
+    route.
+    
+    Args:
+        connect_creds (dict): Dictionary containing databaseAddress, username,and password strings. 
+        schema_name (str): Schema name.
+        table_name (str): Table name.
+    
+    Returns:
+        If successful then sends back definition for table otherwise returns error.
     """
-    Handler for ``/schema/{schema_name}/table/{table_name}/attribute`` route.
-
-    :param connect_creds: Dictionary containing databaseAddress, username,
-        and password strings.
-    :type connect_creds: dict
-    :param schema_name: Schema name.
-    :type schema_name: str
-    :param table_name: Table name.
-    :type table_name: str
-    :return: If successful then sends back dict of table attributes otherwise returns error.
-    :rtype: dict
+    (
+        """
 
     .. http:GET:: /schema/{schema_name}/table/{table_name}/attribute
 
@@ -898,112 +864,48 @@ def attribute(
 
         .. sourcecode:: http
 
-            GET /schema/alpha_company/table/Computer/attribute HTTP/1.1
-            Host: fakeservices.datajoint.io
-            Authorization: Bearer <token>
+            GET /schema/alpha_company/table/Computer/attribute HTTP/1.1 Host:
+            fakeservices.datajoint.io Authorization: Bearer <token>
 
         **Example successful response**:
 
         .. sourcecode:: http
 
-            HTTP/1.1 200 OK
-            Vary: Accept
-            Content-Type: application/json
+            HTTP/1.1 200 OK Vary: Accept Content-Type: application/json
 
             {
                 "attributeHeader": [
-                    "name",
-                    "type",
-                    "nullable",
-                    "default",
-                    "autoincrement"
-                ],
-                "attributes": {
+                    "name", "type", "nullable", "default", "autoincrement"
+                ], "attributes": {
                     "primary": [
                         [
-                            "computer_id",
-                            "uuid",
-                            false,
-                            null,
-                            false
+                            "computer_id", "uuid", false, null, false
                         ]
-                    ],
-                    "secondary": [
+                    ], "secondary": [
                         [
-                            "computer_serial",
-                            "varchar(9)",
-                            false,
-                            "\"ABC101\"",
+                            "computer_serial", "varchar(9)", false,
+                            "\"ABC101\"", false
+                        ], [
+                            "computer_brand", "enum('HP','Dell')", false, null,
                             false
-                        ],
-                        [
-                            "computer_brand",
-                            "enum('HP','Dell')",
-                            false,
-                            null,
-                            false
-                        ],
-                        [
-                            "computer_built",
-                            "date",
-                            false,
-                            null,
-                            false
-                        ],
-                        [
-                            "computer_processor",
-                            "double",
-                            false,
-                            null,
-                            false
-                        ],
-                        [
-                            "computer_memory",
-                            "int",
-                            false,
-                            null,
-                            false
-                        ],
-                        [
-                            "computer_weight",
-                            "float",
-                            false,
-                            null,
-                            false
-                        ],
-                        [
-                            "computer_cost",
-                            "decimal(6,2)",
-                            false,
-                            null,
-                            false
-                        ],
-                        [
-                            "computer_preowned",
-                            "tinyint",
-                            false,
-                            null,
-                            false
-                        ],
-                        [
-                            "computer_purchased",
-                            "datetime",
-                            false,
-                            null,
-                            false
-                        ],
-                        [
-                            "computer_updates",
-                            "time",
-                            true,
-                            "null",
-                            false
-                        ],
-                        [
-                            "computer_accessories",
-                            "longblob",
-                            true,
-                            "null",
+                        ], [
+                            "computer_built", "date", false, null, false
+                        ], [
+                            "computer_processor", "double", false, null, false
+                        ], [
+                            "computer_memory", "int", false, null, false
+                        ], [
+                            "computer_weight", "float", false, null, false
+                        ], [
+                            "computer_cost", "decimal(6,2)", false, null, false
+                        ], [
+                            "computer_preowned", "tinyint", false, null, false
+                        ], [
+                            "computer_purchased", "datetime", false, null, false
+                        ], [
+                            "computer_updates", "time", true, "null", false
+                        ], [
+                            "computer_accessories", "longblob", true, "null",
                             false
                         ]
                     ]
@@ -1014,18 +916,20 @@ def attribute(
 
         .. sourcecode:: http
 
-            HTTP/1.1 500 Internal Server Error
-            Vary: Accept
-            Content-Type: text/plain
+            HTTP/1.1 500 Internal Server Error Vary: Accept Content-Type:
+            text/plain
 
-            400 Bad Request: The browser (or proxy) sent a request that this server could not
+            400 Bad Request: The browser (or proxy) sent a request that this
+            server could not
                 understand.
 
         :reqheader Authorization: Bearer <OAuth2_token>
         :resheader Content-Type: text/plain, application/json
         :statuscode 200: No error.
-        :statuscode 500: Unexpected error encountered. Returns the error message as a string.
-    """
+        :statuscode 500: Unexpected error encountered. Returns the error message
+        as a string.
+        """
+    )
     if request.method in {"GET", "HEAD"}:
         try:
             _DJConnector._set_datajoint_config(connect_creds)
@@ -1056,57 +960,51 @@ def dependency(
     schema_name: str,
     table_name: str,
 ) -> dict:
+    """Handler for ``/schema/{schema_name}/table/{table_name}/dependency``
+    route.
+    
+    Args:
+        connect_creds (dict): Dictionary containing databaseAddress, username,and password strings. 
+        schema_name (str): Schema name. 
+        table_name (str): Table name.
+    
+    Returns:
+        If successful then sends back list of dependencies otherwise returns error.
+    """
+    
     (
         """
-        Handler for ``/schema/{schema_name}/table/{table_name}/dependency`` route.
-
-        :param connect_creds: Dictionary containing databaseAddress, username, and password
-            strings.
-        :type connect_creds: dict
-        :param schema_name: Schema name.
-        :type schema_name: str
-        :param table_name: Table name.
-        :type table_name: str
-        :return: If sucessfuly sends back a list of dependencies otherwise returns error.
-        :rtype: dict
-
         .. http:get:: /schema/{schema_name}/table/{table_name}/dependency
 
-            Route to get the metadata in relation to the dependent records associated with """
+            Route to get the metadata in relation to the dependent records
+            associated with """
         """a restricted subset of a table.
 
             **Example request**:
 
             .. sourcecode:: http
 
-                GET /schema/alpha_company/table/Computer/dependency?restriction=W3siYXR0cml"""
+                GET
+                /schema/alpha_company/table/Computer/dependency?restriction=W3siYXR0cml"""
         "idXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo"
         "="
         """ HTTP/1.1
-                Host: fakeservices.datajoint.io
-                Authorization: Bearer <token>
+                Host: fakeservices.datajoint.io Authorization: Bearer <token>
 
             **Example successful response**:
 
             .. sourcecode:: http
 
-                HTTP/1.1 200 OK
-                Vary: Accept
-                Content-Type: application/json
+                HTTP/1.1 200 OK Vary: Accept Content-Type: application/json
 
                 {
                     "dependencies": [
                         {
-                            "accessible": true,
-                            "count": 2,
-                            "schema": "alpha_company",
-                            "table": "computer"
-                        },
-                        {
-                            "accessible": true,
-                            "count": 2,
-                            "schema": "alpha_company",
-                            "table": "#employee"
+                            "accessible": true, "count": 2, "schema":
+                            "alpha_company", "table": "computer"
+                        }, {
+                            "accessible": true, "count": 2, "schema":
+                            "alpha_company", "table": "#employee"
                         }
                     ]
                 }
@@ -1115,25 +1013,27 @@ def dependency(
 
             .. sourcecode:: http
 
-                HTTP/1.1 500 Internal Server Error
-                Vary: Accept
-                Content-Type: text/plain
+                HTTP/1.1 500 Internal Server Error Vary: Accept Content-Type:
+                text/plain
 
-                400 Bad Request: The browser (or proxy) sent a request that this server could
+                400 Bad Request: The browser (or proxy) sent a request that this
+                server could
                     not understand.
 
             :query schema_name: Schema name.
             :query table_name: Table name.
-            :query restriction: Base64-encoded ``AND`` sequence of restrictions. For example,
-                you could restrict as ``[{"attributeName": "computer_memory", "operation": ``-
-                ``">=", "value": 16}]`` with this param set as
+            :query restriction: Base64-encoded ``AND`` sequence of restrictions.
+                For example, you could restrict as ``[{"attributeName":
+                "computer_memory", "operation": ``- ``">=", "value": 16}]`` with
+                this param set as
                 ``W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3Bl``-
-                ``cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=``. Defaults to no restriction.
+                ``cmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=``. Defaults to no
+                restriction.
             :reqheader Authorization: Bearer <OAuth2_token>
             :resheader Content-Type: text/plain, application/json
             :statuscode 200: No error.
-            :statuscode 500: Unexpected error encountered. Returns the error message as a
-                string.
+            :statuscode 500: Unexpected error encountered. Returns the error
+                message as a string.
         """
     )
     if request.method in {"GET", "HEAD"}:

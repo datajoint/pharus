@@ -15,7 +15,8 @@ import numpy as np
 
 
 class NumpyEncoder(json.JSONEncoder):
-    """teach json to dump datetimes, etc"""
+    """Creates numpy objects from json objects
+    """
 
     npmap = {
         np.bool_: bool,
@@ -45,6 +46,8 @@ class NumpyEncoder(json.JSONEncoder):
 
 
 class Component:
+    """Defines component attributes displayed in a GUI.
+    """
     def __init__(
         self,
         name,
@@ -76,6 +79,8 @@ class Component:
 
 
 class FetchComponent(Component):
+    """Fetches a component based on a user-defined DataJoint query.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         component_config = kwargs.get("component_config", args[1] if args else None)
@@ -134,6 +139,8 @@ class FetchComponent(Component):
 
 
 class InsertComponent(Component):
+    """For inserting entries into the database.
+    """
     fields_route_format = "{route}/fields"
 
     def __init__(self, *args, **kwargs):
@@ -235,6 +242,8 @@ class InsertComponent(Component):
 
 
 class TableComponent(FetchComponent):
+    """Fetches tables in a database to display in the GUI.
+    """
     attributes_route_format = "{route}/attributes"
 
     def __init__(self, *args, **kwargs):
@@ -310,6 +319,8 @@ class TableComponent(FetchComponent):
 
 
 class MetadataComponent(TableComponent):
+    """Extracts metadata about the tables.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.frontend_map = "sci-viz/src/Components/Table/Metadata.tsx:Metadata"
@@ -355,6 +366,8 @@ class MetadataComponent(TableComponent):
 
 
 class PlotPlotlyStoredjsonComponent(FetchComponent):
+    """Generate visualizations on the frontend.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.frontend_map = {
@@ -384,6 +397,8 @@ class PlotPlotlyStoredjsonComponent(FetchComponent):
 
 
 class FileImageAttachComponent(FetchComponent):
+    """Allows attaching images from files.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.frontend_map = {
