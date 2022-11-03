@@ -59,11 +59,10 @@ def group1_token(client, connection):
 def connection():
     """Root database connection."""
     dj.config["safemode"] = False
-    connection = dj.conn(
+    connection = dj.Connection(
         host=getenv("TEST_DB_SERVER"),
         user=getenv("TEST_DB_USER"),
         password=getenv("TEST_DB_PASS"),
-        reset=True,
     )
     yield connection
     dj.config["safemode"] = True

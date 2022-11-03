@@ -1,6 +1,7 @@
 """Exposed REST API."""
 from os import environ
-from .interface import _DJConnector, dj
+from .interface import _DJConnector
+import datajoint as dj
 from . import __version__ as version
 from typing import Callable
 from functools import wraps
@@ -82,7 +83,12 @@ def protected_route(function: Callable) -> Callable:
                     environ["PHARUS_PUBLIC_KEY"],
                     algorithms="RS256",
                 )
-            return function(connect_creds, **kwargs)
+            connection = dj.Connection(
+                host=connect_creds["databaseAddress"],
+                user=connect_creds["username"],
+                password=connect_creds["password"],
+            )
+            return function(connection, **kwargs)
         except Exception as e:
             return str(e), 401
 
@@ -118,7 +124,7 @@ def api_version() -> str:
             Content-Type: application/json
 
             {
-                "version": "0.5.6"
+                "version": "0.6.0"
             }
 
         :statuscode 200: No error.
@@ -250,21 +256,27 @@ def login() -> dict:
             if connect_creds.keys() < {"databaseAddress", "username", "password"}:
                 return dict(error="Invalid Request, check headers and/or json body")
             try:
-                _DJConnector._attempt_login(**connect_creds)
+                dj.Connection(
+                    host=connect_creds["databaseAddress"],
+                    user=connect_creds["username"],
+                    password=connect_creds["password"],
+                )
             except pymysql.err.OperationalError as e:
                 if (
                     (root_host := environ.get("DJ_HOST"))
                     and (root_user := environ.get("DJ_ROOT_USER"))
                     and (root_password := environ.get("DJ_ROOT_PASS"))
                 ):
-                    conn = dj.conn(
+                    dj.Connection(
                         host=root_host,
                         user=root_user,
                         password=root_password,
-                        reset=True,
+                    ).query("FLUSH PRIVILEGES")
+                    dj.Connection(
+                        host=connect_creds["databaseAddress"],
+                        user=connect_creds["username"],
+                        password=connect_creds["password"],
                     )
-                    conn.query("FLUSH PRIVILEGES")
-                    _DJConnector._attempt_login(**connect_creds)
                 else:
                     raise e
             return dict(**auth_info)
@@ -274,13 +286,12 @@ def login() -> dict:
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/schema", methods=["GET"])
 @protected_route
-def schema(connect_creds: dict) -> dict:
+def schema(connection: dj.Connection) -> dict:
     """
     Handler for ``/schema`` route.
 
-    :param connect_creds: Dictionary containing databaseAddress, username,
-        and password strings.
-    :type connect_creds: dict
+    :param connection: User's DataJoint connection object
+    :type connection: dj.Connection
     :return: If successful then sends back a list of schemas names otherwise returns error.
     :rtype: dict
 
@@ -329,7 +340,7 @@ def schema(connect_creds: dict) -> dict:
     if request.method in {"GET", "HEAD"}:
         # Get all the schemas
         try:
-            schemas_name = _DJConnector._list_schemas(connect_creds)
+            schemas_name = _DJConnector._list_schemas(connection)
             return dict(schemaNames=schemas_name)
         except Exception as e:
             return str(e), 500
@@ -340,15 +351,14 @@ def schema(connect_creds: dict) -> dict:
 )
 @protected_route
 def table(
-    connect_creds: dict,
+    connection: dj.Connection,
     schema_name: str,
 ) -> dict:
     """
     Handler for ``/schema/{schema_name}/table`` route.
 
-    :param connect_creds: Dictionary containing databaseAddress, username,
-        and password strings.
-    :type connect_creds: dict
+    :param connection: User's DataJoint connection object
+    :type connection: dj.Connection
     :param schema_name: Schema name.
     :type schema_name: str
     :return: If successful then sends back a list of table names otherwise returns error.
@@ -407,7 +417,7 @@ def table(
     """
     if request.method in {"GET", "HEAD"}:
         try:
-            tables_dict_list = _DJConnector._list_tables(connect_creds, schema_name)
+            tables_dict_list = _DJConnector._list_tables(connection, schema_name)
             return dict(tableTypes=tables_dict_list)
         except Exception as e:
             return str(e), 500
@@ -419,7 +429,7 @@ def table(
 )
 @protected_route
 def record(
-    connect_creds: dict,
+    connection: dj.Connection,
     schema_name: str,
     table_name: str,
 ) -> Union[dict, str, tuple]:
@@ -427,9 +437,8 @@ def record(
         """
         Handler for ``/schema/{schema_name}/table/{table_name}/record`` route.
 
-        :param connect_creds: Dictionary containing databaseAddress, username, and password
-            strings.
-        :type connect_creds: dict
+        :param connection: User's DataJoint connection object
+        :type connection: dj.Connection
         :param schema_name: Schema name.
         :type schema_name: str
         :param table_name: Table name.
@@ -710,9 +719,9 @@ def record(
     )
     if request.method in {"GET", "HEAD"}:
         try:
-            _DJConnector._set_datajoint_config(connect_creds)
-
-            schema_virtual_module = dj.VirtualModule(schema_name, schema_name)
+            schema_virtual_module = dj.VirtualModule(
+                schema_name, schema_name, connection=connection
+            )
 
             # Get table object from name
             dj_table = _DJConnector._get_table_object(schema_virtual_module, table_name)
@@ -737,7 +746,7 @@ def record(
     elif request.method == "POST":
         try:
             _DJConnector._insert_tuple(
-                connect_creds, schema_name, table_name, request.json["records"]
+                connection, schema_name, table_name, request.json["records"]
             )
             return "Insert Successful"
         except Exception as e:
@@ -745,7 +754,7 @@ def record(
     elif request.method == "PATCH":
         try:
             _DJConnector._update_tuple(
-                connect_creds, schema_name, table_name, request.json["records"]
+                connection, schema_name, table_name, request.json["records"]
             )
             return "Update Successful"
         except Exception as e:
@@ -753,7 +762,7 @@ def record(
     elif request.method == "DELETE":
         try:
             _DJConnector._delete_records(
-                connect_creds,
+                connection,
                 schema_name,
                 table_name,
                 **{
@@ -789,16 +798,15 @@ def record(
 )
 @protected_route
 def definition(
-    connect_creds: dict,
+    connection: dj.Connection,
     schema_name: str,
     table_name: str,
 ) -> str:
     """
     Handler for ``/schema/{schema_name}/table/{table_name}/definition`` route.
 
-    :param connect_creds: Dictionary containing databaseAddress, username,
-        and password strings.
-    :type connect_creds: dict
+    :param connection: User's DataJoint connection object
+    :type connection: dj.Connection
     :param schema_name: Schema name.
     :type schema_name: str
     :param table_name: Table name.
@@ -860,7 +868,7 @@ def definition(
     if request.method in {"GET", "HEAD"}:
         try:
             table_definition = _DJConnector._get_table_definition(
-                connect_creds, schema_name, table_name
+                connection, schema_name, table_name
             )
             return table_definition
         except Exception as e:
@@ -873,16 +881,15 @@ def definition(
 )
 @protected_route
 def attribute(
-    connect_creds: dict,
+    connection: dj.Connection,
     schema_name: str,
     table_name: str,
 ) -> dict:
     """
     Handler for ``/schema/{schema_name}/table/{table_name}/attribute`` route.
 
-    :param connect_creds: Dictionary containing databaseAddress, username,
-        and password strings.
-    :type connect_creds: dict
+    :param connection: User's DataJoint connection object
+    :type connection: dj.Connection
     :param schema_name: Schema name.
     :type schema_name: str
     :param table_name: Table name.
@@ -1028,9 +1035,10 @@ def attribute(
     """
     if request.method in {"GET", "HEAD"}:
         try:
-            _DJConnector._set_datajoint_config(connect_creds)
             local_values = locals()
-            local_values[schema_name] = dj.VirtualModule(schema_name, schema_name)
+            local_values[schema_name] = dj.VirtualModule(
+                schema_name, schema_name, connection=connection
+            )
 
             # Get table object from name
             dj_table = _DJConnector._get_table_object(
@@ -1052,7 +1060,7 @@ def attribute(
 )
 @protected_route
 def dependency(
-    connect_creds: dict,
+    connection: dj.Connection,
     schema_name: str,
     table_name: str,
 ) -> dict:
@@ -1060,9 +1068,8 @@ def dependency(
         """
         Handler for ``/schema/{schema_name}/table/{table_name}/dependency`` route.
 
-        :param connect_creds: Dictionary containing databaseAddress, username, and password
-            strings.
-        :type connect_creds: dict
+        :param connection: User's DataJoint connection object
+        :type connection: dj.Connection
         :param schema_name: Schema name.
         :type schema_name: str
         :param table_name: Table name.
@@ -1140,7 +1147,7 @@ def dependency(
         # Get dependencies
         try:
             dependencies = _DJConnector._record_dependency(
-                connect_creds,
+                connection,
                 schema_name,
                 table_name,
                 loads(
@@ -1158,7 +1165,7 @@ def run():
     """
     Starts API server.
     """
-    app.run(host="0.0.0.0", port=environ.get("PHARUS_PORT", 5000))
+    app.run(host="0.0.0.0", port=environ.get("PHARUS_PORT", 5000), threaded=True)
 
 
 if __name__ == "__main__":

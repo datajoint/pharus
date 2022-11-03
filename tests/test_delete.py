@@ -23,7 +23,7 @@ def test_delete_dependent_with_cascade(token, client, connection, schemas_simple
     ]
     encoded_filters = b64encode(dumps(filters).encode("utf-8")).decode("utf-8")
     q = dict(cascade="tRuE", restriction=encoded_filters)
-    vm = dj.VirtualModule("group1_simple", schema_name)
+    vm = dj.VirtualModule("group1_simple", schema_name, connection=connection)
     REST_response = client.delete(
         f"/schema/{schema_name}/table/{table_name}/record?{urlencode(q)}",
         headers=dict(Authorization=f"Bearer {token}"),
@@ -42,7 +42,7 @@ def test_delete_dependent_without_cascade(token, client, connection, schemas_sim
     ]
     encoded_filters = b64encode(dumps(filters).encode("utf-8")).decode("utf-8")
     q = dict(restriction=encoded_filters)
-    vm = dj.VirtualModule("group1_simple", schema_name)
+    vm = dj.VirtualModule("group1_simple", schema_name, connection=connection)
     REST_response = client.delete(
         f"/schema/{schema_name}/table/{table_name}/record?{urlencode(q)}",
         headers=dict(Authorization=f"Bearer {token}"),
@@ -63,7 +63,7 @@ def test_delete_independent_without_cascade(token, client, connection, schemas_s
     ]
     encoded_filters = b64encode(dumps(filters).encode("utf-8")).decode("utf-8")
     q = dict(cascade="fAlSe", restriction=encoded_filters)
-    vm = dj.VirtualModule("group1_simple", schema_name)
+    vm = dj.VirtualModule("group1_simple", schema_name, connection=connection)
     REST_response = client.delete(
         f"/schema/{schema_name}/table/{table_name}/record?{urlencode(q)}",
         headers=dict(Authorization=f"Bearer {token}"),
@@ -81,7 +81,7 @@ def test_delete_invalid(token, client, connection, schemas_simple):
     ]
     encoded_filters = b64encode(dumps(filters).encode("utf-8")).decode("utf-8")
     q = dict(cascade="TRUE", restriction=encoded_filters)
-    vm = dj.VirtualModule("group1_simple", schema_name)
+    vm = dj.VirtualModule("group1_simple", schema_name, connection=connection)
     REST_response = client.delete(
         f"/schema/{schema_name}/table/{table_name}/record?{urlencode(q)}",
         headers=dict(Authorization=f"Bearer {token}"),

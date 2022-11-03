@@ -44,7 +44,11 @@ def test_insert_fail(token, client, connection, schemas_simple):
     )
     assert REST_response.status_code == 500
     assert (
-        dj.VirtualModule(schemas_simple[0].database, schemas_simple[0].database).TableB
+        dj.VirtualModule(
+            schemas_simple[0].database,
+            schemas_simple[0].database,
+            connection=connection,
+        ).TableB
         & "b_id = 32"
     ).fetch().size == 0
 

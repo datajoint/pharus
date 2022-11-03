@@ -11,8 +11,9 @@ from pharus.component_interface import InsertComponent, TableComponent
 def populate_api():
     header_template = """# Auto-generated rest api
 from .server import app, protected_route
-from .interface import _DJConnector, dj
+from .interface import _DJConnector
 from flask import request
+import datajoint as dj
 from json import loads
 from base64 import b64decode
 from datetime import datetime
@@ -28,14 +29,14 @@ except (ModuleNotFoundError, ImportError):
 
 @app.route('{route}', methods=['{rest_verb}'])
 @protected_route
-def {method_name}(connect_creds: dict) -> dict:
+def {method_name}(connection: dj.Connection) -> dict:
 
     if request.method in ['{rest_verb}']:
         try:
             component_instance = type_map['{component_type}'](name='{component_name}',
                                                               component_config={component},
                                                               static_config={static_config},
-                                                              connect_creds=connect_creds,
+                                                              connection=connection,
                                                               {payload})
             return component_instance.{method_name_type}()
         except Exception as e:
@@ -46,7 +47,7 @@ def {method_name}(connect_creds: dict) -> dict:
 @app.route('{route}', methods=['{rest_verb}'])
 def {method_name}() -> dict:
     if request.method in ['{rest_verb}']:
-        connect_creds = dict(
+        connection = dj.Connection(
             databaseAddress=os.environ["PHARUS_HOST"],
             username=os.environ["PHARUS_USER"],
             password=os.environ["PHARUS_PASSWORD"],
@@ -55,7 +56,7 @@ def {method_name}() -> dict:
             component_instance = type_map['{component_type}'](name='{component_name}',
                                                               component_config={component},
                                                               static_config={static_config},
-                                                              connect_creds=connect_creds,
+                                                              connection=connection,
                                                               {payload})
             return component_instance.{method_name_type}()
         except Exception as e:
@@ -120,8 +121,11 @@ def {method_name}() -> dict:
                     else grid["components"]
                 ).items():
                     if re.match(
-                        r"^(table|metadata|plot|file|slider|dropdown-query|form).*$",
+                        r"""
+                        ^(table|metadata|plot|file|slider|
+                          dropdown-query|form|basicquery|external).*$""",
                         comp["type"],
+                        flags=re.VERBOSE,
                     ):
                         f.write(
                             (active_route_template).format(

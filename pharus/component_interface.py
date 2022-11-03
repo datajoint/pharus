@@ -50,7 +50,7 @@ class Component:
         name,
         component_config,
         static_config,
-        connect_creds: dict,
+        connection: dj.Connection,
         payload=None,
     ):
         self.name = name
@@ -66,12 +66,7 @@ class Component:
             self.width = component_config["width"]
         if static_config:
             self.static_variables = types.MappingProxyType(static_config)
-        self.connection = dj.conn(
-            host=connect_creds["databaseAddress"],
-            user=connect_creds["username"],
-            password=connect_creds["password"],
-            reset=True,
-        )
+        self.connection = connection
         self.payload = payload
 
 
@@ -406,6 +401,7 @@ class FileImageAttachComponent(FetchComponent):
 
 
 type_map = {
+    "external": Component,
     "basicquery": FetchComponent,
     "plot:plotly:stored_json": PlotPlotlyStoredjsonComponent,
     "table": TableComponent,
