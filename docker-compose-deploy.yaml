@@ -1,5 +1,5 @@
-# PHARUS_VERSION=0.5.6 docker-compose -f docker-compose-deploy.yaml pull
-# PHARUS_VERSION=0.5.6 docker-compose -f docker-compose-deploy.yaml up -d
+# PHARUS_VERSION=0.6.0 docker-compose -f docker-compose-deploy.yaml pull
+# PHARUS_VERSION=0.6.0 docker-compose -f docker-compose-deploy.yaml up -d
 #
 # Intended for production deployment.
 # Note: You must run both commands above for minimal outage
@@ -8,8 +8,7 @@
 # With this config and the configuration below in NGINX, you should be able to verify it is
 # running properly with a `curl https://fakeservices.datajoint.io/api/version`.
 version: "2.4"
-x-net:
-  &net
+x-net: &net
   networks:
     - main
 services:
@@ -22,7 +21,7 @@ services:
     #   - PHARUS_SPEC_PATH=tests/init/test_dynamic_api_spec.yaml # for dynamic api spec
   fakeservices.datajoint.io:
     <<: *net
-    image: datajoint/nginx:v0.0.16
+    image: datajoint/nginx:v0.2.3
     environment:
       - ADD_pharus_TYPE=REST
       - ADD_pharus_ENDPOINT=pharus:5000

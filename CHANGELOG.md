@@ -2,6 +2,13 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.6.0] - 2022-11-03
+
+### Added
+
+- Allow requests to be thread-safe so that database connections don't cross-pollinate [#142](https://github.com/datajoint/pharus/pull/142)
+- Add `basicquery` and `external` as options to extend with dynamic spec [#142](https://github.com/datajoint/pharus/pull/142)
+
 ## [0.5.6] - 2022-10-29
 
 ### Added
@@ -200,6 +207,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
+[0.6.0]: https://github.com/datajoint/pharus/compare/0.5.6...0.6.0
 [0.5.6]: https://github.com/datajoint/pharus/compare/0.5.5...0.5.6
 [0.5.5]: https://github.com/datajoint/pharus/compare/0.5.4...0.5.5
 [0.5.4]: https://github.com/datajoint/pharus/compare/0.5.3...0.5.4

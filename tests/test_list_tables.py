@@ -18,7 +18,7 @@ def test_list_tables(token, client, ParentPart):
     )
 
 
-def test_invalid_schema_list_table(token, client, schema_main):
+def test_invalid_schema_list_table(token, client, schema_main, connection):
     # Test invalid schema
     response: Response = client.get(
         f'/schema/{"invalid_schema"}/table',
@@ -26,4 +26,4 @@ def test_invalid_schema_list_table(token, client, schema_main):
     )
 
     assert response.status_code != 200
-    assert "invalid_schema" not in dj.list_schemas()
+    assert "invalid_schema" not in dj.list_schemas(connection=connection)
