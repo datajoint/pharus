@@ -70,10 +70,10 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="developer.html">Developer Documentation</a> &raquo;</li>
-          <li><a href="modules.html">API</a> &raquo;</li>
-      <li>pharus package</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="developer.html">Developer Documentation</a></li>
+          <li class="breadcrumb-item"><a href="modules.html">API</a></li>
+      <li class="breadcrumb-item active">pharus package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/pharus.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -137,7 +137,7 @@
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
 
 <span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.5.6&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.6.0&quot;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
@@ -154,13 +154,12 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pharus.server.attribute">
-<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">attribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connect_creds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#pharus.server.attribute" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">attribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Connection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#pharus.server.attribute" title="Permalink to this definition"></a></dt>
 <dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/schema/{schema_name}/table/{table_name}/attribute</span></code> route.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>connect_creds</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username,
-and password strings.</p></li>
+<li><p><strong>connection</strong> (<em>dj.Connection</em>) – User’s DataJoint connection object</p></li>
 <li><p><strong>schema_name</strong> (<em>str</em>) – Schema name.</p></li>
 <li><p><strong>table_name</strong> (<em>str</em>) – Table name.</p></li>
 </ul>
@@ -321,13 +320,12 @@ Content-Type: application/json
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pharus.server.definition">
-<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">definition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connect_creds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pharus.server.definition" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">definition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Connection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pharus.server.definition" title="Permalink to this definition"></a></dt>
 <dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/schema/{schema_name}/table/{table_name}/definition</span></code> route.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>connect_creds</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username,
-and password strings.</p></li>
+<li><p><strong>connection</strong> (<em>dj.Connection</em>) – User’s DataJoint connection object</p></li>
 <li><p><strong>schema_name</strong> (<em>str</em>) – Schema name.</p></li>
 <li><p><strong>table_name</strong> (<em>str</em>) – Table name.</p></li>
 </ul>
@@ -403,13 +401,12 @@ computer_accessories=null : longblob             # included additional accessori
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pharus.server.dependency">
-<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">dependency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connect_creds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#pharus.server.dependency" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">dependency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Connection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#pharus.server.dependency" title="Permalink to this definition"></a></dt>
 <dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/schema/{schema_name}/table/{table_name}/dependency</span></code> route.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>connect_creds</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password
-strings.</p></li>
+<li><p><strong>connection</strong> (<em>dj.Connection</em>) – User’s DataJoint connection object</p></li>
 <li><p><strong>schema_name</strong> (<em>str</em>) – Schema name.</p></li>
 <li><p><strong>table_name</strong> (<em>str</em>) – Table name.</p></li>
 </ul>
@@ -597,13 +594,12 @@ message</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pharus.server.record">
-<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connect_creds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pharus.server.record" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Connection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pharus.server.record" title="Permalink to this definition"></a></dt>
 <dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/schema/{schema_name}/table/{table_name}/record</span></code> route.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>connect_creds</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username, and password
-strings.</p></li>
+<li><p><strong>connection</strong> (<em>dj.Connection</em>) – User’s DataJoint connection object</p></li>
 <li><p><strong>schema_name</strong> (<em>str</em>) – Schema name.</p></li>
 <li><p><strong>table_name</strong> (<em>str</em>) – Table name.</p></li>
 </ul>
@@ -931,12 +927,11 @@ string.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pharus.server.schema">
-<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connect_creds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#pharus.server.schema" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Connection</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#pharus.server.schema" title="Permalink to this definition"></a></dt>
 <dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/schema</span></code> route.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>connect_creds</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username,
-and password strings.</p>
+<dd class="field-odd"><p><strong>connection</strong> (<em>dj.Connection</em>) – User’s DataJoint connection object</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>If successful then sends back a list of schemas names otherwise returns error.</p>
@@ -1000,13 +995,12 @@ and password strings.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pharus.server.table">
-<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connect_creds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#pharus.server.table" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pharus.server.</span></span><span class="sig-name descname"><span class="pre">table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Connection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#pharus.server.table" title="Permalink to this definition"></a></dt>
 <dd><p>Handler for <code class="docutils literal notranslate"><span class="pre">/schema/{schema_name}/table</span></code> route.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>connect_creds</strong> (<em>dict</em>) – Dictionary containing databaseAddress, username,
-and password strings.</p></li>
+<li><p><strong>connection</strong> (<em>dj.Connection</em>) – User’s DataJoint connection object</p></li>
 <li><p><strong>schema_name</strong> (<em>str</em>) – Schema name.</p></li>
 </ul>
 </dd>
