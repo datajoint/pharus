@@ -2,6 +2,13 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.6.1] - 2022-11-04
+
+### Added
+
+- Add debug traces for standard routes [#143](https://github.com/datajoint/pharus/pull/143)
+- Set a manual sleep due to `jwt` package not validating tokens issued in less than 1 sec [#143](https://github.com/datajoint/pharus/pull/143)
+
 ## [0.6.0] - 2022-11-03
 
 ### Added
@@ -207,6 +214,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
+[0.6.1]: https://github.com/datajoint/pharus/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/datajoint/pharus/compare/0.5.6...0.6.0
 [0.5.6]: https://github.com/datajoint/pharus/compare/0.5.5...0.5.6
 [0.5.5]: https://github.com/datajoint/pharus/compare/0.5.4...0.5.5
