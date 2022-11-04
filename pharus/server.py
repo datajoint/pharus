@@ -1,5 +1,6 @@
 """Exposed REST API."""
 from os import environ
+import traceback
 from .interface import _DJConnector
 import datajoint as dj
 from . import __version__ as version
@@ -281,7 +282,7 @@ def login() -> dict:
                     raise e
             return dict(**auth_info)
         except Exception as e:
-            return str(e), 500
+            return traceback.format_exc(), 500
 
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/schema", methods=["GET"])
@@ -343,7 +344,7 @@ def schema(connection: dj.Connection) -> dict:
             schemas_name = _DJConnector._list_schemas(connection)
             return dict(schemaNames=schemas_name)
         except Exception as e:
-            return str(e), 500
+            return traceback.format_exc(), 500
 
 
 @app.route(
@@ -420,7 +421,7 @@ def table(
             tables_dict_list = _DJConnector._list_tables(connection, schema_name)
             return dict(tableTypes=tables_dict_list)
         except Exception as e:
-            return str(e), 500
+            return traceback.format_exc(), 500
 
 
 @app.route(
@@ -742,7 +743,7 @@ def record(
                 recordHeader=record_header, records=table_tuples, totalCount=total_count
             )
         except Exception as e:
-            return str(e), 500
+            return traceback.format_exc(), 500
     elif request.method == "POST":
         try:
             _DJConnector._insert_tuple(
@@ -750,7 +751,7 @@ def record(
             )
             return "Insert Successful"
         except Exception as e:
-            return str(e), 500
+            return traceback.format_exc(), 500
     elif request.method == "PATCH":
         try:
             _DJConnector._update_tuple(
@@ -758,7 +759,7 @@ def record(
             )
             return "Update Successful"
         except Exception as e:
-            return str(e), 500
+            return traceback.format_exc(), 500
     elif request.method == "DELETE":
         try:
             _DJConnector._delete_records(
@@ -789,7 +790,7 @@ def record(
                 409,
             )
         except Exception as e:
-            return str(e), 500
+            return traceback.format_exc(), 500
 
 
 @app.route(
@@ -872,7 +873,7 @@ def definition(
             )
             return table_definition
         except Exception as e:
-            return str(e), 500
+            return traceback.format_exc(), 500
 
 
 @app.route(
@@ -1051,7 +1052,7 @@ def attribute(
                 attributes=attributes_meta["attributes"],
             )
         except Exception as e:
-            return str(e), 500
+            return traceback.format_exc(), 500
 
 
 @app.route(
@@ -1158,7 +1159,7 @@ def dependency(
             )
             return dict(dependencies=dependencies)
         except Exception as e:
-            return str(e), 500
+            return traceback.format_exc(), 500
 
 
 def run():
