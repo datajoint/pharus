@@ -283,7 +283,7 @@ def login() -> dict:
                 else:
                     raise e
             return dict(**auth_info)
-        except Exception as e:
+        except Exception:
             return traceback.format_exc(), 500
 
 
@@ -345,7 +345,7 @@ def schema(connection: dj.Connection) -> dict:
         try:
             schemas_name = _DJConnector._list_schemas(connection)
             return dict(schemaNames=schemas_name)
-        except Exception as e:
+        except Exception:
             return traceback.format_exc(), 500
 
 
@@ -422,7 +422,7 @@ def table(
         try:
             tables_dict_list = _DJConnector._list_tables(connection, schema_name)
             return dict(tableTypes=tables_dict_list)
-        except Exception as e:
+        except Exception:
             return traceback.format_exc(), 500
 
 
@@ -744,7 +744,7 @@ def record(
             return dict(
                 recordHeader=record_header, records=table_tuples, totalCount=total_count
             )
-        except Exception as e:
+        except Exception:
             return traceback.format_exc(), 500
     elif request.method == "POST":
         try:
@@ -752,7 +752,7 @@ def record(
                 connection, schema_name, table_name, request.json["records"]
             )
             return "Insert Successful"
-        except Exception as e:
+        except Exception:
             return traceback.format_exc(), 500
     elif request.method == "PATCH":
         try:
@@ -760,7 +760,7 @@ def record(
                 connection, schema_name, table_name, request.json["records"]
             )
             return "Update Successful"
-        except Exception as e:
+        except Exception:
             return traceback.format_exc(), 500
     elif request.method == "DELETE":
         try:
@@ -791,7 +791,7 @@ def record(
                 ),
                 409,
             )
-        except Exception as e:
+        except Exception:
             return traceback.format_exc(), 500
 
 
@@ -874,7 +874,7 @@ def definition(
                 connection, schema_name, table_name
             )
             return table_definition
-        except Exception as e:
+        except Exception:
             return traceback.format_exc(), 500
 
 
@@ -1053,7 +1053,7 @@ def attribute(
                 attributeHeaders=attributes_meta["attribute_headers"],
                 attributes=attributes_meta["attributes"],
             )
-        except Exception as e:
+        except Exception:
             return traceback.format_exc(), 500
 
 
@@ -1160,7 +1160,7 @@ def dependency(
                 ),
             )
             return dict(dependencies=dependencies)
-        except Exception as e:
+        except Exception:
             return traceback.format_exc(), 500
 
 
