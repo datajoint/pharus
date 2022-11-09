@@ -2,6 +2,12 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.6.2] - 2022-11-10
+
+### Fixed
+
+- Convert the return of the insert route to valid json [#146](https://github.com/datajoint/pharus/pull/146)
+
 ## [0.6.1] - 2022-11-04
 
 ### Added
