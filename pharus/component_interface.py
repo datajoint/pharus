@@ -180,7 +180,7 @@ class InsertComponent(Component):
                         for r in self.payload["submissions"]
                     ]
                 )
-        return "Insert successful"
+        return {"response": "Insert successful"}
 
     def fields_route(self):
         parent_attributes = sorted(set(sum([p.primary_key for p in self.parents], [])))
