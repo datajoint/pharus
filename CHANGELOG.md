@@ -6,7 +6,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 
 ### Fixed
 
-- Convert the return of the insert route to valid json [#146](https://github.com/datajoint/pharus/pull/146)
+- Convert the return of the insert route and normal record routes to valid json [#146](https://github.com/datajoint/pharus/pull/146)
 
 ## [0.6.1] - 2022-11-04
 
