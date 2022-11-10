@@ -19,7 +19,7 @@ def test_insert_map(token, client, connection, schemas_simple):
         headers=dict(Authorization=f"Bearer {token}"),
     )
     assert REST_response.status_code == 200, REST_response.data
-    assert REST_response.data == b"Insert successful"
+    assert REST_response.get_json() == {"response": "Insert Successful"}
 
 
 def test_insert_no_map(token, client, connection, schemas_simple):
@@ -33,7 +33,7 @@ def test_insert_no_map(token, client, connection, schemas_simple):
         headers=dict(Authorization=f"Bearer {token}"),
     )
     assert REST_response.status_code == 200
-    assert REST_response.data == b"Insert successful"
+    assert REST_response.get_json() == {"response": "Insert Successful"}
 
 
 def test_insert_fail(token, client, connection, schemas_simple):

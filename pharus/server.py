@@ -126,7 +126,7 @@ def api_version() -> str:
             Content-Type: application/json
 
             {
-                "version": "0.6.1"
+                "version": "0.6.2"
             }
 
         :statuscode 200: No error.
@@ -573,7 +573,9 @@ def record(
                 Vary: Accept
                 Content-Type: text/plain
 
-                Insert Successful
+                {
+                    "response": "Insert Successful"
+                }
 
             **Example unexpected response**:
 
@@ -631,7 +633,9 @@ def record(
                 Vary: Accept
                 Content-Type: text/plain
 
-                Update Successful
+                {
+                    "response": "Update Successful"
+                }
 
             **Example unexpected response**:
 
@@ -673,7 +677,9 @@ def record(
                 Vary: Accept
                 Content-Type: text/plain
 
-                Delete Successful
+                {
+                    "response": "Delete Successful"
+                }
 
             **Example conflict response**:
 
@@ -751,7 +757,7 @@ def record(
             _DJConnector._insert_tuple(
                 connection, schema_name, table_name, request.json["records"]
             )
-            return "Insert Successful"
+            return {"response": "Insert Successful"}
         except Exception:
             return traceback.format_exc(), 500
     elif request.method == "PATCH":
@@ -759,7 +765,7 @@ def record(
             _DJConnector._update_tuple(
                 connection, schema_name, table_name, request.json["records"]
             )
-            return "Update Successful"
+            return {"response": "Update Successful"}
         except Exception:
             return traceback.format_exc(), 500
     elif request.method == "DELETE":
@@ -779,7 +785,7 @@ def record(
                     if k == "cascade"
                 },
             )
-            return "Delete Sucessful"
+            return {"response": "Delete Successful"}
         except IntegrityError as e:
             match = foreign_key_error_regexp.match(e.args[0])
             return (
