@@ -194,7 +194,12 @@ class InsertComponent(Component):
                 for p in self.parents
             },
             **{
-                a: {"datatype": v.type, "type": "attribute", "name": v.name}
+                a: {
+                    "datatype": v.type,
+                    "type": "attribute",
+                    "name": v.name,
+                    "default": v.default,
+                }
                 for t in self.tables
                 for a, v in t.heading.attributes.items()
                 if a not in parent_attributes

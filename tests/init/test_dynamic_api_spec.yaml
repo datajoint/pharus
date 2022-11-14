@@ -43,7 +43,7 @@ SciViz: # top level tab
                   input: C Id
                   destination: c_id
                 - type: attribute #omitted input means display is session_note
-                  destination: c_int
+                  destination: c_name
             insert2:
               route: /insert2
               x: 1
@@ -68,7 +68,7 @@ SciViz: # top level tab
                   input: C Id
                   destination: c_id
                 - type: attribute #omitted input means display is session_note
-                  destination: c_int
+                  destination: c_name
             insert3:
               route: /insert3
               x: 1

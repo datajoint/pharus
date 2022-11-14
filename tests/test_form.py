@@ -13,7 +13,7 @@ def test_insert_map(token, client, connection, schemas_simple):
         "/insert",
         json={
             "submissions": [
-                {"A Id": 1, "B Id": 32, "B Number": 1.23, "C Id": 400, "c_int": 99}
+                {"A Id": 1, "B Id": 32, "B Number": 1.23, "C Id": 400, "c_name": "John"}
             ]
         },
         headers=dict(Authorization=f"Bearer {token}"),
@@ -27,7 +27,13 @@ def test_insert_no_map(token, client, connection, schemas_simple):
         "/insert3?group=test_group1",
         json={
             "submissions": [
-                {"a_id": 1, "b_id": 32, "b_number": 1.23, "c_id": 400, "c_int": 99}
+                {
+                    "a_id": 1,
+                    "b_id": 32,
+                    "b_number": 1.23,
+                    "c_id": 400,
+                    "c_name": "Smith",
+                }
             ]
         },
         headers=dict(Authorization=f"Bearer {token}"),
@@ -39,7 +45,7 @@ def test_insert_no_map(token, client, connection, schemas_simple):
 def test_insert_fail(token, client, connection, schemas_simple):
     REST_response = client.post(
         "/insert3?group=test_group1",
-        json={"submissions": [{"a_id": 1, "b_id": 32, "b_number": 1.23, "c_id": 400}]},
+        json={"submissions": [{"a_id": 1, "b_id": 32, "b_number": 1.23}]},
         headers=dict(Authorization=f"Bearer {token}"),
     )
     assert REST_response.status_code == 500
@@ -61,11 +67,21 @@ def test_form_response(token, client, connection, schemas_simple):
     assert REST_response.status_code == 200, f"Error: {REST_response.data}"
     assert REST_response.get_json() == {
         "fields": [
-            {"datatype": "int", "name": "B Id", "type": "attribute"},
-            {"datatype": "float", "name": "B Number", "type": "attribute"},
+            {"datatype": "int", "name": "B Id", "type": "attribute", "default": None},
+            {
+                "datatype": "float",
+                "name": "B Number",
+                "type": "attribute",
+                "default": None,
+            },
             {"name": "Table A", "type": "table", "values": [{"A Id": 0}, {"A Id": 1}]},
-            {"datatype": "int", "name": "C Id", "type": "attribute"},
-            {"datatype": "int", "name": "c_int", "type": "attribute"},
+            {"datatype": "int", "name": "C Id", "type": "attribute", "default": None},
+            {
+                "datatype": "varchar(30)",
+                "name": "c_name",
+                "type": "attribute",
+                "default": '"John Smith"',
+            },
         ],
     }
 
@@ -78,11 +94,21 @@ def test_form_response_no_table_map(token, client, connection, schemas_simple):
     assert REST_response.status_code == 200, f"Error: {REST_response.data}"
     assert REST_response.get_json() == {
         "fields": [
-            {"datatype": "int", "name": "B Id", "type": "attribute"},
-            {"datatype": "float", "name": "B Number", "type": "attribute"},
+            {"datatype": "int", "name": "B Id", "type": "attribute", "default": None},
+            {
+                "datatype": "float",
+                "name": "B Number",
+                "type": "attribute",
+                "default": None,
+            },
             {"name": "Table A", "type": "table", "values": [{"a_id": 0}, {"a_id": 1}]},
-            {"datatype": "int", "name": "C Id", "type": "attribute"},
-            {"datatype": "int", "name": "c_int", "type": "attribute"},
+            {"datatype": "int", "name": "C Id", "type": "attribute", "default": None},
+            {
+                "datatype": "varchar(30)",
+                "name": "c_name",
+                "type": "attribute",
+                "default": '"John Smith"',
+            },
         ],
     }
 
@@ -100,10 +126,20 @@ def test_form_response_no_map(token, client, connection, schemas_simple):
                 "type": "table",
                 "values": [{"a_id": 0}, {"a_id": 1}],
             },
-            {"datatype": "int", "name": "b_id", "type": "attribute"},
-            {"datatype": "float", "name": "b_number", "type": "attribute"},
-            {"datatype": "int", "name": "c_id", "type": "attribute"},
-            {"datatype": "int", "name": "c_int", "type": "attribute"},
+            {"datatype": "int", "name": "b_id", "type": "attribute", "default": None},
+            {
+                "datatype": "float",
+                "name": "b_number",
+                "type": "attribute",
+                "default": None,
+            },
+            {"datatype": "int", "name": "c_id", "type": "attribute", "default": None},
+            {
+                "datatype": "varchar(30)",
+                "name": "c_name",
+                "type": "attribute",
+                "default": '"John Smith"',
+            },
         ],
     }
 
@@ -132,10 +168,20 @@ def test_form_response_no_map_shared_FK_hierarchy(
                     {"a_id": 1, "b_id": 21},
                 ],
             },
-            {"datatype": "int", "name": "bs_id", "type": "attribute"},
-            {"datatype": "float", "name": "bs_number", "type": "attribute"},
-            {"datatype": "int", "name": "c_id", "type": "attribute"},
-            {"datatype": "int", "name": "c_int", "type": "attribute"},
+            {"datatype": "int", "name": "bs_id", "type": "attribute", "default": None},
+            {
+                "datatype": "float",
+                "name": "bs_number",
+                "type": "attribute",
+                "default": None,
+            },
+            {"datatype": "int", "name": "c_id", "type": "attribute", "default": None},
+            {
+                "datatype": "varchar(30)",
+                "name": "c_name",
+                "type": "attribute",
+                "default": '"John Smith"',
+            },
         ]
     }
 
@@ -153,10 +199,20 @@ def test_form_response_no_map_shared_FK(token, client, connection, schemas_simpl
                 "type": "table",
                 "values": [{"a_id": 0}, {"a_id": 1}],
             },
-            {"datatype": "int", "name": "b_id", "type": "attribute"},
-            {"datatype": "float", "name": "b_number", "type": "attribute"},
-            {"datatype": "int", "name": "bs_id", "type": "attribute"},
-            {"datatype": "float", "name": "bs_number", "type": "attribute"},
+            {"datatype": "int", "name": "b_id", "type": "attribute", "default": None},
+            {
+                "datatype": "float",
+                "name": "b_number",
+                "type": "attribute",
+                "default": None,
+            },
+            {"datatype": "int", "name": "bs_id", "type": "attribute", "default": None},
+            {
+                "datatype": "float",
+                "name": "bs_number",
+                "type": "attribute",
+                "default": None,
+            },
         ],
     }
 
@@ -179,10 +235,20 @@ def test_form_response_no_map_diff_FK(token, client, connection, schemas_simple)
                 "type": "table",
                 "values": [{"zs_id": 0}, {"zs_id": 1}],
             },
-            {"datatype": "int", "name": "y_id", "type": "attribute"},
-            {"datatype": "float", "name": "y_number", "type": "attribute"},
-            {"datatype": "int", "name": "ys_id", "type": "attribute"},
-            {"datatype": "float", "name": "ys_number", "type": "attribute"},
+            {"datatype": "int", "name": "y_id", "type": "attribute", "default": None},
+            {
+                "datatype": "float",
+                "name": "y_number",
+                "type": "attribute",
+                "default": None,
+            },
+            {"datatype": "int", "name": "ys_id", "type": "attribute", "default": None},
+            {
+                "datatype": "float",
+                "name": "ys_number",
+                "type": "attribute",
+                "default": None,
+            },
         ]
     }
 
@@ -203,8 +269,8 @@ def test_form_response_no_map_multi_FPK(token, client, connection, schemas_simpl
                     {"x_id": 1, "x_int": 20, "x_name": "Oscar"},
                 ],
             },
-            {"datatype": "int", "name": "w_id", "type": "attribute"},
-            {"datatype": "int", "name": "w_int", "type": "attribute"},
+            {"datatype": "int", "name": "w_id", "type": "attribute", "default": None},
+            {"datatype": "int", "name": "w_int", "type": "attribute", "default": "123"},
         ],
     }
 
@@ -240,17 +306,42 @@ def test_form_response_no_map_many_tables(token, client, connection, schemas_sim
                 "type": "table",
                 "values": [{"zs_id": 0}, {"zs_id": 1}],
             },
-            {"datatype": "int", "name": "b_id", "type": "attribute"},
-            {"datatype": "float", "name": "b_number", "type": "attribute"},
-            {"datatype": "int", "name": "bs_id", "type": "attribute"},
-            {"datatype": "float", "name": "bs_number", "type": "attribute"},
-            {"datatype": "int", "name": "c_id", "type": "attribute"},
-            {"datatype": "int", "name": "c_int", "type": "attribute"},
-            {"datatype": "int", "name": "y_id", "type": "attribute"},
-            {"datatype": "float", "name": "y_number", "type": "attribute"},
-            {"datatype": "int", "name": "ys_id", "type": "attribute"},
-            {"datatype": "float", "name": "ys_number", "type": "attribute"},
-            {"datatype": "int", "name": "w_id", "type": "attribute"},
-            {"datatype": "int", "name": "w_int", "type": "attribute"},
+            {"datatype": "int", "name": "b_id", "type": "attribute", "default": None},
+            {
+                "datatype": "float",
+                "name": "b_number",
+                "type": "attribute",
+                "default": None,
+            },
+            {"datatype": "int", "name": "bs_id", "type": "attribute", "default": None},
+            {
+                "datatype": "float",
+                "name": "bs_number",
+                "type": "attribute",
+                "default": None,
+            },
+            {"datatype": "int", "name": "c_id", "type": "attribute", "default": None},
+            {
+                "datatype": "varchar(30)",
+                "name": "c_name",
+                "type": "attribute",
+                "default": '"John Smith"',
+            },
+            {"datatype": "int", "name": "y_id", "type": "attribute", "default": None},
+            {
+                "datatype": "float",
+                "name": "y_number",
+                "type": "attribute",
+                "default": None,
+            },
+            {"datatype": "int", "name": "ys_id", "type": "attribute", "default": None},
+            {
+                "datatype": "float",
+                "name": "ys_number",
+                "type": "attribute",
+                "default": None,
+            },
+            {"datatype": "int", "name": "w_id", "type": "attribute", "default": None},
+            {"datatype": "int", "name": "w_int", "type": "attribute", "default": "123"},
         ]
     }
