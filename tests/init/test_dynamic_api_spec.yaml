@@ -43,7 +43,7 @@ SciViz: # top level tab
                   input: C Id
                   destination: c_id
                 - type: attribute #omitted input means display is session_note
-                  destination: c_int
+                  destination: c_name
             insert2:
               route: /insert2
               x: 1
@@ -68,7 +68,7 @@ SciViz: # top level tab
                   input: C Id
                   destination: c_id
                 - type: attribute #omitted input means display is session_note
-                  destination: c_int
+                  destination: c_name
             insert3:
               route: /insert3
               x: 1
@@ -77,8 +77,8 @@ SciViz: # top level tab
               width: 1
               type: form
               tables:
-                - test_group1_simple.TableB
-                - test_group1_simple.TableC
+                - "{group}_simple.TableB"
+                - "{group}_simple.TableC"
             insert4:
               route: /insert4
               x: 1
@@ -207,7 +207,7 @@ SciViz: # top level tab
                     return dict(query=q, fetch_args=f)
               diff_checker: >
                 def diff_checker(**args):
-                  return TrainingStatsPlotly.proj(hash='trial_mean_hash')
+                    return TrainingStatsPlotly.proj(hash='trial_mean_hash')
             component3:
               route: /query5
               row_span: 0
@@ -224,7 +224,7 @@ SciViz: # top level tab
                     return dict(query=q, fetch_args=f)
               diff_checker: >
                 def diff_checker(**args):
-                  return TrainingStatsPlotly.proj(hash='trial_mean_hash')
+                    return TrainingStatsPlotly.proj(hash='trial_mean_hash')
             plot_test:
               route: /plot1
               type: plot:plotly:stored_json

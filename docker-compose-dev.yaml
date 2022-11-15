@@ -1,4 +1,4 @@
-# PY_VER=3.8 IMAGE=djbase DISTRO=alpine PHARUS_VERSION=$(cat pharus/version.py | tail -1 | awk -F\" '{print $2}') HOST_UID=$(id -u) docker-compose -f docker-compose-dev.yaml up
+# PY_VER=3.8 IMAGE=djbase DISTRO=alpine PHARUS_VERSION=$(cat pharus/version.py | grep -oP '\d+\.\d+\.\d+') HOST_UID=$(id -u) docker compose -f docker-compose-dev.yaml up
 #
 # Intended for normal development. Supports hot/live reloading.
 # Note: If requirements or Dockerfile change, will need to add --build flag to docker-compose.
@@ -27,12 +27,20 @@ services:
     environment:
       - FLASK_ENV=development # enables logging to console from Flask
       - PHARUS_SPEC_PATH=tests/init/test_dynamic_api_spec.yaml # for dynamic api spec
+      # --- only needed if you need OIDC compatability ---
+      - PHARUS_OIDC_CLIENT_SECRET
+      - PHARUS_OIDC_CLIENT_ID
+      - PHARUS_OIDC_REDIRECT_URI
+      - PHARUS_OIDC_CODE_VERIFIER
+      - PHARUS_OIDC_TOKEN_URL
+      - PHARUS_OIDC_PUBLIC_KEY
+      - PHARUS_OIDC_SUBJECT_KEY=preferred_username
     volumes:
       - ./pharus:/opt/conda/lib/python3.8/site-packages/pharus
     command: pharus
   fakeservices.datajoint.io:
     <<: *net
-    image: datajoint/nginx:v0.2.2
+    image: datajoint/nginx:v0.2.3
     environment:
       - ADD_pharus_TYPE=REST
       - ADD_pharus_ENDPOINT=pharus:5000

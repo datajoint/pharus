@@ -59,11 +59,10 @@ def group1_token(client, connection):
 def connection():
     """Root database connection."""
     dj.config["safemode"] = False
-    connection = dj.conn(
+    connection = dj.Connection(
         host=getenv("TEST_DB_SERVER"),
         user=getenv("TEST_DB_USER"),
         password=getenv("TEST_DB_PASS"),
-        reset=True,
     )
     yield connection
     dj.config["safemode"] = True
@@ -150,7 +149,7 @@ def schemas_simple(connection):
         -> TableB
         c_id: int
         ---
-        c_int: int
+        c_name = John Smith : varchar(30)
         """
         contents = [
             (0, 10, 100, -8),
@@ -158,13 +157,13 @@ def schemas_simple(connection):
                 0,
                 11,
                 200,
-                -9,
+                "Josh",
             ),
             (
                 0,
                 11,
                 300,
-                -7,
+                "Lumberjack",
             ),
         ]
 
@@ -274,7 +273,7 @@ def schemas_simple(connection):
         -> TableX
         w_id: int
         ---
-        w_int: int
+        w_int = 123 : int
         """
 
     @group1_simple

@@ -11,8 +11,14 @@ from pharus.component_interface import InsertComponent, TableComponent
 def populate_api():
     header_template = """# Auto-generated rest api
 from .server import app, protected_route
+<<<<<<< HEAD
 from .interface import _DJConnector, dj
 from flask import request, Response
+=======
+from .interface import _DJConnector
+from flask import request
+import datajoint as dj
+>>>>>>> 481614654e42248542af6b4711cee6f40c38db97
 from json import loads
 from base64 import b64decode
 from datetime import datetime
@@ -28,14 +34,14 @@ except (ModuleNotFoundError, ImportError):
 
 @app.route('{route}', methods=['{rest_verb}'])
 @protected_route
-def {method_name}(jwt_payload: dict) -> dict:
+def {method_name}(connection: dj.Connection) -> dict:
 
     if request.method in ['{rest_verb}']:
         try:
             component_instance = type_map['{component_type}'](name='{component_name}',
                                                               component_config={component},
                                                               static_config={static_config},
-                                                              jwt_payload=jwt_payload,
+                                                              connection=connection,
                                                               {payload})
             return Response(response=component_instance.{method_name_type}(),
                             status=200,
@@ -48,7 +54,7 @@ def {method_name}(jwt_payload: dict) -> dict:
 @app.route('{route}', methods=['{rest_verb}'])
 def {method_name}() -> dict:
     if request.method in ['{rest_verb}']:
-        jwt_payload = dict(
+        connection = dj.Connection(
             databaseAddress=os.environ["PHARUS_HOST"],
             username=os.environ["PHARUS_USER"],
             password=os.environ["PHARUS_PASSWORD"],
@@ -57,7 +63,7 @@ def {method_name}() -> dict:
             component_instance = type_map['{component_type}'](name='{component_name}',
                                                               component_config={component},
                                                               static_config={static_config},
-                                                              jwt_payload=jwt_payload,
+                                                              connection=connection,
                                                               {payload})
             return Response(response=component_instance.{method_name_type}(),
                             status=200,
@@ -131,7 +137,9 @@ def {method_name}() -> dict:
                             file|
                             slider|
                             dropdown-query|
-                            form
+                            form|
+                            basicquery|
+                            external
                             ).*$""",
                         comp["type"],
                         flags=re.VERBOSE,
@@ -139,14 +147,16 @@ def {method_name}() -> dict:
                         f.write(
                             (active_route_template).format(
                                 route=comp["route"],
-                                rest_verb="POST" if comp["type"] == "form" else "GET",
+                                rest_verb="POST"
+                                if comp["type"].split(":", 1)[0] == "form"
+                                else "GET",
                                 method_name=comp["route"].replace("/", ""),
                                 component_type=comp["type"],
                                 component_name=comp_name,
                                 component=json.dumps(comp),
                                 static_config=static_config,
                                 payload="payload=request.get_json()"
-                                if comp["type"] == "form"
+                                if comp["type"].split(":", 1)[0] == "form"
                                 else "",
                                 method_name_type="dj_query_route",
                             )

@@ -49,13 +49,18 @@ class NumpyEncoder(json.JSONEncoder):
         return json.dumps(obj, cls=cls)
 
 
-class FetchComponent:
-    def __init__(self, name, component_config, static_config, jwt_payload: dict):
-        lcls = locals()
+class Component:
+    def __init__(
+        self,
+        name,
+        component_config,
+        static_config,
+        connection: dj.Connection,
+        payload=None,
+    ):
         self.name = name
-        self.response_mimetype = "application/json"
-        if static_config:
-            self.static_variables = types.MappingProxyType(static_config)
+        self.type = component_config["type"]
+        self.route = component_config["route"]
         if not all(k in component_config for k in ("x", "y", "height", "width")):
             self.mode = "dynamic"
         else:
@@ -64,8 +69,17 @@ class FetchComponent:
             self.y = component_config["y"]
             self.height = component_config["height"]
             self.width = component_config["width"]
-        self.type = component_config["type"]
-        self.route = component_config["route"]
+        if static_config:
+            self.static_variables = types.MappingProxyType(static_config)
+        self.connection = connection
+        self.payload = payload
+
+
+class FetchComponent(Component):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        component_config = kwargs.get("component_config", args[1] if args else None)
+        lcls = locals()
         exec(component_config["dj_query"], globals(), lcls)
         self.dj_query = lcls["dj_query"]
         if "restriction" in component_config:
@@ -73,17 +87,11 @@ class FetchComponent:
             self.dj_restriction = lcls["restriction"]
         else:
             self.dj_restriction = lambda: dict()
-
         self.vm_list = [
             dj.VirtualModule(
                 s,
-                s.replace("__", "-"),
-                connection=dj.conn(
-                    host=jwt_payload["databaseAddress"],
-                    user=jwt_payload["username"],
-                    password=jwt_payload["password"],
-                    reset=True,
-                ),
+                s,
+                connection=self.connection,
             )
             for s in inspect.getfullargspec(self.dj_query).args
         ]
@@ -135,34 +143,12 @@ class FetchComponent:
         )
 
 
-class InsertComponent:
+class InsertComponent(Component):
     fields_route_format = "{route}/fields"
 
-    def __init__(
-        self, name, component_config, static_config, payload, jwt_payload: dict
-    ):
-        self.name = name
-        self.payload = payload
-        self.get_response_mimetype = "application/json"
-        self.post_response_mimetype = "text/plain"
-        if static_config:
-            self.static_variables = types.MappingProxyType(static_config)
-        if not all(k in component_config for k in ("x", "y", "height", "width")):
-            self.mode = "dynamic"
-        else:
-            self.mode = "fixed"
-            self.x = component_config["x"]
-            self.y = component_config["y"]
-            self.height = component_config["height"]
-            self.width = component_config["width"]
-        self.type = component_config["type"]
-        self.route = component_config["route"]
-        self.connection = dj.conn(
-            host=jwt_payload["databaseAddress"],
-            user=jwt_payload["username"],
-            password=jwt_payload["password"],
-            reset=True,
-        )
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        component_config = kwargs.get("component_config", args[1] if args else None)
         self.fields_map = component_config.get("map")
         self.tables = [
             getattr(
@@ -173,7 +159,9 @@ class InsertComponent:
                 ),
                 t,
             )
-            for s, t in (_.split(".") for _ in component_config["tables"])
+            for s, t in (
+                _.format(**request.args).split(".") for _ in component_config["tables"]
+            )
         ]
         self.parents = sorted(
             set(
@@ -186,6 +174,12 @@ class InsertComponent:
             ),
             key=lambda p: p.full_table_name,
         )
+        self.destination_lookup = {
+            sub_m.get("input", sub_m["destination"]): sub_m["destination"]
+            for m in (self.fields_map or [])
+            for sub_m in (m.get("map", []) + [m])
+        }
+        self.input_lookup = {v: k for k, v in self.destination_lookup.items()}
 
     @property
     def GET_mimetype(self):
@@ -197,40 +191,19 @@ class InsertComponent:
 
     def dj_query_route(self):
         with self.connection.transaction:
-            destination_lookup = reduce(
-                lambda m0, m1: dict(
-                    m0,
-                    **(
-                        {
-                            m_t["input"]
-                            if "input" in m_t
-                            else m_t["destination"]: m_t["destination"]
-                            for m_t in m1["map"]
-                        }
-                        if m1["type"] == "table"
-                        else {
-                            m1["input"]
-                            if "input" in m1
-                            else m1["destination"]: m1["destination"]
-                        }
-                    ),
-                ),
-                self.fields_map or [],
-                {},
-            )
             for t in self.tables:
                 t.insert(
                     [
                         {
                             a: v
                             for k, v in r.items()
-                            if (a := destination_lookup.get(k, k))
+                            if (a := self.destination_lookup.get(k, k))
                             in t.heading.attributes
                         }
                         for r in self.payload["submissions"]
                     ]
                 )
-        return "Insert successful"
+        return {"response": "Insert Successful"}
 
     def fields_route(self):
         parent_attributes = sorted(set(sum([p.primary_key for p in self.parents], [])))
@@ -244,7 +217,12 @@ class InsertComponent:
                 for p in self.parents
             },
             **{
-                a: {"datatype": v.type, "type": "attribute", "name": v.name}
+                a: {
+                    "datatype": v.type,
+                    "type": "attribute",
+                    "name": v.name,
+                    "default": v.default,
+                }
                 for t in self.tables
                 for a, v in t.heading.attributes.items()
                 if a not in parent_attributes
@@ -252,44 +230,30 @@ class InsertComponent:
         }
 
         if not self.fields_map:
-            return NumpyEncoder.dumps(dict(fields=list(source_fields.values())))
-        return NumpyEncoder.dumps(
-            dict(
-                fields=[
-                    dict(
-                        (field := source_fields.pop(m["destination"])),
-                        name=m["input" if "input" in m else "destination"],
-                        **(
-                            {
-                                "values": field["values"]
-                                if "map" not in m
-                                else [
-                                    {
-                                        input_lookup[k]: v
-                                        for k, v in r.items()
-                                        if k
-                                        in (
-                                            input_lookup := {
-                                                table_m["destination"]: table_m[
-                                                    "input"
-                                                    if "input" in table_m
-                                                    else "destination"
-                                                ]
-                                                for table_m in m["map"]
-                                            }
-                                        )
-                                    }
-                                    for r in field["values"]
-                                ]
-                            }
-                            if m["type"] == "table"
-                            else {}
-                        ),
-                    )
-                    for m in self.fields_map
-                ]
-                + list(source_fields.values())
-            )
+            return dict(fields=list(source_fields.values()))
+        return dict(
+            fields=[
+                dict(
+                    (
+                        field := source_fields.pop(
+                            (m_destination := m["destination"].format(**request.args))
+                        )
+                    ),
+                    name=m.get("input", m_destination),
+                    **(
+                        {
+                            "values": [
+                                {self.input_lookup.get(k, k): v for k, v in r.items()}
+                                for r in field["values"]
+                            ]
+                        }
+                        if m["type"] == "table"
+                        else {}
+                    ),
+                )
+                for m in self.fields_map
+            ]
+            + list(source_fields.values())
         )
 
 
@@ -469,6 +433,7 @@ class FileImageAttachComponent(FetchComponent):
 
 
 type_map = {
+    "external": Component,
     "basicquery": FetchComponent,
     "plot:plotly:stored_json": PlotPlotlyStoredjsonComponent,
     "table": TableComponent,

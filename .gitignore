@@ -9,4 +9,5 @@ build
 docs/_build
 *.tar.gz
 pharus/dynamic_api.py
+pharus/component_interface_override.py
 /specs
