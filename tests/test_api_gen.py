@@ -31,10 +31,18 @@ def test_auto_generated_route(token, client, schemas_simple):
         }
     )
 
-    assert expected_json == json.dumps(REST_response1.get_json(), sort_keys=True)
-    assert expected_json == json.dumps(REST_response2.get_json(), sort_keys=True)
-    assert expected_json == json.dumps(REST_response3.get_json(), sort_keys=True)
-    assert expected_json == json.dumps(REST_response4.get_json(), sort_keys=True)
+    assert expected_json == json.dumps(
+        REST_response1.get_json(force=True), sort_keys=True
+    )
+    assert expected_json == json.dumps(
+        REST_response2.get_json(force=True), sort_keys=True
+    )
+    assert expected_json == json.dumps(
+        REST_response3.get_json(force=True), sort_keys=True
+    )
+    assert expected_json == json.dumps(
+        REST_response4.get_json(force=True), sort_keys=True
+    )
 
 
 def test_get_full_plot(token, client, schemas_simple):
@@ -55,7 +63,9 @@ def test_get_full_plot(token, client, schemas_simple):
         ),
         sort_keys=True,
     )
-    assert expected_json == json.dumps(REST_response1.get_json(), sort_keys=True)
+    assert expected_json == json.dumps(
+        REST_response1.get_json(force=True), sort_keys=True
+    )
 
 
 def test_get_attributes(token, client, schemas_simple):
@@ -116,7 +126,7 @@ def test_get_attributes(token, client, schemas_simple):
         },
     }
 
-    assert expected_json == REST_response.get_json()
+    assert expected_json == REST_response.get_json(force=True)
 
 
 def test_dynamic_restriction(token, client, schemas_simple):
@@ -129,4 +139,6 @@ def test_dynamic_restriction(token, client, schemas_simple):
             "totalCount": 2,
         }
     )
-    assert expected_json == json.dumps(REST_response.get_json(), sort_keys=True)
+    assert expected_json == json.dumps(
+        REST_response.get_json(force=True), sort_keys=True
+    )
