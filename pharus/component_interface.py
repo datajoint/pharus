@@ -12,7 +12,6 @@ import types
 import io
 import numpy as np
 from uuid import UUID
-from functools import reduce
 
 
 class NumpyEncoder(json.JSONEncoder):
