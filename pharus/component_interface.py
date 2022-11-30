@@ -90,7 +90,7 @@ class FetchComponent(Component):
         self.vm_list = [
             dj.VirtualModule(
                 s,
-                s,
+                s.replace("__", "-"),
                 connection=self.connection,
             )
             for s in inspect.getfullargspec(self.dj_query).args
@@ -99,10 +99,6 @@ class FetchComponent(Component):
     @property
     def fetch_metadata(self):
         return self.dj_query(*self.vm_list)
-
-    @property
-    def GET_mimetype(self):
-        return self.response_mimetype
 
     @property
     def restriction(self):
@@ -180,14 +176,6 @@ class InsertComponent(Component):
             for sub_m in (m.get("map", []) + [m])
         }
         self.input_lookup = {v: k for k, v in self.destination_lookup.items()}
-
-    @property
-    def GET_mimetype(self):
-        return self.get_response_mimetype
-
-    @property
-    def POST_mimetype(self):
-        return self.post_response_mimetype
 
     def dj_query_route(self):
         with self.connection.transaction:

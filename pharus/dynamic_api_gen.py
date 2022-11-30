@@ -38,9 +38,7 @@ def {method_name}(connection: dj.Connection) -> dict:
                                                               static_config={static_config},
                                                               connection=connection,
                                                               {payload})
-            return Response(response=component_instance.{method_name_type}(),
-                            status=200,
-                            mimetype=component_instance.{rest_verb}_mimetype)
+            return component_instance.{method_name_type}()
         except Exception as e:
             return traceback.format_exc(), 500
 """
@@ -60,9 +58,7 @@ def {method_name}() -> dict:
                                                               static_config={static_config},
                                                               connection=connection,
                                                               {payload})
-            return Response(response=component_instance.{method_name_type}(),
-                            status=200,
-                            mimetype=component_instance.{rest_verb}_mimetype)
+            return component_instance.{method_name_type}()
         except Exception as e:
             return traceback.format_exc(), 500
 """
