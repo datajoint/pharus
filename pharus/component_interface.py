@@ -1,4 +1,5 @@
 """This module is a GUI component library of various common interfaces."""
+from base64 import b64decode
 import json
 import datajoint as dj
 import re
@@ -126,9 +127,8 @@ class FetchComponent(Component):
         record_header, table_records, total_count = _DJConnector._fetch_records(
             query=fetch_metadata["query"] & self.restriction,
             fetch_args=fetch_metadata["fetch_args"],
-            limit=int(request.args["limit"]) if "limit" in request.args else 1000,
-            page=int(request.args["page"]) if "page" in request.args else 1,
         )
+
         return (
             NumpyEncoder.dumps(
                 dict(
@@ -301,6 +301,9 @@ class TableComponent(FetchComponent):
             limit=int(request.args["limit"]) if "limit" in request.args else 1000,
             page=int(request.args["page"]) if "page" in request.args else 1,
             order=request.args["order"].split(",") if "order" in request.args else None,
+            restriction=json.loads(b64decode(request.args["restriction"]))
+            if "restriction" in request.args
+            else [],
         )
 
         return (

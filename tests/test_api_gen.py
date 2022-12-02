@@ -1,4 +1,5 @@
 from . import SCHEMA_PREFIX, token, client, connection, schemas_simple
+from base64 import b64encode
 import json
 
 
@@ -127,6 +128,26 @@ def test_dynamic_restriction(token, client, schemas_simple):
             "recordHeader": ["a_id", "b_id", "a_name", "b_number"],
             "records": [[0, 10, "Raphael", 22.12], [0, 11, "Raphael", -1.21]],
             "totalCount": 2,
+        }
+    )
+    assert expected_json == json.dumps(REST_response.get_json(), sort_keys=True)
+
+
+def test_fetch_restriction(token, client, schemas_simple):
+    restriction = [{"attributeName": "a_id", "operation": "=", "value": 1}]
+    encoded = b64encode(json.dumps(restriction).encode("utf-8"))
+    REST_response = client.get(
+        f"/query1?restriction={encoded.decode()}",
+        headers=dict(Authorization=f"Bearer {token}"),
+    )
+    # should restrict in the query parameter by a_id=1
+    expected_json = json.dumps(
+        {
+            "recordHeader": ["a_id", "b_id", "a_name", "b_number"],
+            "records": [
+                [1, 21, "Bernie", 7.77],
+            ],
+            "totalCount": 1,
         }
     )
     assert expected_json == json.dumps(REST_response.get_json(), sort_keys=True)
