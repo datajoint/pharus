@@ -2,12 +2,18 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.6.3] - 2022-12-07
+
+### Added
+
+- Support for new `antd-table` component. Prior `table` component is deprecated and will be removed in the next major release. PR #128
+- Deprecated warning for `table` PR #128
+
 ## [0.6.3] - 2022-11-18
 
 ### Added
 
 - Added attribute default value to the form component field route response
-- Support for new `antd-table` component. Prior `table` component will be deprecated in the next minor release. PR #128
 
 ## [0.6.2] - 2022-11-10
 
@@ -227,6 +233,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
+[0.6.4]: https://github.com/datajoint/pharus/compare/0.6.3...0.6.4
 [0.6.3]: https://github.com/datajoint/pharus/compare/0.6.2...0.6.3
 [0.6.2]: https://github.com/datajoint/pharus/compare/0.6.1...0.6.2
 [0.6.1]: https://github.com/datajoint/pharus/compare/0.6.0...0.6.1

@@ -4,7 +4,7 @@ from envyaml import EnvYAML
 import pkg_resources
 import json
 import re
-
+from warnings import warn
 from pharus.component_interface import InsertComponent, TableComponent
 
 
@@ -119,6 +119,13 @@ def {method_name}() -> dict:
                     if "component_templates" in grid
                     else grid["components"]
                 ).items():
+                    if re.match(r"^table.*$", comp["type"]):
+                        warn(
+                            "table component be Deprecated in next major release, "
+                            + "please use antd-table",
+                            DeprecationWarning,
+                            stacklevel=2,
+                        )
                     if re.match(
                         r"""^(
                             table|
