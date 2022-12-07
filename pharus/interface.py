@@ -207,12 +207,15 @@ class _DJConnector:
         return list(attributes.keys()), rows, len(query_restricted)
 
     @staticmethod
-    def _get_attributes(query) -> dict:
+    def _get_attributes(query, include_unique_values=False) -> dict:
         """
         Method to get primary and secondary attributes of a query.
 
         :param query: any datajoint object related to QueryExpression
         :type query: datajoint ``QueryExpression`` or related object
+        :param include_unique_values: boolean that determines if the unique values are
+            included as part of the returned attributes
+        :type include_unique_values: boolean, optional
         :return: Dict with keys ``attribute_headers`` and ``attributes`` containing
             ``primary``, ``secondary`` which each contain a
             ``list`` of ``tuples`` specifying: ``attribute_name``, ``type``, ``nullable``,
@@ -230,6 +233,12 @@ class _DJConnector:
                         attribute_info.nullable,
                         attribute_info.default,
                         attribute_info.autoincrement,
+                        [
+                            dict({"text": str(v), "value": v})
+                            for (v,) in (dj.U(attribute_name) & query).fetch()
+                        ]
+                        if include_unique_values
+                        else None,
                     )
                 )
             else:
@@ -240,6 +249,12 @@ class _DJConnector:
                         attribute_info.nullable,
                         attribute_info.default,
                         attribute_info.autoincrement,
+                        [
+                            dict({"text": str(v), "value": v})
+                            for (v,) in (dj.U(attribute_name) & query).fetch()
+                        ]
+                        if include_unique_values
+                        else None,
                     )
                 )
 

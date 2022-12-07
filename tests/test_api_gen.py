@@ -1,4 +1,5 @@
 from . import SCHEMA_PREFIX, token, client, connection, schemas_simple
+from base64 import b64encode
 import json
 
 
@@ -31,18 +32,10 @@ def test_auto_generated_route(token, client, schemas_simple):
         }
     )
 
-    assert expected_json == json.dumps(
-        REST_response1.get_json(force=True), sort_keys=True
-    )
-    assert expected_json == json.dumps(
-        REST_response2.get_json(force=True), sort_keys=True
-    )
-    assert expected_json == json.dumps(
-        REST_response3.get_json(force=True), sort_keys=True
-    )
-    assert expected_json == json.dumps(
-        REST_response4.get_json(force=True), sort_keys=True
-    )
+    assert expected_json == json.dumps(REST_response1.get_json(), sort_keys=True)
+    assert expected_json == json.dumps(REST_response2.get_json(), sort_keys=True)
+    assert expected_json == json.dumps(REST_response3.get_json(), sort_keys=True)
+    assert expected_json == json.dumps(REST_response4.get_json(), sort_keys=True)
 
 
 def test_get_full_plot(token, client, schemas_simple):
@@ -63,9 +56,7 @@ def test_get_full_plot(token, client, schemas_simple):
         ),
         sort_keys=True,
     )
-    assert expected_json == json.dumps(
-        REST_response1.get_json(force=True), sort_keys=True
-    )
+    assert expected_json == json.dumps(REST_response1.get_json(), sort_keys=True)
 
 
 def test_get_attributes(token, client, schemas_simple):
@@ -77,12 +68,51 @@ def test_get_attributes(token, client, schemas_simple):
         "attributeHeaders": ["name", "type", "nullable", "default", "autoincrement"],
         "attributes": {
             "primary": [
-                ["a_id", "int", False, None, False],
-                ["b_id", "int", False, None, False],
+                [
+                    "a_id",
+                    "int",
+                    False,
+                    None,
+                    False,
+                    [{"text": "0", "value": 0}, {"text": "1", "value": 1}],
+                ],
+                [
+                    "b_id",
+                    "int",
+                    False,
+                    None,
+                    False,
+                    [
+                        {"text": "10", "value": 10},
+                        {"text": "11", "value": 11},
+                        {"text": "21", "value": 21},
+                    ],
+                ],
             ],
             "secondary": [
-                ["a_name", "varchar(30)", False, None, False],
-                ["b_number", "float", False, None, False],
+                [
+                    "a_name",
+                    "varchar(30)",
+                    False,
+                    None,
+                    False,
+                    [
+                        {"text": "Raphael", "value": "Raphael"},
+                        {"text": "Bernie", "value": "Bernie"},
+                    ],
+                ],
+                [
+                    "b_number",
+                    "float",
+                    False,
+                    None,
+                    False,
+                    [
+                        {"text": "22.12", "value": 22.12},
+                        {"text": "-1.21", "value": -1.21},
+                        {"text": "7.77", "value": 7.77},
+                    ],
+                ],
             ],
         },
     }
@@ -100,6 +130,24 @@ def test_dynamic_restriction(token, client, schemas_simple):
             "totalCount": 2,
         }
     )
-    assert expected_json == json.dumps(
-        REST_response.get_json(force=True), sort_keys=True
+    assert expected_json == json.dumps(REST_response.get_json(), sort_keys=True)
+
+
+def test_fetch_restriction(token, client, schemas_simple):
+    restriction = [{"attributeName": "a_id", "operation": "=", "value": 1}]
+    encoded = b64encode(json.dumps(restriction).encode("utf-8"))
+    REST_response = client.get(
+        f"/query1?restriction={encoded.decode()}",
+        headers=dict(Authorization=f"Bearer {token}"),
     )
+    # should restrict in the query parameter by a_id=1
+    expected_json = json.dumps(
+        {
+            "recordHeader": ["a_id", "b_id", "a_name", "b_number"],
+            "records": [
+                [1, 21, "Bernie", 7.77],
+            ],
+            "totalCount": 1,
+        }
+    )
+    assert expected_json == json.dumps(REST_response.get_json(), sort_keys=True)
