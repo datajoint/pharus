@@ -11,8 +11,8 @@ from pharus.component_interface import InsertComponent, TableComponent
 def populate_api():
     header_template = """# Auto-generated rest api
 from .server import app, protected_route
-from .interface import _DJConnector, dj
-from flask import request, Response
+from .interface import _DJConnector
+from flask import request
 import datajoint as dj
 from json import loads
 from base64 import b64decode
