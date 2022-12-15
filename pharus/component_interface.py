@@ -1,6 +1,7 @@
 """This module is a GUI component library of various common interfaces."""
 import json
 from base64 import b64decode
+from os import environ
 import datajoint as dj
 import re
 import inspect
@@ -12,6 +13,7 @@ from pathlib import Path
 import types
 import io
 import numpy as np
+import requests
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -126,6 +128,18 @@ class FetchComponent(Component):
         return dict(
             recordHeader=record_header, records=table_records, totalCount=total_count
         )
+
+
+class DeleteComponent(Component):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        component_config = kwargs.get("component_config", args[1] if args else None)
+        self.url = component_config["url"].format(**request.args)
+
+    def dj_query_route(self):
+        headers = {"Authorization": f"token {environ['PHARUS_JUPYTER_API_KEY']}"}
+        requests.request("DELETE", self.url, headers=headers, data={})
+        return {"response": "Server shutdown successful"}
 
 
 class InsertComponent(Component):
@@ -415,4 +429,5 @@ type_map = {
     "slider": FetchComponent,
     "dropdown-query": FetchComponent,
     "form": InsertComponent,
+    "delete": DeleteComponent,
 }

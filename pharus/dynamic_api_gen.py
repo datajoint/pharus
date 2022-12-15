@@ -123,7 +123,7 @@ def {method_name}() -> dict:
                     if re.match(
                         r"""
                         ^(table|metadata|plot|file|slider|
-                          dropdown-query|form|basicquery|external).*$""",
+                          dropdown-query|form|basicquery|external|delete).*$""",
                         comp["type"],
                         flags=re.VERBOSE,
                     ):
@@ -132,7 +132,11 @@ def {method_name}() -> dict:
                                 route=comp["route"],
                                 rest_verb="POST"
                                 if comp["type"].split(":", 1)[0] == "form"
-                                else "GET",
+                                else (
+                                    "DELETE"
+                                    if comp["type"].split(":", 1)[0] == "delete"
+                                    else "GET"
+                                ),
                                 method_name=comp["route"].replace("/", ""),
                                 component_type=comp["type"],
                                 component_name=comp_name,
