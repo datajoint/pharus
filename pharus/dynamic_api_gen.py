@@ -4,7 +4,7 @@ from envyaml import EnvYAML
 import pkg_resources
 import json
 import re
-
+import warnings
 from pharus.component_interface import InsertComponent, TableComponent
 
 
@@ -114,12 +114,21 @@ def {method_name}() -> dict:
                             method_name_type="dj_query_route",
                         )
                     )
-
                 for comp_name, comp in (
                     grid["component_templates"]
                     if "component_templates" in grid
                     else grid["components"]
                 ).items():
+                    if re.match(r"^table.*$", comp["type"]):
+                        # For some reason the warnings package filters out deprecation
+                        # warnings by default so make sure that filter is turned off
+                        warnings.simplefilter("always", DeprecationWarning)
+                        warnings.warn(
+                            "table component to be Deprecated in next major release, "
+                            + "please use antd-table",
+                            DeprecationWarning,
+                            stacklevel=2,
+                        )
                     if re.match(
                         r"""
                         ^(table|metadata|plot|file|slider|
