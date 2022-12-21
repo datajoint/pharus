@@ -48,8 +48,8 @@ def {method_name}(connection: dj.Connection) -> dict:
 def {method_name}() -> dict:
     if request.method in ['{rest_verb}']:
         connection = dj.Connection(
-            databaseAddress=os.environ["PHARUS_HOST"],
-            username=os.environ["PHARUS_USER"],
+            host=os.environ["PHARUS_HOST"],
+            user=os.environ["PHARUS_USER"],
             password=os.environ["PHARUS_PASSWORD"],
         )
         try:
