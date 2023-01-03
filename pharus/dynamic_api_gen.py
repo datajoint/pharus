@@ -5,7 +5,7 @@ import pkg_resources
 import json
 import re
 import warnings
-from pharus.component_interface import *
+from pharus.component_interface import TableComponent, InsertComponent, FetchComponent
 
 
 def populate_api():
