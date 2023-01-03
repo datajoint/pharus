@@ -78,6 +78,8 @@ class Component:
 
 
 class FetchComponent(Component):
+    rest_verb = ["GET"]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         component_config = kwargs.get("component_config", args[1] if args else None)
@@ -145,6 +147,8 @@ class FetchComponent(Component):
 
 
 class DeleteComponent(Component):
+    rest_verb = ["DELETE"]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         component_config = kwargs.get("component_config", args[1] if args else None)
@@ -157,6 +161,7 @@ class DeleteComponent(Component):
 
 
 class InsertComponent(Component):
+    rest_verb = ["POST", "GET"]
     fields_route_format = "{route}/fields"
 
     def __init__(self, *args, **kwargs):
