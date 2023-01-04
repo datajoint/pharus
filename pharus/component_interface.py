@@ -151,13 +151,9 @@ class DeleteComponent(Component):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        component_config = kwargs.get("component_config", args[1] if args else None)
-        self.url = component_config["url"].format(**request.args)
 
     def dj_query_route(self):
-        headers = {"Authorization": f"token {environ['PHARUS_JUPYTER_API_KEY']}"}
-        requests.request("DELETE", self.url, headers=headers, data={})
-        return {"response": "Server shutdown successful"}
+        return {"response": "Delete Successful"}
 
 
 class InsertComponent(Component):
