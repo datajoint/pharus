@@ -5,7 +5,11 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 
 ### Added
 
-- Added delete component and delete component override
+- Added delete component PR [#148](https://github.com/datajoint/pharus/pull/148)
+
+### Bugfix
+
+- Public deploy of dynamic API uses incorrect credential keywords PR [#148](https://github.com/datajoint/pharus/pull/148)
 
 ## [0.6.4] - 2022-12-07
 
