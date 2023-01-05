@@ -5,7 +5,7 @@ import pkg_resources
 import json
 import re
 import warnings
-from pharus.component_interface import InsertComponent, TableComponent
+from pharus.component_interface import TableComponent, InsertComponent, FetchComponent
 
 
 def populate_api():
@@ -27,11 +27,11 @@ except (ModuleNotFoundError, ImportError):
 """
     route_template = """
 
-@app.route('{route}', methods=['{rest_verb}'])
+@app.route('{route}', methods={rest_verb})
 @protected_route
 def {method_name}(connection: dj.Connection) -> dict:
 
-    if request.method in ['{rest_verb}']:
+    if request.method in {rest_verb}:
         try:
             component_instance = type_map['{component_type}'](name='{component_name}',
                                                               component_config={component},
@@ -44,12 +44,12 @@ def {method_name}(connection: dj.Connection) -> dict:
 """
     route_template_nologin = """
 
-@app.route('{route}', methods=['{rest_verb}'])
+@app.route('{route}', methods={rest_verb})
 def {method_name}() -> dict:
-    if request.method in ['{rest_verb}']:
+    if request.method in {rest_verb}:
         connection = dj.Connection(
-            databaseAddress=os.environ["PHARUS_HOST"],
-            username=os.environ["PHARUS_USER"],
+            host=os.environ["PHARUS_HOST"],
+            user=os.environ["PHARUS_USER"],
             password=os.environ["PHARUS_PASSWORD"],
         )
         try:
@@ -104,7 +104,7 @@ def {method_name}() -> dict:
                     f.write(
                         (active_route_template).format(
                             route=grid["route"],
-                            rest_verb="GET",
+                            rest_verb=[FetchComponent.rest_verb[0]],
                             method_name=grid["route"].replace("/", ""),
                             component_type="basicquery",
                             component_name="dynamicgrid",
@@ -130,27 +130,16 @@ def {method_name}() -> dict:
                             stacklevel=2,
                         )
                     if re.match(
-                        r"""^(
-                            table|
-                            antd-table|
-                            metadata|
-                            plot|
-                            file|
-                            slider|
-                            dropdown-query|
-                            form|
-                            basicquery|
-                            external
-                            ).*$""",
+                        r"""
+                        ^(table|metadata|plot|file|slider|
+                          dropdown-query|form|basicquery|external|delete).*$""",
                         comp["type"],
                         flags=re.VERBOSE,
                     ):
                         f.write(
                             (active_route_template).format(
                                 route=comp["route"],
-                                rest_verb="POST"
-                                if comp["type"].split(":", 1)[0] == "form"
-                                else "GET",
+                                rest_verb=[type_map[comp["type"]].rest_verb[0]],
                                 method_name=comp["route"].replace("/", ""),
                                 component_type=comp["type"],
                                 component_name=comp_name,
@@ -169,7 +158,7 @@ def {method_name}() -> dict:
                             f.write(
                                 (active_route_template).format(
                                     route=fields_route,
-                                    rest_verb="GET",
+                                    rest_verb=[InsertComponent.rest_verb[1]],
                                     method_name=fields_route.replace("/", ""),
                                     component_type=comp["type"],
                                     component_name=comp_name,
@@ -186,7 +175,7 @@ def {method_name}() -> dict:
                             f.write(
                                 (active_route_template).format(
                                     route=attributes_route,
-                                    rest_verb="GET",
+                                    rest_verb=[TableComponent.rest_verb[0]],
                                     method_name=attributes_route.replace("/", ""),
                                     component_type=comp["type"],
                                     component_name=comp_name,

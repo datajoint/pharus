@@ -1,6 +1,15 @@
 # Changelog
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
+## [0.7.0] - 2023-01-05
+
+### Added
+
+- Added delete component PR [#148](https://github.com/datajoint/pharus/pull/148)
+
+### Bugfix
+
+- Public deploy of dynamic API uses incorrect credential keywords PR [#148](https://github.com/datajoint/pharus/pull/148)
 
 ## [0.6.4] - 2022-12-07
 
@@ -233,6 +242,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
+[0.7.0]: https://github.com/datajoint/pharus/compare/0.6.4...0.7.0
 [0.6.4]: https://github.com/datajoint/pharus/compare/0.6.3...0.6.4
 [0.6.3]: https://github.com/datajoint/pharus/compare/0.6.2...0.6.3
 [0.6.2]: https://github.com/datajoint/pharus/compare/0.6.1...0.6.2

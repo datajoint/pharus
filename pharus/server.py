@@ -68,8 +68,8 @@ def protected_route(function: Callable) -> Callable:
             if "database_host" in request.args:
                 encoded_jwt = request.headers.get("Authorization").split()[1]
                 connect_creds = {
-                    "databaseAddress": request.args["database_host"],
-                    "username": jwt.decode(
+                    "host": request.args["database_host"],
+                    "user": jwt.decode(
                         encoded_jwt,
                         crypto_serialization.load_der_public_key(
                             b64decode(environ.get("PHARUS_OIDC_PUBLIC_KEY").encode())
@@ -86,8 +86,8 @@ def protected_route(function: Callable) -> Callable:
                     algorithms="RS256",
                 )
             connection = dj.Connection(
-                host=connect_creds["databaseAddress"],
-                user=connect_creds["username"],
+                host=connect_creds["host"],
+                user=connect_creds["user"],
                 password=connect_creds["password"],
             )
             return function(connection, **kwargs)
@@ -126,7 +126,7 @@ def api_version() -> str:
             Content-Type: application/json
 
             {
-                "version": "0.6.4"
+                "version": "0.7.0"
             }
 
         :statuscode 200: No error.
@@ -173,8 +173,8 @@ def login() -> dict:
             Accept: application/json
 
             {
-                "databaseAddress": "tutorial-db.datajoint.io",
-                "username": "user1",
+                "host": "tutorial-db.datajoint.io",
+                "user": "user1",
                 "password": "password1"
             }
 
@@ -237,8 +237,8 @@ def login() -> dict:
                 )
                 time.sleep(1)
                 connect_creds = {
-                    "databaseAddress": request.args["database_host"],
-                    "username": jwt.decode(
+                    "host": request.args["database_host"],
+                    "user": jwt.decode(
                         auth_info["jwt"],
                         crypto_serialization.load_der_public_key(
                             b64decode(environ.get("PHARUS_OIDC_PUBLIC_KEY").encode())
@@ -256,12 +256,12 @@ def login() -> dict:
                     )
                 )
                 connect_creds = request.json
-            if connect_creds.keys() < {"databaseAddress", "username", "password"}:
+            if connect_creds.keys() < {"host", "user", "password"}:
                 return dict(error="Invalid Request, check headers and/or json body")
             try:
                 dj.Connection(
-                    host=connect_creds["databaseAddress"],
-                    user=connect_creds["username"],
+                    host=connect_creds["host"],
+                    user=connect_creds["user"],
                     password=connect_creds["password"],
                 )
             except pymysql.err.OperationalError as e:
@@ -276,8 +276,8 @@ def login() -> dict:
                         password=root_password,
                     ).query("FLUSH PRIVILEGES")
                     dj.Connection(
-                        host=connect_creds["databaseAddress"],
-                        user=connect_creds["username"],
+                        host=connect_creds["host"],
+                        user=connect_creds["user"],
                         password=connect_creds["password"],
                     )
                 else:

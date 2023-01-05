@@ -76,6 +76,8 @@ class Component:
 
 
 class FetchComponent(Component):
+    rest_verb = ["GET"]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         component_config = kwargs.get("component_config", args[1] if args else None)
@@ -142,7 +144,18 @@ class FetchComponent(Component):
         )
 
 
+class DeleteComponent(Component):
+    rest_verb = ["DELETE"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def dj_query_route(self):
+        return
+
+
 class InsertComponent(Component):
+    rest_verb = ["POST", "GET"]
     fields_route_format = "{route}/fields"
 
     def __init__(self, *args, **kwargs):
@@ -453,4 +466,5 @@ type_map = {
     "slider": FetchComponent,
     "dropdown-query": FetchComponent,
     "form": InsertComponent,
+    "delete": DeleteComponent,
 }

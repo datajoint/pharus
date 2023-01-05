@@ -29,13 +29,13 @@ To start the API server, use the command:
 
     .. code-block:: bash
 
-        PHARUS_VERSION=0.6.4 docker-compose -f docker-compose-deploy.yaml up -d
+        PHARUS_VERSION=0.7.0 docker-compose -f docker-compose-deploy.yaml up -d
 
 To stop the API server, use the command:
 
     .. code-block:: bash
 
-        PHARUS_VERSION=0.6.4 docker-compose -f docker-compose-deploy.yaml down
+        PHARUS_VERSION=0.7.0docker-compose -f docker-compose-deploy.yaml down
 
 References
 ----------
