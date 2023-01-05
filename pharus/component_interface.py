@@ -1,6 +1,5 @@
 """This module is a GUI component library of various common interfaces."""
 from base64 import b64decode
-from os import environ
 import json
 import datajoint as dj
 import re
@@ -13,7 +12,6 @@ from pathlib import Path
 import types
 import io
 import numpy as np
-import requests
 from uuid import UUID
 
 
@@ -153,7 +151,7 @@ class DeleteComponent(Component):
         super().__init__(*args, **kwargs)
 
     def dj_query_route(self):
-        return {"response": "Delete Successful"}
+        return
 
 
 class InsertComponent(Component):

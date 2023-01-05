@@ -239,11 +239,3 @@ SciViz: # top level tab
                 def dj_query(test_group1_simple):
                     PlotlyTable = test_group1_simple.PlotlyTable
                     return dict(query=PlotlyTable(), fetch_args=['plot'])
-            deleteserver:
-              route: /deleteserver
-              x: 1
-              y: 1
-              height: 1
-              width: 1
-              type: delete
-              url: "codebook_endpoint/hub/api/users/username/server"
