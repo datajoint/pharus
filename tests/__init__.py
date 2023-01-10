@@ -26,8 +26,8 @@ def token(client):
     yield client.post(
         "/login",
         json=dict(
-            host=getenv("TEST_DB_SERVER"),
-            user=getenv("TEST_DB_USER"),
+            databaseAddress=getenv("TEST_DB_SERVER"),
+            username=getenv("TEST_DB_USER"),
             password=getenv("TEST_DB_PASS"),
         ),
     ).json["jwt"]
@@ -47,8 +47,8 @@ def group1_token(client, connection):
     yield client.post(
         "/login",
         json=dict(
-            host=getenv("TEST_DB_SERVER"),
-            user="group1",
+            databaseAddress=getenv("TEST_DB_SERVER"),
+            username="group1",
             password="group1",
         ),
     ).json["jwt"]
