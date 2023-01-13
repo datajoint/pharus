@@ -131,7 +131,7 @@ def {method_name}() -> dict:
                         )
                     if re.match(
                         r"""
-                        ^(table|metadata|plot|file|slider|
+                        ^(table|antd-table|metadata|plot|file|slider|
                           dropdown-query|form|basicquery|external|delete).*$""",
                         comp["type"],
                         flags=re.VERBOSE,

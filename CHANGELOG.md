@@ -2,6 +2,12 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.7.2] - 2023-01-13
+
+### Bugfix
+
+- Re-add `antd-table` to regex match for dynamic api gen [#150] (https://github.com/datajoint/pharus/pull/150)
+
 ## [0.7.1] - 2023-01-10
 
 ### Bugfix
@@ -249,6 +255,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
+[0.7.2]: https://github.com/datajoint/pharus/compare/0.7.1...0.7.2
 [0.7.1]: https://github.com/datajoint/pharus/compare/0.7.0...0.7.1
 [0.7.0]: https://github.com/datajoint/pharus/compare/0.6.4...0.7.0
 [0.6.4]: https://github.com/datajoint/pharus/compare/0.6.3...0.6.4
