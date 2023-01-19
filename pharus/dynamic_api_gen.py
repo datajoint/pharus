@@ -140,7 +140,8 @@ def {method_name}() -> dict:
                             dropdown-query|
                             form|
                             basicquery|
-                            external
+                            external|
+                            slideshow
                             ).*$""",
                         comp["type"],
                         flags=re.VERBOSE,

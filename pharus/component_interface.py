@@ -13,6 +13,8 @@ import types
 import io
 import numpy as np
 from uuid import UUID
+import cv2
+import base64
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -73,6 +75,62 @@ class Component:
             self.static_variables = types.MappingProxyType(static_config)
         self.connection = connection
         self.payload = payload
+
+
+class SlideshowComponent(Component):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def dj_query_route(self):
+
+        video = cv2.VideoCapture("specs/test.avi")
+
+        payload_size = 0  # bytes
+        encoded_frames = []
+        last_chunk = False
+
+        chunk_size = int(request.args["chunk_size"])
+        start_frame = int(request.args["start_frame"])
+
+        video.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+        while payload_size < chunk_size:
+            success, frame = video.read()
+            if not success:
+                last_chunk = True
+                break
+            encoded_f = cv2.imencode(".jpeg", frame)[1].tobytes()
+            # if len(encoded_f) + payload_size > chunk_size:
+            #     break
+            encoded_frames.append(base64.b64encode(encoded_f).decode())
+            payload_size += 1
+
+        # extra_frame = video.read()[1]
+        # encoded_f = cv2.imencode(".jpeg", extra_frame)[1].tobytes()
+        # print(len(encoded_f))
+        # if (len(encoded_f) / 10) + payload_size < chunk_size:
+        #     encoded_frames.append(base64.b64encode(encoded_f))
+        #     payload_size += len(encoded_f)
+
+        # print(payload_size)
+        # print(len(encoded_frames))
+
+        # if last_chunk and len(encoded_frames) == 0:
+        #     print("out of bounds")
+        #     return "out of bounds"
+        return (
+            NumpyEncoder.dumps(
+                {
+                    "frameMeta": {
+                        "fps": 50,
+                        "frameCount": len(encoded_frames),
+                        "finalChunk": last_chunk,
+                    },
+                    "frames": encoded_frames,
+                }
+            ),
+            200,
+            {"Content-Type": "application/json"},
+        )
 
 
 class FetchComponent(Component):
@@ -453,4 +511,5 @@ type_map = {
     "slider": FetchComponent,
     "dropdown-query": FetchComponent,
     "form": InsertComponent,
+    "slideshow": SlideshowComponent,
 }
