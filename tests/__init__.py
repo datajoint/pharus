@@ -276,6 +276,25 @@ def schemas_simple(connection):
         w_int = 123 : int
         """
 
+    @group4_simple
+    class TableV(dj.Lookup):
+        definition = """
+        datetime: datetime
+        v_int: int
+        """
+        contents = [
+            ("2000-01-02 01:02:03", 0),
+            ("2023-12-1 23:12:01", 1),
+        ]
+
+    @group4_simple
+    class TableU(dj.Lookup):
+        definition = """
+        -> TableV
+        ---
+        u_int = 1 : int
+        """
+
     @group1_simple
     class PlotlyTable(dj.Lookup):
         definition = """
