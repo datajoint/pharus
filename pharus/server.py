@@ -126,7 +126,7 @@ def api_version() -> str:
             Content-Type: application/json
 
             {
-                "version": "0.7.2"
+                "version": "0.7.3"
             }
 
         :statuscode 200: No error.

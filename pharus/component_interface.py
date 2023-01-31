@@ -214,7 +214,7 @@ class InsertComponent(Component):
         source_fields = {
             **{
                 (p_name := f"{p.database}.{dj.utils.to_camel_case(p.table_name)}"): {
-                    "values": p.fetch("KEY"),
+                    "values": [NumpyEncoder.dumps(row) for row in p.fetch("KEY")],
                     "type": "table",
                     "name": p_name,
                 }
@@ -247,7 +247,12 @@ class InsertComponent(Component):
                     **(
                         {
                             "values": [
-                                {self.input_lookup.get(k, k): v for k, v in r.items()}
+                                json.dumps(
+                                    {
+                                        self.input_lookup.get(k, k): v
+                                        for k, v in json.loads(r).items()
+                                    }
+                                )
                                 for r in field["values"]
                             ]
                         }
