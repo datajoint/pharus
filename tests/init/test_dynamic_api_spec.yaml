@@ -132,6 +132,15 @@ SciViz: # top level tab
                 - test_group3_simple.TableY
                 - test_group4_simple.DiffTableY
                 - test_group4_simple.TableW
+            insert9:
+              route: /insert9
+              x: 1
+              y: 2
+              height: 1
+              width: 1
+              type: form
+              tables:
+                - test_group4_simple.TableU
             component1:
               route: /query1
               row_span: 0

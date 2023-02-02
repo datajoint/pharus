@@ -134,6 +134,8 @@ class SlideshowComponent(Component):
 
 
 class FetchComponent(Component):
+    rest_verb = ["GET"]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         component_config = kwargs.get("component_config", args[1] if args else None)
@@ -200,7 +202,18 @@ class FetchComponent(Component):
         )
 
 
+class DeleteComponent(Component):
+    rest_verb = ["DELETE"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def dj_query_route(self):
+        return
+
+
 class InsertComponent(Component):
+    rest_verb = ["POST", "GET"]
     fields_route_format = "{route}/fields"
 
     def __init__(self, *args, **kwargs):
@@ -259,7 +272,7 @@ class InsertComponent(Component):
         source_fields = {
             **{
                 (p_name := f"{p.database}.{dj.utils.to_camel_case(p.table_name)}"): {
-                    "values": p.fetch("KEY"),
+                    "values": [NumpyEncoder.dumps(row) for row in p.fetch("KEY")],
                     "type": "table",
                     "name": p_name,
                 }
@@ -292,7 +305,12 @@ class InsertComponent(Component):
                     **(
                         {
                             "values": [
-                                {self.input_lookup.get(k, k): v for k, v in r.items()}
+                                json.dumps(
+                                    {
+                                        self.input_lookup.get(k, k): v
+                                        for k, v in json.loads(r).items()
+                                    }
+                                )
                                 for r in field["values"]
                             ]
                         }
@@ -512,4 +530,5 @@ type_map = {
     "dropdown-query": FetchComponent,
     "form": InsertComponent,
     "slideshow": SlideshowComponent,
+    "delete": DeleteComponent,
 }
