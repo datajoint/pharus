@@ -141,7 +141,7 @@ def {method_name}() -> dict:
                             form|
                             basicquery|
                             external|
-                            slideshow
+                            slideshow|
                             delete
                             ).*$""",
                         comp["type"],
