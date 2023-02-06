@@ -192,7 +192,7 @@ class _DJConnector:
                         # Normal attribute, just return value with .item to deal with numpy
                         #   types
                         if isinstance(non_blobs_row[attribute_name], np.generic):
-                            row.append(np.asscalar(non_blobs_row[attribute_name]))
+                            row.append((non_blobs_row[attribute_name].item()))
                         else:
                             row.append(non_blobs_row[attribute_name])
                 else:

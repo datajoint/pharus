@@ -4,7 +4,6 @@ import json
 
 
 def test_auto_generated_route(token, client, schemas_simple):
-
     # verify crawling over multiple grids
     REST_response1 = client.get(
         "/query1", headers=dict(Authorization=f"Bearer {token}")

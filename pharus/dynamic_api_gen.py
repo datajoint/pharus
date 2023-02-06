@@ -130,9 +130,20 @@ def {method_name}() -> dict:
                             stacklevel=2,
                         )
                     if re.match(
-                        r"""
-                        ^(table|antd-table|metadata|plot|file|slider|
-                          dropdown-query|form|basicquery|external|delete).*$""",
+                        r"""^(
+                            table|
+                            antd-table|
+                            metadata|
+                            plot|
+                            file|
+                            slider|
+                            dropdown-query|
+                            form|
+                            basicquery|
+                            external|
+                            slideshow|
+                            delete
+                            ).*$""",
                         comp["type"],
                         flags=re.VERBOSE,
                     ):

@@ -13,6 +13,8 @@ import types
 import io
 import numpy as np
 from uuid import UUID
+import cv2
+import base64
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -138,6 +140,54 @@ class FetchComponent(Component):
                     records=table_records,
                     totalCount=total_count,
                 )
+            ),
+            200,
+            {"Content-Type": "application/json"},
+        )
+
+
+class SlideshowComponent(FetchComponent):
+    rest_verb = ["GET"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def dj_query_route(self):
+        fetch_metadata = self.fetch_metadata
+
+        # Dj query provided should return only a video location
+        video_name = (fetch_metadata["query"] & self.restriction).fetch1(
+            *fetch_metadata["fetch_args"]
+        )
+        video = cv2.VideoCapture(video_name)
+
+        payload_size = 0  # bytes
+        encoded_frames = []
+        last_chunk = False
+
+        chunk_size = int(request.args["chunk_size"])
+        start_frame = int(request.args["start_frame"])
+
+        video.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+        while payload_size < chunk_size:
+            success, frame = video.read()
+            if not success:
+                last_chunk = True
+                break
+            encoded_f = cv2.imencode(".jpeg", frame)[1].tobytes()
+            encoded_frames.append(base64.b64encode(encoded_f).decode())
+            payload_size += 1
+
+        return (
+            NumpyEncoder.dumps(
+                {
+                    "frameMeta": {
+                        "fps": 50,
+                        "frameCount": len(encoded_frames),
+                        "finalChunk": last_chunk,
+                    },
+                    "frames": encoded_frames,
+                }
             ),
             200,
             {"Content-Type": "application/json"},
@@ -471,5 +521,6 @@ type_map = {
     "slider": FetchComponent,
     "dropdown-query": FetchComponent,
     "form": InsertComponent,
+    "slideshow": SlideshowComponent,
     "delete": DeleteComponent,
 }
