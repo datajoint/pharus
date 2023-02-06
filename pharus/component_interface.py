@@ -154,6 +154,8 @@ class SlideshowComponent(FetchComponent):
 
     def dj_query_route(self):
         fetch_metadata = self.fetch_metadata
+
+        # Dj query provided should return only a video location
         video_name = (fetch_metadata["query"] & self.restriction).fetch1(
             *fetch_metadata["fetch_args"]
         )
