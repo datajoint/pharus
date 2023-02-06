@@ -26,5 +26,6 @@ WORKDIR /main
 # Install opencv dependencies
 USER root
 RUN apk add	mesa-gl
+USER anaconda
 
 CMD ["sh", "-c", "otumat watch -f ${PHARUS_SPEC_PATH} -s /tmp/reload.sh -i 5"]
