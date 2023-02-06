@@ -5,7 +5,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 ## [0.8.0] - 2023-02-06
 
 ### Added
-- Support for new `slideshow` component PR []
+- Support for new `slideshow` component [#155](https://github.com/datajoint/pharus/pull/155)
 
 ## [0.7.3] - 2023-01-31
 
