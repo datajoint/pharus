@@ -23,5 +23,8 @@ RUN pip install plotly
 # ----------
 COPY --chown=anaconda:anaconda ./reload.sh /tmp/
 WORKDIR /main
+# Install opencv dependencies
+USER root
+RUN apk add	mesa-gl
 
 CMD ["sh", "-c", "otumat watch -f ${PHARUS_SPEC_PATH} -s /tmp/reload.sh -i 5"]
