@@ -1,5 +1,8 @@
 """Exposed REST API."""
 from os import environ
+from pathlib import Path
+from envyaml import EnvYAML
+import json
 from .interface import _DJConnector
 import datajoint as dj
 from . import __version__ as version
@@ -1059,6 +1062,34 @@ def attribute(
                 attributeHeaders=attributes_meta["attribute_headers"],
                 attributes=attributes_meta["attributes"],
             )
+        except Exception:
+            return traceback.format_exc(), 500
+
+
+@app.route(
+    f"{environ.get('PHARUS_PREFIX', '')}/spec",
+    methods=["GET"],
+)
+@protected_route
+def spec(
+    connection: dj.Connection,
+) -> dict:
+    # Returns the currently loaded spec sheet
+    if request.method in {"GET"}:
+
+        def get_spec(connection):
+            spec_path = environ.get("PHARUS_SPEC_PATH")
+
+            return EnvYAML(Path(spec_path))["SciViz"]
+
+        try:
+            try:
+                from .getSpecOverride import get_spec
+            except ImportError:
+                pass
+            except Exception as e:
+                raise e
+            return get_spec(connection)
         except Exception:
             return traceback.format_exc(), 500
 
