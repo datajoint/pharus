@@ -2,7 +2,6 @@
 from os import environ
 from pathlib import Path
 from envyaml import EnvYAML
-import json
 from .interface import _DJConnector
 import datajoint as dj
 from . import __version__ as version
@@ -1076,17 +1075,15 @@ def spec(
 ) -> dict:
     # Returns the currently loaded spec sheet
     if request.method in {"GET"}:
-
-        def get_spec(connection):
-            spec_path = environ.get("PHARUS_SPEC_PATH")
-
-            return EnvYAML(Path(spec_path))["SciViz"]
-
         try:
             try:
                 from .getSpecOverride import get_spec
             except ImportError:
-                pass
+
+                def get_spec(connection):
+                    spec_path = environ.get("PHARUS_SPEC_PATH")
+                    return EnvYAML(Path(spec_path))["SciViz"]
+
             except Exception as e:
                 raise e
             return get_spec(connection)
