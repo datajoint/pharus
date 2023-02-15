@@ -2,6 +2,15 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.8.1] - TBD
+
+### Added
+- Api endpoint `/spec` which returns the spec for the current dynamic routes
+
+### Bugfix
+
+- Added print statement to let user know if their component override has gone through 
+
 ## [0.8.0] - 2023-02-06
 
 ### Added

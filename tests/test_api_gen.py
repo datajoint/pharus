@@ -1,6 +1,15 @@
 from . import SCHEMA_PREFIX, token, client, connection, schemas_simple
 from base64 import b64encode
 import json
+from os import environ
+from envyaml import EnvYAML
+from pathlib import Path
+
+
+def test_spec_endpoint(token, client):
+    REST_response = client.get("/spec", headers=dict(Authorization=f"Bearer {token}"))
+    spec_path = environ.get("PHARUS_SPEC_PATH")
+    assert EnvYAML(Path(spec_path))["SciViz"] == REST_response.get_json()
 
 
 def test_auto_generated_route(token, client, schemas_simple):
