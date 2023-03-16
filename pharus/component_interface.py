@@ -207,11 +207,14 @@ class DeleteComponent(Component):
 class InsertComponent(Component):
     rest_verb = ["POST", "GET"]
     fields_route_format = "{route}/fields"
+    presets_route_format = "{route}/presets"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        component_config = kwargs.get("component_config", args[1] if args else None)
-        self.fields_map = component_config.get("map")
+        self.component_config = kwargs.get(
+            "component_config", args[1] if args else None
+        )
+        self.fields_map = self.component_config.get("map")
         self.tables = [
             getattr(
                 dj.VirtualModule(
@@ -222,7 +225,8 @@ class InsertComponent(Component):
                 t,
             )
             for s, t in (
-                _.format(**request.args).split(".") for _ in component_config["tables"]
+                _.format(**request.args).split(".")
+                for _ in self.component_config["tables"]
             )
         ]
         self.parents = sorted(
@@ -242,6 +246,24 @@ class InsertComponent(Component):
             for sub_m in (m.get("map", []) + [m])
         }
         self.input_lookup = {v: k for k, v in self.destination_lookup.items()}
+
+        if "preset_query" in self.component_config:
+            lcls = locals()
+            exec(self.component_config["preset_query"], globals(), lcls)
+            self.preset_query = lcls["preset_query"]
+
+            self.preset_vm_list = [
+                dj.VirtualModule(
+                    s,
+                    s.replace("__", "-"),
+                    connection=self.connection,
+                )
+                for s in inspect.getfullargspec(self.preset_query).args
+            ]
+
+    @property
+    def preset_metadata(self):
+        return self.preset_query(*self.preset_vm_list)
 
     def dj_query_route(self):
         with self.connection.transaction:
@@ -313,6 +335,39 @@ class InsertComponent(Component):
                 for m in self.fields_map
             ]
             + list(source_fields.values())
+        )
+
+    def presets_route(self):
+        # Table content for presets should follow the following format:
+        #
+        # preset_names: string
+        # ---
+        # presets: blob or json
+        #
+        # Example result from query:
+        # [['preset_name', {"b_id": 1, "b_number": 2345}], ['preset2_name', {"b_id": 13, "b_number": 225}]]
+        #
+        # In the presets do not include any fields that would not exist in the form
+        # Additionally, if you have a name mapping
+
+        if not "preset_query" in self.component_config:
+            return (
+                "No Preset query found",
+                404,
+                {"Content-Type": "text/plain"},
+            )
+        fetch_metadata = self.preset_metadata
+        record_header, table_records, total_count = _DJConnector._fetch_records(
+            query=fetch_metadata["query"],
+            fetch_args=fetch_metadata["fetch_args"],
+            fetch_blobs=True,
+        )
+        preset_dictionary = {table[0]: table[1] for table in table_records}
+        dummy_payload = {"preset1": {"b_id": 1, "b_number": 2345}}
+        return (
+            NumpyEncoder.dumps(preset_dictionary),
+            200,
+            {"Content-Type": "application/json"},
         )
 
 
