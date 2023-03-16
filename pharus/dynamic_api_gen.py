@@ -82,12 +82,16 @@ def {method_name}() -> dict:
                 component_interface_override.write(
                     values_yaml["SciViz"]["component_interface"]["override"]
                 )
-
+        type_map_str = ""
         try:
+            type_map_str = "USING OVERRIDE TYPE_MAP"
             from .component_interface_override import type_map
         except (ModuleNotFoundError, ImportError):
+            type_map_str = "USING STANDARD TYPE_MAP"
             from .component_interface import type_map
-
+        except Exception as e:
+            raise e
+        print(type_map_str, flush=True)
         static_config = (
             json.dumps(values_yaml["SciViz"]["component_interface"]["static_variables"])
             if (

@@ -5,12 +5,16 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 ## [0.8.1] - 2023-03-17
 
 ### Added
+- Api endpoint `/spec` which returns the spec for the current dynamic routes [#156](https://github.com/datajoint/pharus/pull/156)
 - Support for presets in Dynamic forms [#157](https://github.com/datajoint/pharus/pull/157)
+
+### Bugfix
+- Added print statement to let user know if their component override has gone through [#156](https://github.com/datajoint/pharus/pull/156)
 
 ## [0.8.0] - 2023-02-06
 
 ### Added
-- Support for new `slideshow` component [#155](https://github.com/datajoint/pharus/pull/155)
+- Support for new `slideshow` component [#155](https://github.com/datajoint/pharus/pull/155) [#156](https://github.com/datajoint/pharus/pull/156)
 
 ## [0.7.3] - 2023-01-31
 
