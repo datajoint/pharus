@@ -350,6 +350,13 @@ class InsertComponent(Component):
         # In the presets do not include any fields that would not exist in the form
         # Additionally, if you have a name mapping
 
+        # Helper function to filter out fields not in the insert, as well as apply the fields_map
+        def filterPreset(preset: dict):
+            return {
+                (self.input_lookup[k] if k in self.input_lookup else k): v
+                for k, v in preset.items()
+            }
+
         if not "preset_query" in self.component_config:
             return (
                 "No Preset query found",
@@ -357,13 +364,15 @@ class InsertComponent(Component):
                 {"Content-Type": "text/plain"},
             )
         fetch_metadata = self.preset_metadata
-        record_header, table_records, total_count = _DJConnector._fetch_records(
+        _, table_records, _ = _DJConnector._fetch_records(
             query=fetch_metadata["query"],
             fetch_args=fetch_metadata["fetch_args"],
             fetch_blobs=True,
         )
-        preset_dictionary = {table[0]: table[1] for table in table_records}
-        dummy_payload = {"preset1": {"b_id": 1, "b_number": 2345}}
+        preset_dictionary = {
+            table[0]: (filterPreset(table[1]) if self.fields_map else table[1])
+            for table in table_records
+        }
         return (
             NumpyEncoder.dumps(preset_dictionary),
             200,
