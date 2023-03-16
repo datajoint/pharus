@@ -345,19 +345,21 @@ class InsertComponent(Component):
         # presets: blob or json
         #
         # Example result from query:
-        # [['preset_name', {"b_id": 1, "b_number": 2345}], ['preset2_name', {"b_id": 13, "b_number": 225}]]
+        # [['preset_name', {"b_id": 1, "b_number": 2345}],
+        # ['preset2_name', {"b_id": 13, "b_number": 225}]]
         #
         # If you have a name mapping it will be applied to each preset
         # Route will 404 if no preset query is defined and 500 if there is an Exception
 
-        # Helper function to filter out fields not in the insert, as well as apply the fields_map
+        # Helper function to filter out fields not in the insert,
+        # as well as apply the fields_map
         def filterPreset(preset: dict):
             return {
                 (self.input_lookup[k] if k in self.input_lookup else k): v
                 for k, v in preset.items()
             }
 
-        if not "preset_query" in self.component_config:
+        if "preset_query" not in self.component_config:
             return (
                 "No Preset query found",
                 404,
