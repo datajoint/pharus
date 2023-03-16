@@ -347,8 +347,8 @@ class InsertComponent(Component):
         # Example result from query:
         # [['preset_name', {"b_id": 1, "b_number": 2345}], ['preset2_name', {"b_id": 13, "b_number": 225}]]
         #
-        # In the presets do not include any fields that would not exist in the form
-        # Additionally, if you have a name mapping
+        # If you have a name mapping it will be applied to each preset
+        # Route will 404 if no preset query is defined and 500 if there is an Exception
 
         # Helper function to filter out fields not in the insert, as well as apply the fields_map
         def filterPreset(preset: dict):
