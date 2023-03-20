@@ -94,8 +94,8 @@ SciViz: # top level tab
                   destination: c_id
                 - type: attribute #omitted input means display is session_note
                   destination: c_name
-              preset_function: >
-                def preset_function():
+              preset: >
+                def preset():
                     return {'preset 1': {'b_id': 14}}
             insert3:
               route: /insert3

@@ -247,10 +247,10 @@ class InsertComponent(Component):
         }
         self.input_lookup = {v: k for k, v in self.destination_lookup.items()}
 
-        if "preset_function" in self.component_config:
+        if "preset" in self.component_config:
             lcls = locals()
-            exec(self.component_config["preset_function"], globals(), lcls)
-            self.preset_function = lcls["preset_function"]
+            exec(self.component_config["preset"], globals(), lcls)
+            self.preset = lcls["preset"]
 
             self.preset_vm_list = [
                 dj.VirtualModule(
@@ -258,12 +258,12 @@ class InsertComponent(Component):
                     s.replace("__", "-"),
                     connection=self.connection,
                 )
-                for s in inspect.getfullargspec(self.preset_function).args
+                for s in inspect.getfullargspec(self.preset).args
             ]
 
     @property
     def preset_dict(self):
-        return self.preset_function(*self.preset_vm_list)
+        return self.preset(*self.preset_vm_list)
 
     def dj_query_route(self):
         with self.connection.transaction:
@@ -359,7 +359,7 @@ class InsertComponent(Component):
                 for k, v in preset.items()
             }
 
-        if "preset_function" not in self.component_config:
+        if "preset" not in self.component_config:
             return (
                 "No Preset query found",
                 404,
