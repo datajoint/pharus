@@ -382,4 +382,4 @@ def test_form_response_presets(token, client, connection, schemas_simple):
         headers=dict(Authorization=f"Bearer {token}"),
     )
     assert REST_response.status_code == 200, f"Error: {REST_response.data}"
-    assert REST_response.get_json() == {"preset 1": {"B id": 14}}
+    assert REST_response.get_json() == {"preset 1": {"B Id": 14}}
