@@ -247,10 +247,10 @@ class InsertComponent(Component):
         }
         self.input_lookup = {v: k for k, v in self.destination_lookup.items()}
 
-        if "preset_query" in self.component_config:
+        if "preset_function" in self.component_config:
             lcls = locals()
-            exec(self.component_config["preset_query"], globals(), lcls)
-            self.preset_query = lcls["preset_query"]
+            exec(self.component_config["preset_function"], globals(), lcls)
+            self.preset_function = lcls["preset_function"]
 
             self.preset_vm_list = [
                 dj.VirtualModule(
@@ -258,12 +258,12 @@ class InsertComponent(Component):
                     s.replace("__", "-"),
                     connection=self.connection,
                 )
-                for s in inspect.getfullargspec(self.preset_query).args
+                for s in inspect.getfullargspec(self.preset_function).args
             ]
 
     @property
-    def preset_metadata(self):
-        return self.preset_query(*self.preset_vm_list)
+    def preset_dict(self):
+        return self.preset_function(*self.preset_vm_list)
 
     def dj_query_route(self):
         with self.connection.transaction:
@@ -359,24 +359,19 @@ class InsertComponent(Component):
                 for k, v in preset.items()
             }
 
-        if "preset_query" not in self.component_config:
+        if "preset_function" not in self.component_config:
             return (
                 "No Preset query found",
                 404,
                 {"Content-Type": "text/plain"},
             )
-        fetch_metadata = self.preset_metadata
-        _, table_records, _ = _DJConnector._fetch_records(
-            query=fetch_metadata["query"],
-            fetch_args=fetch_metadata["fetch_args"],
-            fetch_blobs=True,
-        )
-        preset_dictionary = {
-            table[0]: (filterPreset(table[1]) if self.fields_map else table[1])
-            for table in table_records
+
+        filtered_preset_dictionary = {
+            k: filterPreset(v) for k, v in self.preset_dict.items()
         }
+
         return (
-            NumpyEncoder.dumps(preset_dictionary),
+            NumpyEncoder.dumps(filtered_preset_dictionary),
             200,
             {"Content-Type": "application/json"},
         )
