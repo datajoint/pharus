@@ -353,10 +353,25 @@ class InsertComponent(Component):
 
         # Helper function to filter out fields not in the insert,
         # as well as apply the fields_map
-        def filterPreset(preset: dict):
-            return {
-                (self.input_lookup[k] if k in self.input_lookup else k): v
+        def filter_preset(preset: dict):
+            # Any key that follows the schema.table.attribute format,
+            # and its schema.table is not in the forms is filtered out.
+
+            preset_with_tables_filtered = {
+                k: v
                 for k, v in preset.items()
+                if (
+                    len(k.split(".")) == 1
+                    or ".".join(k.split(".")[0:2]) in self.component_config["tables"]
+                )
+            }
+            return {
+                (
+                    self.input_lookup[k.split(".").pop()]
+                    if k.split(".").pop() in self.input_lookup
+                    else k.split(".").pop()
+                ): v
+                for k, v in preset_with_tables_filtered.items()
             }
 
         if "presets" not in self.component_config:
@@ -367,7 +382,7 @@ class InsertComponent(Component):
             )
 
         filtered_preset_dictionary = {
-            k: filterPreset(v) for k, v in self.presets_dict.items()
+            k: filter_preset(v) for k, v in self.presets_dict.items()
         }
 
         return (
