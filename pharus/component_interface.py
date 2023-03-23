@@ -318,6 +318,7 @@ class InsertComponent(Component):
 
 class TableComponent(FetchComponent):
     attributes_route_format = "{route}/attributes"
+    uniques_route_format = "{route}/uniques"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -388,13 +389,50 @@ class TableComponent(FetchComponent):
 
     def attributes_route(self):
         attributes_meta = _DJConnector._get_attributes(
-            self.fetch_metadata["query"] & self.restriction, include_unique_values=True
+            self.fetch_metadata["query"] & self.restriction
         )
         return (
             NumpyEncoder.dumps(
                 dict(
                     attributeHeaders=attributes_meta["attribute_headers"],
                     attributes=attributes_meta["attributes"],
+                )
+            ),
+            200,
+            {"Content-Type": "application/json"},
+        )
+
+    def uniques_route(self):
+        query = self.fetch_metadata["query"] & self.restriction
+        query_attributes = dict(primary=[], secondary=[])
+        for attribute_name, attribute_info in query.heading.attributes.items():
+            if attribute_info.in_key:
+                query_attributes["primary"].append(
+                    (
+                        [
+                            dict({"text": str(v), "value": v})
+                            for (v,) in (dj.U(attribute_name) & query).fetch()
+                        ]
+                        if True
+                        else None,
+                    )
+                )
+            else:
+                query_attributes["secondary"].append(
+                    (
+                        [
+                            dict({"text": str(v), "value": v})
+                            for (v,) in (dj.U(attribute_name) & query).fetch()
+                        ]
+                        if True
+                        else None,
+                    )
+                )
+
+        return (
+            NumpyEncoder.dumps(
+                dict(
+                    unique_values=query_attributes,
                 )
             ),
             200,

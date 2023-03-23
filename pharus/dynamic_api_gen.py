@@ -183,6 +183,9 @@ def {method_name}() -> dict:
                             attributes_route = type_map[
                                 comp["type"]
                             ].attributes_route_format.format(route=comp["route"])
+                            uniques_route = type_map[
+                                comp["type"]
+                            ].uniques_route_format.format(route=comp["route"])
                             f.write(
                                 (active_route_template).format(
                                     route=attributes_route,
@@ -194,5 +197,18 @@ def {method_name}() -> dict:
                                     static_config=static_config,
                                     payload="",
                                     method_name_type="attributes_route",
+                                )
+                            )
+                            f.write(
+                                (active_route_template).format(
+                                    route=uniques_route,
+                                    rest_verb=[TableComponent.rest_verb[0]],
+                                    method_name=uniques_route.replace("/", ""),
+                                    component_type=comp["type"],
+                                    component_name=comp_name,
+                                    component=json.dumps(comp),
+                                    static_config=static_config,
+                                    payload="",
+                                    method_name_type="uniques_route",
                                 )
                             )
