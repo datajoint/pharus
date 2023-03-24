@@ -82,12 +82,16 @@ def {method_name}() -> dict:
                 component_interface_override.write(
                     values_yaml["SciViz"]["component_interface"]["override"]
                 )
-
+        type_map_str = ""
         try:
+            type_map_str = "USING OVERRIDE TYPE_MAP"
             from .component_interface_override import type_map
         except (ModuleNotFoundError, ImportError):
+            type_map_str = "USING STANDARD TYPE_MAP"
             from .component_interface import type_map
-
+        except Exception as e:
+            raise e
+        print(type_map_str, flush=True)
         static_config = (
             json.dumps(values_yaml["SciViz"]["component_interface"]["static_variables"])
             if (
@@ -166,6 +170,9 @@ def {method_name}() -> dict:
                             fields_route = type_map[
                                 comp["type"]
                             ].fields_route_format.format(route=comp["route"])
+                            presets_route = type_map[
+                                comp["type"]
+                            ].presets_route_format.format(route=comp["route"])
                             f.write(
                                 (active_route_template).format(
                                     route=fields_route,
@@ -177,6 +184,19 @@ def {method_name}() -> dict:
                                     static_config=static_config,
                                     payload="payload=None",
                                     method_name_type="fields_route",
+                                )
+                            )
+                            f.write(
+                                (active_route_template).format(
+                                    route=presets_route,
+                                    rest_verb=[InsertComponent.rest_verb[1]],
+                                    method_name=presets_route.replace("/", ""),
+                                    component_type=comp["type"],
+                                    component_name=comp_name,
+                                    component=json.dumps(comp),
+                                    static_config=static_config,
+                                    payload="payload=None",
+                                    method_name_type="presets_route",
                                 )
                             )
                         elif issubclass(type_map[comp["type"]], TableComponent):

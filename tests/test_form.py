@@ -374,3 +374,12 @@ def test_form_datetime_FPK(token, client, connection, schemas_simple):
             {"datatype": "int", "default": "1", "name": "u_int", "type": "attribute"},
         ]
     }
+
+
+def test_form_response_presets(token, client, connection, schemas_simple):
+    REST_response = client.get(
+        "/insert2/presets",
+        headers=dict(Authorization=f"Bearer {token}"),
+    )
+    assert REST_response.status_code == 200, f"Error: {REST_response.data}"
+    assert REST_response.get_json() == {"preset 1": {"B Id": 14}}

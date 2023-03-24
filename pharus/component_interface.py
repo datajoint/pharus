@@ -207,11 +207,14 @@ class DeleteComponent(Component):
 class InsertComponent(Component):
     rest_verb = ["POST", "GET"]
     fields_route_format = "{route}/fields"
+    presets_route_format = "{route}/presets"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        component_config = kwargs.get("component_config", args[1] if args else None)
-        self.fields_map = component_config.get("map")
+        self.component_config = kwargs.get(
+            "component_config", args[1] if args else None
+        )
+        self.fields_map = self.component_config.get("map")
         self.tables = [
             getattr(
                 dj.VirtualModule(
@@ -222,7 +225,8 @@ class InsertComponent(Component):
                 t,
             )
             for s, t in (
-                _.format(**request.args).split(".") for _ in component_config["tables"]
+                _.format(**request.args).split(".")
+                for _ in self.component_config["tables"]
             )
         ]
         self.parents = sorted(
@@ -242,6 +246,24 @@ class InsertComponent(Component):
             for sub_m in (m.get("map", []) + [m])
         }
         self.input_lookup = {v: k for k, v in self.destination_lookup.items()}
+
+        if "presets" in self.component_config:
+            lcls = locals()
+            exec(self.component_config["presets"], globals(), lcls)
+            self.presets = lcls["presets"]
+
+            self.preset_vm_list = [
+                dj.VirtualModule(
+                    s,
+                    s.replace("__", "-"),
+                    connection=self.connection,
+                )
+                for s in inspect.getfullargspec(self.presets).args
+            ]
+
+    @property
+    def presets_dict(self):
+        return self.presets(*self.preset_vm_list)
 
     def dj_query_route(self):
         with self.connection.transaction:
@@ -313,6 +335,60 @@ class InsertComponent(Component):
                 for m in self.fields_map
             ]
             + list(source_fields.values())
+        )
+
+    def presets_route(self):
+        # Table content for presets should follow the following format:
+        #
+        # preset_names: string
+        # ---
+        # presets: blob or json
+        #
+        # Example result from query:
+        # [['preset_name', {"b_id": 1, "b_number": 2345}],
+        # ['preset2_name', {"b_id": 13, "b_number": 225}]]
+        #
+        # If you have a name mapping it will be applied to each preset
+        # Route will 404 if no preset query is defined and 500 if there is an Exception
+
+        # Helper function to filter out fields not in the insert,
+        # as well as apply the fields_map
+        def filter_preset(preset: dict):
+            # Any key that follows the schema.table.attribute format,
+            # and its schema.table is not in the forms is filtered out.
+
+            preset_with_tables_filtered = {
+                k: v
+                for k, v in preset.items()
+                if (
+                    len(k.split(".")) == 1
+                    or ".".join(k.split(".")[0:2]) in self.component_config["tables"]
+                )
+            }
+            return {
+                (
+                    self.input_lookup[k.split(".").pop()]
+                    if k.split(".").pop() in self.input_lookup
+                    else k.split(".").pop()
+                ): v
+                for k, v in preset_with_tables_filtered.items()
+            }
+
+        if "presets" not in self.component_config:
+            return (
+                "No Preset query found",
+                404,
+                {"Content-Type": "text/plain"},
+            )
+
+        filtered_preset_dictionary = {
+            k: filter_preset(v) for k, v in self.presets_dict.items()
+        }
+
+        return (
+            NumpyEncoder.dumps(filtered_preset_dictionary),
+            200,
+            {"Content-Type": "application/json"},
         )
 
 

@@ -2,10 +2,24 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.8.2] - 2023-03-23
+
+### Added
+- Forms now allow you to specify presets using their schemas and tables to avoid collisions [#158](https://github.com/datajoint/pharus/pull/158)
+
+## [0.8.1] - 2023-03-20
+
+### Added
+- Api endpoint `/spec` which returns the spec for the current dynamic routes [#156](https://github.com/datajoint/pharus/pull/156)
+- Support for presets in Dynamic forms [#157](https://github.com/datajoint/pharus/pull/157)
+
+### Bugfix
+- Added print statement to let user know if their component override has gone through [#156](https://github.com/datajoint/pharus/pull/156)
+
 ## [0.8.0] - 2023-02-06
 
 ### Added
-- Support for new `slideshow` component [#155](https://github.com/datajoint/pharus/pull/155)
+- Support for new `slideshow` component [#155](https://github.com/datajoint/pharus/pull/155) [#156](https://github.com/datajoint/pharus/pull/156)
 
 ## [0.7.3] - 2023-01-31
 
@@ -266,6 +280,8 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
+[0.8.2]: https://github.com/datajoint/pharus/compare/0.8.1...0.8.2
+[0.8.1]: https://github.com/datajoint/pharus/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/datajoint/pharus/compare/0.7.3...0.8.0
 [0.7.3]: https://github.com/datajoint/pharus/compare/0.7.2...0.7.3
 [0.7.2]: https://github.com/datajoint/pharus/compare/0.7.1...0.7.2
