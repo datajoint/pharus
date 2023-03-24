@@ -6,7 +6,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 
 ### Changed
 
-- Separated table attribute and unique values routes [#158](https://github.com/datajoint/pharus/pull/158)
+- Separated table attribute and unique values routes [#159](https://github.com/datajoint/pharus/pull/159)
 
 ## [0.8.2] - 2023-03-23
 
