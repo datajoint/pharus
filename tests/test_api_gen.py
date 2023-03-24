@@ -82,7 +82,7 @@ def test_get_attributes(token, client, schemas_simple):
                     False,
                     None,
                     False,
-                    [{"text": "0", "value": 0}, {"text": "1", "value": 1}],
+                    None,
                 ],
                 [
                     "b_id",
@@ -90,11 +90,7 @@ def test_get_attributes(token, client, schemas_simple):
                     False,
                     None,
                     False,
-                    [
-                        {"text": "10", "value": 10},
-                        {"text": "11", "value": 11},
-                        {"text": "21", "value": 21},
-                    ],
+                    None,
                 ],
             ],
             "secondary": [
@@ -104,10 +100,7 @@ def test_get_attributes(token, client, schemas_simple):
                     False,
                     None,
                     False,
-                    [
-                        {"text": "Raphael", "value": "Raphael"},
-                        {"text": "Bernie", "value": "Bernie"},
-                    ],
+                    None,
                 ],
                 [
                     "b_number",
@@ -115,6 +108,42 @@ def test_get_attributes(token, client, schemas_simple):
                     False,
                     None,
                     False,
+                    None,
+                ],
+            ],
+        },
+    }
+
+    assert expected_json == REST_response.get_json()
+
+
+def test_get_uniques(token, client, schemas_simple):
+    REST_response = client.get(
+        "/query1/uniques", headers=dict(Authorization=f"Bearer {token}")
+    )
+
+    expected_json = {
+        "unique_values": {
+            "primary": [
+                [
+                    [{"text": "0", "value": 0}, {"text": "1", "value": 1}],
+                ],
+                [
+                    [
+                        {"text": "10", "value": 10},
+                        {"text": "11", "value": 11},
+                        {"text": "21", "value": 21},
+                    ]
+                ],
+            ],
+            "secondary": [
+                [
+                    [
+                        {"text": "Raphael", "value": "Raphael"},
+                        {"text": "Bernie", "value": "Bernie"},
+                    ],
+                ],
+                [
                     [
                         {"text": "22.12", "value": 22.12},
                         {"text": "-1.21", "value": -1.21},
