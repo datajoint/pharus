@@ -15,6 +15,7 @@ import numpy as np
 from uuid import UUID
 import cv2
 import base64
+from dateutil import parser
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -354,6 +355,14 @@ class InsertComponent(Component):
         # If you have a name mapping it will be applied to each preset
         # Route will 404 if no preset query is defined and 500 if there is an Exception
 
+        # Helper function to convert datetime strings
+        def convert_datetime_string(datetime_string):
+            try:
+                dt = parser.parse(datetime_string)
+                return dt.strftime("%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                raise ValueError("Invalid datetime string")
+
         # Helper function to filter out fields not in the insert,
         # as well as apply the fields_map
         def filter_preset(preset: dict):
@@ -373,10 +382,10 @@ class InsertComponent(Component):
                     self.input_lookup[a]
                     if (a := k.split(".").pop()) in self.input_lookup
                     else a
-                ): (
-                    v,
-                    self.datatype_lookup[a] if a in self.datatype_lookup else "unknown",
-                )
+                ): convert_datetime_string(v)
+                if a in self.datatype_lookup
+                and re.search(r"^date.*|time.*$", self.datatype_lookup[a])
+                else v
                 for k, v in preset_with_tables_filtered.items()
             }
 
@@ -387,9 +396,16 @@ class InsertComponent(Component):
                 {"Content-Type": "text/plain"},
             )
 
-        filtered_preset_dictionary = {
-            k: filter_preset(v) for k, v in self.presets_dict.items()
-        }
+        try:
+            filtered_preset_dictionary = {
+                k: filter_preset(v) for k, v in self.presets_dict.items()
+            }
+        except ValueError as e:
+            return (
+                str(e),
+                406,
+                {"Content-Type": "text/plain"},
+            )
 
         return (
             NumpyEncoder.dumps(filtered_preset_dictionary),
