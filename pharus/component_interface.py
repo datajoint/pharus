@@ -246,6 +246,9 @@ class InsertComponent(Component):
             for sub_m in (m.get("map", []) + [m])
         }
         self.input_lookup = {v: k for k, v in self.destination_lookup.items()}
+        self.datatype_lookup = {
+            k: v[1] for t in self.tables for k, v in t.heading.attributes.items()
+        }
 
         if "presets" in self.component_config:
             lcls = locals()
@@ -367,10 +370,13 @@ class InsertComponent(Component):
             }
             return {
                 (
-                    self.input_lookup[k.split(".").pop()]
-                    if k.split(".").pop() in self.input_lookup
-                    else k.split(".").pop()
-                ): v
+                    self.input_lookup[a]
+                    if (a := k.split(".").pop()) in self.input_lookup
+                    else a
+                ): (
+                    v,
+                    self.datatype_lookup[a] if a in self.datatype_lookup else "unknown",
+                )
                 for k, v in preset_with_tables_filtered.items()
             }
 
