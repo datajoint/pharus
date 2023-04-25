@@ -223,10 +223,25 @@ class InsertComponent(Component):
                     s,
                     connection=self.connection,
                 ),
-                t,
+                t[0],
+            )
+            if len(t) == 1
+            else getattr(
+                getattr(
+                    dj.VirtualModule(
+                        s,
+                        s,
+                        connection=self.connection,
+                    ),
+                    t[0],
+                ),
+                t[1],
             )
             for s, t in (
-                _.format(**request.args).split(".")
+                (
+                    _.format(**request.args).split(".")[0],
+                    _.format(**request.args).split(".")[1:],
+                )
                 for _ in self.component_config["tables"]
             )
         ]
