@@ -2,6 +2,12 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.8.5] - 2023-04-25
+
+### Added
+
+- Part table support for forms [#162](https://github.com/datajoint/pharus/pull/162)
+
 ## [0.8.4] - 2023-04-04
 
 ### Changed
@@ -296,6 +302,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
+[0.8.5]: https://github.com/datajoint/pharus/compare/0.8.4...0.8.5
 [0.8.4]: https://github.com/datajoint/pharus/compare/0.8.3...0.8.4
 [0.8.3]: https://github.com/datajoint/pharus/compare/0.8.2...0.8.3
 [0.8.2]: https://github.com/datajoint/pharus/compare/0.8.1...0.8.2
