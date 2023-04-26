@@ -208,20 +208,26 @@ jobs:
           asset_name: docker-compose-deploy.yaml
           asset_content_type: application/yaml
   publish-images:
-    if: |
-      github.event_name == 'push' &&
-      startsWith(github.ref, 'refs/tags') &&
-      (
-        github.repository_owner == 'datajoint' ||
-        github.repository_owner == 'datajoint-company' ||
-        github.repository_owner == 'dj-sciops'
-      )
-    needs: publish-release
+    # if: |
+    #   github.event_name == 'push' &&
+    #   startsWith(github.ref, 'refs/tags') &&
+    #   (
+    #     github.repository_owner == 'datajoint' ||
+    #     github.repository_owner == 'datajoint-company' ||
+    #     github.repository_owner == 'dj-sciops'
+    #   )
+    needs: test # publish-release
     runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
           - py_ver: 3.8
+            distro: alpine
+            image: djbase
+          - py_ver: 3.9
+            distro: alpine
+            image: djbase
+          - py_ver: 3.10
             distro: alpine
             image: djbase
     env:
