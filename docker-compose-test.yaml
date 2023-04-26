@@ -33,13 +33,14 @@ services:
       - -c
       - |
         set -e
+        ls -la /main/pharus
         if echo "${AS_SCRIPT}" | grep -i true &>/dev/null; then
           echo "------ SYNTAX TESTS ------"
           PKG_DIR=/opt/conda/lib/python3.8/site-packages/pharus
           flake8 $${PKG_DIR} --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 /main/tests --count --select=E9,F63,F7,F82 --show-source --statistics
           echo "------ UNIT TESTS ------"
-          python -m pytest -sv --cov-report term-missing --cov=pharus /main/tests
+          pytest -sv --cov-report term-missing --cov=pharus /main/tests
           echo "------ STYLE TESTS ------"
           black $${PKG_DIR} --check -v --extend-exclude "^.*dynamic_api.py$$"
           flake8 $${PKG_DIR} --count --max-complexity=20 --max-line-length=94 --statistics --exclude=*dynamic_api.py --ignore=W503
