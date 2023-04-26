@@ -51,6 +51,7 @@ services:
           echo "Please see 'docker-compose-test.yaml' for detail on running tests."
           tail -f /dev/null
         fi
+        ls -la /main/pharus
     depends_on:
       db:
         condition: service_healthy
