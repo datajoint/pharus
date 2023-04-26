@@ -57,12 +57,12 @@ jobs:
           - py_ver: 3.8
             distro: alpine
             image: djbase
-          # - py_ver: 3.9
-          #   distro: alpine
-          #   image: djbase
-          # - py_ver: "3.10"
-          #   distro: alpine
-          #   image: djbase
+          - py_ver: 3.9
+            distro: alpine
+            image: djbase
+          - py_ver: "3.10"
+            distro: alpine
+            image: djbase
     env:
       PY_VER: ${{matrix.py_ver}}
       DISTRO: ${{matrix.distro}}
@@ -105,12 +105,12 @@ jobs:
           - py_ver: 3.8
             distro: alpine
             image: djbase
-          # - py_ver: 3.9
-          #   distro: alpine
-          #   image: djbase
-          # - py_ver: "3.10"
-          #   distro: alpine
-          #   image: djbase
+          - py_ver: 3.9
+            distro: alpine
+            image: djbase
+          - py_ver: "3.10"
+            distro: alpine
+            image: djbase
     env:
       PY_VER: ${{matrix.py_ver}}
       DISTRO: ${{matrix.distro}}
