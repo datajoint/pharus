@@ -60,7 +60,7 @@ jobs:
           - py_ver: 3.9
             distro: alpine
             image: djbase
-          - py_ver: 3.10
+          - py_ver: "3.10"
             distro: alpine
             image: djbase
     env:
