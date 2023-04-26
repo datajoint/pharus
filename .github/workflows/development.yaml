@@ -54,12 +54,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - py_ver: 3.8
-            distro: alpine
-            image: djbase
-          # - py_ver: 3.9
+          # - py_ver: 3.8
           #   distro: alpine
           #   image: djbase
+          - py_ver: 3.9
+            distro: alpine
+            image: djbase
           # - py_ver: "3.10"
           #   distro: alpine
           #   image: djbase
@@ -102,12 +102,12 @@ jobs:
     strategy:
       matrix:
         include:
-          # - py_ver: 3.8
-          #   distro: alpine
-          #   image: djbase
-          - py_ver: 3.9
+          - py_ver: 3.8
             distro: alpine
             image: djbase
+          # - py_ver: 3.9
+          #   distro: alpine
+          #   image: djbase
           # - py_ver: "3.10"
           #   distro: alpine
           #   image: djbase
