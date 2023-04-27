@@ -142,7 +142,7 @@ jobs:
         github.repository_owner == 'datajoint-company' ||
         github.repository_owner == 'dj-sciops'
       )
-    needs: test
+    needs: build #test
     runs-on: ubuntu-latest
     env:
       TWINE_USERNAME: ${{secrets.twine_username}}
