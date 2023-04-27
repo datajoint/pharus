@@ -76,9 +76,9 @@ jobs:
           export PHARUS_VERSION=$(cat pharus/version.py | grep -oP '\d+\.\d+\.\d+')
           export HOST_UID=$(id -u)
           docker-compose -f docker-compose-build.yaml up --exit-code-from pharus --build
-          IMAGE=$(docker images --filter "reference=datajoint/pharus*" \
+          IMAGE=$(docker images --filter "reference=ambaji/pharus*" \
             --format "{{.Repository}}")
-          TAG=$(docker images --filter "reference=datajoint/pharus*" --format "{{.Tag}}")
+          TAG=$(docker images --filter "reference=ambaji/pharus*" --format "{{.Tag}}")
           docker save "${IMAGE}:${TAG}" | \
             gzip > "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
