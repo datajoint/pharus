@@ -1,5 +1,4 @@
 import pytest
-import pharus
 from pharus.dynamic_api import app
 from uuid import UUID
 from os import getenv

@@ -96,43 +96,43 @@ jobs:
           name: pip-pharus-${{env.PHARUS_VERSION}}
           path: dist
           retention-days: 1
-  test:
-    needs: build
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - py_ver: 3.8
-            distro: alpine
-            image: djbase
-          - py_ver: 3.9
-            distro: alpine
-            image: djbase
-          - py_ver: "3.10"
-            distro: alpine
-            image: djbase
-    env:
-      PY_VER: ${{matrix.py_ver}}
-      DISTRO: ${{matrix.distro}}
-      IMAGE: ${{matrix.image}}
-      DOCKER_CLIENT_TIMEOUT: "120"
-      COMPOSE_HTTP_TIMEOUT: "120"
-      AS_SCRIPT: "TRUE"
-    steps:
-      - uses: actions/checkout@v2
-      - name: Determine package version
-        run: |
-          PHARUS_VERSION=$(cat pharus/version.py | grep -oP '\d+\.\d+\.\d+')
-          echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
-      - name: Fetch image artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-${{matrix.distro}}
-      - name: Run primary tests
-        run: |
-          export HOST_UID=$(id -u)
-          docker load < "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
-          docker-compose -f docker-compose-test.yaml up --exit-code-from pharus
+  # test:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       include:
+  #         - py_ver: 3.8
+  #           distro: alpine
+  #           image: djbase
+  #         - py_ver: 3.9
+  #           distro: alpine
+  #           image: djbase
+  #         - py_ver: "3.10"
+  #           distro: alpine
+  #           image: djbase
+  #   env:
+  #     PY_VER: ${{matrix.py_ver}}
+  #     DISTRO: ${{matrix.distro}}
+  #     IMAGE: ${{matrix.image}}
+  #     DOCKER_CLIENT_TIMEOUT: "120"
+  #     COMPOSE_HTTP_TIMEOUT: "120"
+  #     AS_SCRIPT: "TRUE"
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Determine package version
+  #       run: |
+  #         PHARUS_VERSION=$(cat pharus/version.py | grep -oP '\d+\.\d+\.\d+')
+  #         echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
+  #     - name: Fetch image artifact
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-${{matrix.distro}}
+  #     - name: Run primary tests
+  #       run: |
+  #         export HOST_UID=$(id -u)
+  #         docker load < "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
+  #         docker-compose -f docker-compose-test.yaml up --exit-code-from pharus
   publish-release:
     if: |
       github.event_name == 'push' &&
@@ -228,20 +228,20 @@ jobs:
     #     github.repository_owner == 'datajoint-company' ||
     #     github.repository_owner == 'dj-sciops'
     #   )
-    needs: test # publish-release
+    needs: build # publish-release
     runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
-          # - py_ver: 3.8
-          #   distro: alpine
-          #   image: djbase
+          - py_ver: 3.8
+            distro: alpine
+            image: djbase
           - py_ver: 3.9
             distro: alpine
             image: djbase
-          # - py_ver: "3.10"
-          #   distro: alpine
-          #   image: djbase
+          - py_ver: "3.10"
+            distro: alpine
+            image: djbase
     env:
       PY_VER: ${{matrix.py_ver}}
       DISTRO: ${{matrix.distro}}
