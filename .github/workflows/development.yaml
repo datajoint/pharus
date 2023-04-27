@@ -57,12 +57,12 @@ jobs:
           - py_ver: 3.8
             distro: alpine
             image: djbase
-          - py_ver: 3.9
-            distro: alpine
-            image: djbase
-          - py_ver: "3.10"
-            distro: alpine
-            image: djbase
+          # - py_ver: 3.9
+          #   distro: alpine
+          #   image: djbase
+          # - py_ver: "3.10"
+          #   distro: alpine
+          #   image: djbase
     env:
       PY_VER: ${{matrix.py_ver}}
       DISTRO: ${{matrix.distro}}
@@ -236,12 +236,12 @@ jobs:
           - py_ver: 3.8
             distro: alpine
             image: djbase
-          - py_ver: 3.9
-            distro: alpine
-            image: djbase
-          - py_ver: "3.10"
-            distro: alpine
-            image: djbase
+          # - py_ver: 3.9
+          #   distro: alpine
+          #   image: djbase
+          # - py_ver: "3.10"
+          #   distro: alpine
+          #   image: djbase
     env:
       PY_VER: ${{matrix.py_ver}}
       DISTRO: ${{matrix.distro}}
@@ -264,7 +264,7 @@ jobs:
       - name: Publish image
         run: |
           ls -la
-          docker load < "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
+          docker load -i "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
           # IMAGE=$(docker images --filter "reference=ambaji/*" --format "{{.Repository}}")
           # TAG=$(docker images --filter "reference=ambaji/*" --format "{{.Tag}}")
           # docker push "${IMAGE}:${TAG}"
