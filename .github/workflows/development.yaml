@@ -263,7 +263,7 @@ jobs:
           password: ${{secrets.docker_password}}
       - name: Publish image
         run: |
-          ls -la /main/
+          ls -la /main
           # chmod 777 image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz
           docker load < "/main/image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
           # IMAGE=$(docker images --filter "reference=ambaji/*" --format "{{.Repository}}")
