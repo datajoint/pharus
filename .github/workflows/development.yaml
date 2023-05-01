@@ -263,8 +263,7 @@ jobs:
           password: ${{secrets.docker_password}}
       - name: Publish image
         run: |
-          mkdir /var/lib/docker/tmp/
-          docker load < "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
+          sudo docker load < "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
           # IMAGE=$(docker images --filter "reference=ambaji/*" --format "{{.Repository}}")
           # TAG=$(docker images --filter "reference=ambaji/*" --format "{{.Tag}}")
           # docker push "${IMAGE}:${TAG}"
