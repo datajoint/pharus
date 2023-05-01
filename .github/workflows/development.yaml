@@ -222,7 +222,7 @@ jobs:
     #     github.repository_owner == 'datajoint-company' ||
     #     github.repository_owner == 'dj-sciops'
     #   )
-    needs: publish-release
+    needs: build #publish-release
     runs-on: ubuntu-latest
     strategy:
       matrix:
