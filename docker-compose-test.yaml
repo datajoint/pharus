@@ -27,7 +27,7 @@ services:
       - PHARUS_SPEC_PATH=tests/init/test_dynamic_api_spec.yaml
     volumes:
       - ./requirements_test.txt:/tmp/pip_requirements.txt
-      - ./pharus:/opt/conda/lib/python3.8/site-packages/pharus
+      - ./pharus:/opt/conda/lib/python${PY_VER}/site-packages/pharus
     command:
       - sh
       - -c
@@ -35,7 +35,7 @@ services:
         set -e
         if echo "${AS_SCRIPT}" | grep -i true &>/dev/null; then
           echo "------ SYNTAX TESTS ------"
-          PKG_DIR=/opt/conda/lib/python3.8/site-packages/pharus
+          PKG_DIR=/opt/conda/lib/python${PY_VER}/site-packages/pharus
           flake8 $${PKG_DIR} --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 /main/tests --count --select=E9,F63,F7,F82 --show-source --statistics
           echo "------ UNIT TESTS ------"
