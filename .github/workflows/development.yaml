@@ -273,17 +273,17 @@ jobs:
                   && docker tag "${IMAGE}:${TAG}" "${IMAGE}:latest" \
                   && docker push "${IMAGE}:latest" \
               || echo "skipping 'latest' tag..."
-      - name: Upload image to release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        with:
-          upload_url: ${{needs.publish-release.outputs.release_upload_url}}
-          asset_path: "image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-\
-            ${{matrix.distro}}.tar.gz"
-          asset_name: "image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-\
-            ${{matrix.distro}}.tar.gz"
-          asset_content_type: application/gzip
+      # - name: Upload image to release
+      #   uses: actions/upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      #   with:
+      #     upload_url: ${{needs.publish-release.outputs.release_upload_url}}
+      #     asset_path: "image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-\
+      #       ${{matrix.distro}}.tar.gz"
+      #     asset_name: "image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-\
+      #       ${{matrix.distro}}.tar.gz"
+      #     asset_content_type: application/gzip
   publish-docs:
     if: |
       github.event_name == 'push' &&
