@@ -60,9 +60,6 @@ jobs:
           - py_ver: 3.9
             distro: alpine
             image: djbase
-          - py_ver: "3.10"
-            distro: alpine
-            image: djbase
     env:
       PY_VER: ${{matrix.py_ver}}
       DISTRO: ${{matrix.distro}}
@@ -76,9 +73,9 @@ jobs:
           export PHARUS_VERSION=$(cat pharus/version.py | grep -oP '\d+\.\d+\.\d+')
           export HOST_UID=$(id -u)
           docker-compose -f docker-compose-build.yaml up --exit-code-from pharus --build
-          IMAGE=$(docker images --filter "reference=ambaji/pharus*" \
+          IMAGE=$(docker images --filter "reference=datajoint/pharus*" \
             --format "{{.Repository}}")
-          TAG=$(docker images --filter "reference=ambaji/pharus*" --format "{{.Tag}}")
+          TAG=$(docker images --filter "reference=datajoint/pharus*" --format "{{.Tag}}")
           docker save "${IMAGE}:${TAG}" | \
             gzip > "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
@@ -96,43 +93,40 @@ jobs:
           name: pip-pharus-${{env.PHARUS_VERSION}}
           path: dist
           retention-days: 1
-  # test:
-  #   needs: build
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       include:
-  #         - py_ver: 3.8
-  #           distro: alpine
-  #           image: djbase
-  #         - py_ver: 3.9
-  #           distro: alpine
-  #           image: djbase
-  #         - py_ver: "3.10"
-  #           distro: alpine
-  #           image: djbase
-  #   env:
-  #     PY_VER: ${{matrix.py_ver}}
-  #     DISTRO: ${{matrix.distro}}
-  #     IMAGE: ${{matrix.image}}
-  #     DOCKER_CLIENT_TIMEOUT: "120"
-  #     COMPOSE_HTTP_TIMEOUT: "120"
-  #     AS_SCRIPT: "TRUE"
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Determine package version
-  #       run: |
-  #         PHARUS_VERSION=$(cat pharus/version.py | grep -oP '\d+\.\d+\.\d+')
-  #         echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
-  #     - name: Fetch image artifact
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-${{matrix.distro}}
-  #     - name: Run primary tests
-  #       run: |
-  #         export HOST_UID=$(id -u)
-  #         docker load < "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
-  #         docker-compose -f docker-compose-test.yaml up --exit-code-from pharus
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - py_ver: 3.8
+            distro: alpine
+            image: djbase
+          - py_ver: 3.9
+            distro: alpine
+            image: djbase
+    env:
+      PY_VER: ${{matrix.py_ver}}
+      DISTRO: ${{matrix.distro}}
+      IMAGE: ${{matrix.image}}
+      DOCKER_CLIENT_TIMEOUT: "120"
+      COMPOSE_HTTP_TIMEOUT: "120"
+      AS_SCRIPT: "TRUE"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Determine package version
+        run: |
+          PHARUS_VERSION=$(cat pharus/version.py | grep -oP '\d+\.\d+\.\d+')
+          echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
+      - name: Fetch image artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-${{matrix.distro}}
+      - name: Run primary tests
+        run: |
+          export HOST_UID=$(id -u)
+          docker load < "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
+          docker-compose -f docker-compose-test.yaml up --exit-code-from pharus
   publish-release:
     if: |
       github.event_name == 'push' &&
@@ -142,7 +136,7 @@ jobs:
         github.repository_owner == 'datajoint-company' ||
         github.repository_owner == 'dj-sciops'
       )
-    needs: build #test
+    needs: test
     runs-on: ubuntu-latest
     env:
       TWINE_USERNAME: ${{secrets.twine_username}}
@@ -220,15 +214,15 @@ jobs:
           asset_name: docker-compose-deploy.yaml
           asset_content_type: application/yaml
   publish-images:
-    # if: |
-    #   github.event_name == 'push' &&
-    #   startsWith(github.ref, 'refs/tags') &&
-    #   (
-    #     github.repository_owner == 'datajoint' ||
-    #     github.repository_owner == 'datajoint-company' ||
-    #     github.repository_owner == 'dj-sciops'
-    #   )
-    needs: build #publish-release
+    if: |
+      github.event_name == 'push' &&
+      startsWith(github.ref, 'refs/tags') &&
+      (
+        github.repository_owner == 'datajoint' ||
+        github.repository_owner == 'datajoint-company' ||
+        github.repository_owner == 'dj-sciops'
+      )
+    needs: publish-release
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -237,9 +231,6 @@ jobs:
             distro: alpine
             image: djbase
           - py_ver: 3.9
-            distro: alpine
-            image: djbase
-          - py_ver: "3.10"
             distro: alpine
             image: djbase
     env:
@@ -264,8 +255,8 @@ jobs:
       - name: Publish image
         run: |
           docker load < "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
-          IMAGE=$(docker images --filter "reference=ambaji/*" --format "{{.Repository}}")
-          TAG=$(docker images --filter "reference=ambaji/*" --format "{{.Tag}}")
+          IMAGE=$(docker images --filter "reference=datajoint/*" --format "{{.Repository}}")
+          TAG=$(docker images --filter "reference=datajoint/*" --format "{{.Tag}}")
           docker tag "${IMAGE}:${TAG}" "${IMAGE}:${TAG}-py${PY_VER}"
           docker push "${IMAGE}:${TAG}-py${PY_VER}"
           docker tag "${IMAGE}:${TAG}" "${IMAGE}:${TAG}-py${PY_VER}-${GITHUB_SHA:0:7}"
@@ -275,17 +266,17 @@ jobs:
                   && docker tag "${IMAGE}:${TAG}" "${IMAGE}:latest" \
                   && docker push "${IMAGE}:latest" \
               || echo "skipping 'latest' tag..."
-      # - name: Upload image to release
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      #   with:
-      #     upload_url: ${{needs.publish-release.outputs.release_upload_url}}
-      #     asset_path: "image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-\
-      #       ${{matrix.distro}}.tar.gz"
-      #     asset_name: "image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-\
-      #       ${{matrix.distro}}.tar.gz"
-      #     asset_content_type: application/gzip
+      - name: Upload image to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          upload_url: ${{needs.publish-release.outputs.release_upload_url}}
+          asset_path: "image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-\
+            ${{matrix.distro}}.tar.gz"
+          asset_name: "image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-\
+            ${{matrix.distro}}.tar.gz"
+          asset_content_type: application/gzip
   publish-docs:
     if: |
       github.event_name == 'push' &&
