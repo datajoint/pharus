@@ -2,6 +2,12 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.8.6] - 2023-05-2
+
+### Added
+
+- Added python 3.9 to release matrix [#163](https://github.com/datajoint/pharus/pull/163)
+
 ## [0.8.5] - 2023-04-26
 
 ### Added
@@ -302,6 +308,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
+[0.8.6]: https://github.com/datajoint/pharus/compare/0.8.5...0.8.6
 [0.8.5]: https://github.com/datajoint/pharus/compare/0.8.4...0.8.5
 [0.8.4]: https://github.com/datajoint/pharus/compare/0.8.3...0.8.4
 [0.8.3]: https://github.com/datajoint/pharus/compare/0.8.2...0.8.3
