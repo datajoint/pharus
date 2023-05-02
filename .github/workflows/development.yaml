@@ -266,13 +266,15 @@ jobs:
           docker load < "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
           IMAGE=$(docker images --filter "reference=ambaji/*" --format "{{.Repository}}")
           TAG=$(docker images --filter "reference=ambaji/*" --format "{{.Tag}}")
-          docker push "${IMAGE}:${TAG}"
-          docker tag "${IMAGE}:${TAG}" "${IMAGE}:${TAG}-${GITHUB_SHA:0:7}"
-          docker push "${IMAGE}:${TAG}-${GITHUB_SHA:0:7}"
-          [ "$PY_VER" == "3.8" ] && [ "$DISTRO" == "alpine" ] \
-                  && docker tag "${IMAGE}:${TAG}" "${IMAGE}:latest" \
-                  && docker push "${IMAGE}:latest" \
-              || echo "skipping 'latest' tag..."
+          echo $IMAGE
+          echo $TAG
+          # docker push "${IMAGE}:${TAG}-${PY_VER}"
+          # docker tag "${IMAGE}:${TAG}" "${IMAGE}:${TAG}-${GITHUB_SHA:0:7}"
+          # docker push "${IMAGE}:${TAG}-${GITHUB_SHA:0:7}"
+          # [ "$PY_VER" == "3.9" ] && [ "$DISTRO" == "alpine" ] \
+          #         && docker tag "${IMAGE}:${TAG}" "${IMAGE}:latest" \
+          #         && docker push "${IMAGE}:latest" \
+          #     || echo "skipping 'latest' tag..."
       # - name: Upload image to release
       #   uses: actions/upload-release-asset@v1
       #   env:
