@@ -31,7 +31,7 @@ jobs:
     env:
       DOCKER_CLIENT_TIMEOUT: "120"
       COMPOSE_HTTP_TIMEOUT: "120"
-      PY_VER: "3.8"
+      PY_VER: "3.9"
       IMAGE: "djtest"
       DISTRO: "alpine"
     steps:
@@ -86,11 +86,10 @@ jobs:
           path: "image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-\
             ${{matrix.distro}}.tar.gz"
           retention-days: 1
-      - if: matrix.py_ver == '3.8' && matrix.distro == 'alpine'
-        name: Add pip artifacts
+      - name: Add pip artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: pip-pharus-${{env.PHARUS_VERSION}}
+          name: pip-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}
           path: dist
           retention-days: 1
   test:
@@ -170,10 +169,15 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: image-pharus-${{env.PHARUS_VERSION}}-py3.8-alpine
-      - name: Fetch pip artifacts
+      - name: Fetch 3.8 pip artifacts
         uses: actions/download-artifact@v2
         with:
-          name: pip-pharus-${{env.PHARUS_VERSION}}
+          name: pip-pharus-${{env.PHARUS_VERSION}}-py3.8
+          path: dist
+      - name: Fetch 3.9 pip artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: pip-pharus-${{env.PHARUS_VERSION}}-py3.8
           path: dist
       - name: Publish pip release
         run: |
@@ -186,23 +190,41 @@ jobs:
         run: |
           echo "PHARUS_WHEEL_PATH=$(ls dist/pharus-*.whl)" >> $GITHUB_ENV
           echo "PHARUS_SDIST_PATH=$(ls dist/pharus-*.tar.gz)" >> $GITHUB_ENV
-      - name: Upload pip wheel asset to release
+      - name: Upload 3.8 pip wheel asset to release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           upload_url: ${{steps.create_gh_release.outputs.upload_url}}
           asset_path: ${{env.PHARUS_WHEEL_PATH}}
-          asset_name: pip-pharus-${{env.PHARUS_VERSION}}.whl
+          asset_name: pip-pharus-${{env.PHARUS_VERSION}}-py3.8.whl
           asset_content_type: application/zip
-      - name: Upload pip sdist asset to release
+      - name: Upload 3.9 pip wheel asset to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          upload_url: ${{steps.create_gh_release.outputs.upload_url}}
+          asset_path: ${{env.PHARUS_WHEEL_PATH}}
+          asset_name: pip-pharus-${{env.PHARUS_VERSION}}-py3.9.whl
+          asset_content_type: application/zip
+      - name: Upload 3.8 pip sdist asset to release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           upload_url: ${{steps.create_gh_release.outputs.upload_url}}
           asset_path: ${{env.PHARUS_SDIST_PATH}}
-          asset_name: pip-pharus-${{env.PHARUS_VERSION}}.tar.gz
+          asset_name: pip-pharus-${{env.PHARUS_VERSION}}-py3.8.tar.gz
+          asset_content_type: application/gzip
+      - name: Upload 3.9 pip sdist asset to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          upload_url: ${{steps.create_gh_release.outputs.upload_url}}
+          asset_path: ${{env.PHARUS_SDIST_PATH}}
+          asset_name: pip-pharus-${{env.PHARUS_VERSION}}-py3.9.tar.gz
           asset_content_type: application/gzip
       - name: Upload deploy docker environment
         uses: actions/upload-release-asset@v1
