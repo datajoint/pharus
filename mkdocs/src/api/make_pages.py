@@ -12,7 +12,13 @@ package = os.getenv("PACKAGE")
 
 nav = mkdocs_gen_files.Nav()
 for path in sorted(Path(package).glob("**/*.py")):
-    if path.stem == "__init__" or path.stem == "version" or path.stem == "dynamic_api":
+    if path.stem in [
+        "__init__",
+        "version",
+        "dynamic_api",
+        "component_interface",
+        "dynamic_api_gen",
+    ]:
         continue
     with mkdocs_gen_files.open(f"api/{path.with_suffix('')}.md", "w") as f:
         module_path = ".".join(
