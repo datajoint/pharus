@@ -29,13 +29,13 @@ source located
 To start the API server, use the command:
 
 ```console
-PHARUS_VERSION=0.7.3 docker-compose -f docker-compose-deploy.yaml up -d
+PHARUS_VERSION=latest docker compose -f docker-compose-deploy.yaml up -d
 ```
 
 To stop the API server, use the command:
 
 ```console
-PHARUS_VERSION=0.7.3 docker-compose -f docker-compose-deploy.yaml down
+PHARUS_VERSION=latest docker compose -f docker-compose-deploy.yaml down
 ```
 
 ## References

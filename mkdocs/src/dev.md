@@ -7,18 +7,19 @@
 
 ## Run Locally w/ Docker
 
-- Copy the docker environment (i.e. `*-docker-compose.yaml`) of your
+- Copy the docker environment (i.e. `docker-compose-*.yaml`) of your
   choice corresponding to your usage to `docker-compose.yaml`. This
   file is untracked so feel free to modify as necessary. Idea is to
   commit anything generic but system/setup dependent should go on
-  \'your\' version i.e. local UID/GID, etc.
+  your version i.e. local UID/GID, etc.
 
 - Check the first header comment which will provide the best
-  instruction on how to start the service; yes, it is a bit long.
-  Note: Any of the keyword arguments prepended to the `docker-compose`
-  command can be safely moved into a dedicated `.env` and read
-  automatically if they are not evaluated i.e. `$(...)`. Below is a
-  brief description of the non-evaluated environment variables:
+  instruction on how to start the service.
+
+  - Any of the keyword arguments prepended to the `docker compose`
+    command can be safely moved into a dedicated `.env` and read
+    automatically if they are not evaluated i.e. `$(...)`. Below is a
+    brief description of the non-evaluated environment variables:
 
   ```console
   PY_VER=3.8    # Python version: 3.6|3.7|3.8
@@ -66,45 +67,19 @@
   flake8 ${PKG_DIR} --count --max-complexity=20 --max-line-length=94 --statistics --exclude=*dynamic_api.py --ignore=W503
   ```
 
-## Creating Sphinx Documentation from Scratch
+## Creating MkDocs Documentation
 
-Recommend the follow to be ran within the `pharus` container in `docs`
-Docker Compose environment.
+Run the following command with the appropriate parameters:
 
-- Run the following commands and complete the prompts as requested.
+```console
+MODE="LIVE|QA|PUSH" PACKAGE=pharus UPSTREAM_REPO=https://github.com/datajoint/pharus.git HOST_UID=$(id -u) docker compose -f docs/docker-compose-docs.yaml up --build
+```
 
-  ```console
-  mkdir docs
-  cd docs
-  sphinx-quickstart
-  ```
-
-- In `docs/conf.py` add to the beginning:
-
-  ```python
-  import os
-  import sys
-  sys.path.insert(0, os.path.abspath('..'))
-  ```
-
-- In `docs/conf.py:extensions` append
-  `['sphinx.ext.autodoc', 'sphinxcontrib.httpdomain']`. See
-  `requirements_docs.txt` and `docker-compose-docs.yaml` for details
-  on documentation dependencies.
-
-- Run the following to automatically generate the API docs:
-
-  ```console
-  sphinx-apidoc -o . .. ../tests/* ../setup.py
-  ```
-
-- Add `modules` within the `toctree` directive in `index.rst`.
-
-- Build the docs by running:
-
-  ```console
-  make html
-  ```
+```console
+MODE=LIVE       # `LIVE` for development, `QA` for testing, `PUSH` for production
+PACKAGE=pharus  # The name of the folder containing the package files: `pharus` if not renamed
+UPSTREAM_REPO=  # The URL of the upstream repository
+```
 
 ## References
 
