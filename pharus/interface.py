@@ -20,11 +20,12 @@ class _DJConnector:
         """
         List all schemas under the database.
 
-        :param connection: User's DataJoint connection object
-        :type connection: dj.Connection
-        :return: List of schemas names in alphabetical order (excludes ``information_schema``,
+        Args:
+            connection (dj.Connection): User's DataJoint connection object
+
+        Returns:
+            List of schemas names in alphabetical order (excludes ``information_schema``,
             ``sys``, ``performance_schema``, ``mysql``)
-        :rtype: list
         """
 
         # Attempt to connect return true if successful, false is failed
@@ -49,13 +50,12 @@ class _DJConnector:
         """
         List all tables and their type given a schema.
 
-        :param connection: User's DataJoint connection object
-        :type connection: dj.Connection
-        :param schema_name: Name of schema to list all tables from
-        :type schema_name: str
-        :return: Contains a key for each table type where values are the respective list of
-            table names
-        :rtype: dict
+        Args:
+            connection (dj.Connection): User's DataJoint connection object
+            schema_name (str): Name of schema to list all tables from
+
+        Returns:
+            Contains a key for each table type where values are the respective list of table names
         """
 
         # Get list of tables names
@@ -100,23 +100,23 @@ class _DJConnector:
         fetch_args=[],
     ) -> tuple:
         """
-        Get records from query.
+        Get records from the query.
 
-        :param query: any datajoint object related to QueryExpression
-        :type query: datajoint ``QueryExpression`` or related object
-        :param restriction: Sequence of filters as ``dict`` with ``attributeName``,
-            ``operation``, ``value`` keys defined, defaults to ``[]``
-        :type restriction: list, optional
-        :param limit: Max number of records to return, defaults to ``1000``
-        :type limit: int, optional
-        :param page: Page number to return, defaults to ``1``
-        :type page: int, optional
-        :param order: Sequence to order records, defaults to ``['KEY ASC']``. See
-            :class:`~datajoint.fetch.Fetch` for more info.
-        :type order: list, optional
-        :return: Attribute headers, records in dict form, and the total number of records that
-            can be paged
-        :rtype: tuple
+        Args:
+            query: Any datajoint object related to QueryExpression.
+            restriction (optional): Sequence of filters as ``dict`` with ``attributeName``,
+                ``operation``, ``value`` keys defined, defaults to ``[]``.
+            limit (optional): Max number of records to return, defaults to ``1000``.
+            page (optional): Page number to return, defaults to ``1``.
+            order (optional): Sequence to order records, defaults to ``['KEY ASC']``. See
+                :class:`~datajoint.fetch.Fetch` for more info.
+
+        Returns:
+            A tuple containing:
+
+                - Attribute headers
+                - Records in dictionary form
+                - The total number of records that can be paged
         """
 
         # Get table object from name
@@ -211,16 +211,19 @@ class _DJConnector:
         """
         Method to get primary and secondary attributes of a query.
 
-        :param query: any datajoint object related to QueryExpression
-        :type query: datajoint ``QueryExpression`` or related object
-        :param include_unique_values: boolean that determines if the unique values are
-            included as part of the returned attributes
-        :type include_unique_values: boolean, optional
-        :return: Dict with keys ``attribute_headers`` and ``attributes`` containing
-            ``primary``, ``secondary`` which each contain a
-            ``list`` of ``tuples`` specifying: ``attribute_name``, ``type``, ``nullable``,
-            ``default``, ``autoincrement``.
-        :rtype: dict
+        Args:
+            query: Any datajoint object related to QueryExpression.
+            include_unique_values (optional): Boolean that determines if the unique values are
+                included as part of the returned attributes.
+
+        Returns:
+            A dictionary with keys ``attribute_headers`` and ``attributes`` containing
+                ``primary``, ``secondary``, each of which is a list of tuples specifying:
+
+                - ``attribute_name``
+                - ``nullable``
+                - ``default``
+                - ``autoincrement``
         """
 
         query_attributes = dict(primary=[], secondary=[])
@@ -272,14 +275,13 @@ class _DJConnector:
         """
         Get the table definition.
 
-        :param connection: User's DataJoint connection object
-        :type connection: dj.Connection
-        :param schema_name: Name of schema
-        :type schema_name: str
-        :param table_name: Table name under the given schema; must be in camel case
-        :type table_name: str
-        :return: Definition of the table
-        :rtype: str
+        Args:
+            connection: User's DataJoint connection object.
+            schema_name: Name of the schema.
+            table_name: Table name under the given schema; must be in camel case.
+
+        Returns:
+            Definition of the table as a string.
         """
 
         local_values = locals()
@@ -298,14 +300,11 @@ class _DJConnector:
         """
         Insert record as tuple into table.
 
-        :param connection: User's DataJoint connection object
-        :type connection: dj.Connection
-        :param schema_name: Name of schema
-        :type schema_name: str
-        :param table_name: Table name under the given schema; must be in camel case
-        :type table_name: str
-        :param tuple_to_insert: Record to be inserted
-        :type tuple_to_insert: dict
+        Args:
+            connection: User's DataJoint connection object.
+            schema_name: Name of the schema.
+            table_name: Table name under the given schema; must be in camel case.
+            tuple_to_insert: Record to be inserted as a dictionary.
         """
 
         schema_virtual_module = dj.VirtualModule(
@@ -322,19 +321,17 @@ class _DJConnector:
     ) -> list:
         """
         Return summary of dependencies associated with a restricted table. Will only show
-        dependencies that user has access to.
+        dependencies that the user has access to.
 
-        :param connection: User's DataJoint connection object
-        :type connection: dj.Connection
-        :param schema_name: Name of schema
-        :type schema_name: str
-        :param table_name: Table name under the given schema; must be in camel case
-        :type table_name: str
-        :param restriction: Sequence of filters as ``dict`` with ``attributeName``,
-            ``operation``, ``value`` keys defined, defaults to ``[]``
-        :type restriction: list
-        :return: Tables that are dependent on specific records.
-        :rtype: list
+        Args:
+            connection: User's DataJoint connection object.
+            schema_name: Name of the schema.
+            table_name: Table name under the given schema; must be in camel case.
+            restriction: Sequence of filters as a list of dictionaries with keys "attributeName",
+                "operation", and "value" defined, defaults to [].
+
+        Returns:
+            List of tables that are dependent on specific records.
         """
 
         virtual_module = dj.VirtualModule(
@@ -376,16 +373,14 @@ class _DJConnector:
         tuple_to_update: dict,
     ):
         """
-        Update record as tuple into table.
+        Update record as a tuple into the table.
 
-        :param connection: User's DataJoint connection object
-        :type connection: dj.Connection
-        :param schema_name: Name of schema
-        :type schema_name: str
-        :param table_name: Table name under the given schema; must be in camel case
-        :type table_name: str
-        :param tuple_to_update: Record to be updated
-        :type tuple_to_update: dict
+        Args:
+            connection: User's DataJoint connection object.
+            schema_name: Name of the schema.
+            table_name: Table name under the given schema; must be in camel case.
+            tuple_to_update: Record to be updated.
+
         """
 
         schema_virtual_module = dj.VirtualModule(
@@ -406,19 +401,15 @@ class _DJConnector:
         cascade: bool = False,
     ):
         """
-        Delete a specific record based on the restriction given.
+        Delete a specific record based on the given restriction.
 
-        :param connection: User's DataJoint connection object
-        :type connection: dj.Connection
-        :param schema_name: Name of schema
-        :type schema_name: str
-        :param table_name: Table name under the given schema; must be in camel case
-        :type table_name: str
-        :param restriction: Sequence of filters as ``dict`` with ``attributeName``,
-            ``operation``, ``value`` keys defined, defaults to ``[]``
-        :type restriction: list, optional
-        :param cascade: Allow for cascading delete, defaults to ``False``
-        :type cascade: bool, optional
+        Args:
+            connection: User's DataJoint connection object.
+            schema_name: Name of the schema.
+            table_name: Table name under the given schema; must be in camel case.
+            restriction: Sequence of filters as a list of dictionaries with keys
+                         ``attributeName``, ``operation``, and ``value``, defaults to ``[]``.
+            cascade: Allow for cascading delete, defaults to ``False``.
         """
 
         schema_virtual_module = dj.VirtualModule(
@@ -447,15 +438,16 @@ class _DJConnector:
         schema_virtual_module: VirtualModule, table_name: str
     ) -> UserTable:
         """
-        Helper method for getting the table object based on the table name provided.
+        Helper method for getting the table object based on the provided table name.
 
-        :param schema_virtual_module: Virtual module for accesing the schema
-        :type schema_virtual_module: :class:`~datajoint.schemas.VirtualModule`
-        :param table_name: Name of the table; for part it should be ``Parent.Part``
-        :type table_name: str
-        :return: DataJoint table object.
-        :rtype: :class:`~datajoint.user_tables.UserTable`
+        Args:
+            schema_virtual_module: Virtual module for accessing the schema.
+            table_name: Name of the table; for part tables, it should be in the format ``Parent.Part``.
+
+        Returns:
+            DataJoint table object of the specified table.
         """
+
         # Split the table name by '.' for dealing with part tables
         table_name_parts = table_name.split(".")
         if len(table_name_parts) == 2:
@@ -468,16 +460,17 @@ class _DJConnector:
     @staticmethod
     def _filter_to_restriction(attribute_filter: dict, attribute_type: str) -> str:
         """
-        Convert attribute filter to a restriction.
+        Converts an attribute filter to a DataJoint-compatible restriction.
 
-        :param attribute_filter: A filter as ``dict`` with ``attributeName``, ``operation``,
-            ``value`` keys defined, defaults to ``[]``
-        :type attribute_filter: dict
-        :param attribute_type: Attribute type
-        :type attribute_type: str
-        :return: DataJoint-compatible restriction
-        :rtype: str
+        Args:
+            attribute_filter (dict): A filter as a dictionary with keys ``attributeName``, ``operation``,
+                and ``value`` defined. Defaults to an empty dictionary.
+            attribute_type (str): Attribute type.
+
+        Returns:
+            DataJoint-compatible restriction.
         """
+
         if attribute_filter["operation"] in (">", "<", ">=", "<="):
             operation = attribute_filter["operation"]
         elif attribute_filter["value"] is None:
