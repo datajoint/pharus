@@ -3,7 +3,7 @@ version: "2.4"
 services:
   docs:
     build:
-      dockerfile: mkdocs/.docker/Dockerfile
+      dockerfile: docs/.docker/Dockerfile
       context: ../
       args:
         - PACKAGE
@@ -14,7 +14,7 @@ services:
       - MODE
       - PATCH_VERSION
     volumes:
-      - ../mkdocs:/main/docs
+      - ../docs:/main/docs
       - ../${PACKAGE}:/main/${PACKAGE}
     user: ${HOST_UID}:anaconda
     ports:
