@@ -90,6 +90,7 @@ plugins:
             members_order: source
             group_by_category: false
             line_length: 88
+            filters:
   - gen-files:
       scripts:
       - ./src/api/make_pages.py
@@ -98,9 +99,6 @@ plugins:
   - exclude-search:
       exclude:
         - "*/navigation.md"
-  - mkdocs-jupyter:
-      ignore_h1_titles: True
-      include: ["*.ipynb"]
   - section-index
 markdown_extensions:
   - admonition

@@ -11,3 +11,4 @@ docs/_build
 pharus/dynamic_api.py
 pharus/component_interface_override.py
 /specs
+mkdocs/temp_mkdocs.log
