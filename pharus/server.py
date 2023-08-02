@@ -132,7 +132,7 @@ def api_version() -> str:
     ```
 
     #### Status Codes
-    * [200 OK](https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1): No error.
+    * 200 OK: No error.
     """
     if request.method in {"GET", "HEAD"}:
         return dict(version=version)
