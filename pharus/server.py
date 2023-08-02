@@ -141,24 +141,25 @@ def api_version() -> str:
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/login", methods=["POST"])
 def login() -> dict:
     """
-    **WARNING**: Currently, this implementation exposes user database credentials as plain
-    text in POST body once and stores it within a bearer token as Base64 encoded for
-    subsequent requests. That is how the server is able to submit queries on user's behalf.
-    Due to this, it is required that remote hosts expose the server only under HTTPS to ensure
-    end-to-end encryption. Sending passwords in plain text over HTTPS in POST request body is
-    common and utilized by companies such as GitHub (2021) and Chase Bank (2021). On server
-    side, there is no caching, logging, or storage of received passwords or tokens and thus
-    available only briefly in memory. This means the primary vulnerable point is client side.
-    Users should be responsible with their passwords and bearer tokens treating them as
-    one-in-the-same. Be aware that if your client system happens to be compromised, a bad
-    actor could monitor your outgoing network requests and capture/log your credentials.
-    However, in such a terrible scenario, a bad actor would not only collect credentials for
-    your DataJoint database but also other sites such as github.com, chase.com, etc. Please be
-    responsible and vigilant with credentials and tokens on client side systems. Improvements
-    to the above strategy is currently being tracked in
-    https://github.com/datajoint/pharus/issues/82.
-
     Handler for ``/login`` route.
+
+    Warning:
+        Currently, this implementation exposes user database credentials as plain
+        text in POST body once and stores it within a bearer token as Base64 encoded for
+        subsequent requests. That is how the server is able to submit queries on user's behalf.
+        Due to this, it is required that remote hosts expose the server only under HTTPS to ensure
+        end-to-end encryption. Sending passwords in plain text over HTTPS in POST request body is
+        common and utilized by companies such as GitHub (2021) and Chase Bank (2021). On server
+        side, there is no caching, logging, or storage of received passwords or tokens and thus
+        available only briefly in memory. This means the primary vulnerable point is client side.
+        Users should be responsible with their passwords and bearer tokens treating them as
+        one-in-the-same. Be aware that if your client system happens to be compromised, a bad
+        actor could monitor your outgoing network requests and capture/log your credentials.
+        However, in such a terrible scenario, a bad actor would not only collect credentials for
+        your DataJoint database but also other sites such as github.com, chase.com, etc. Please be
+        responsible and vigilant with credentials and tokens on client side systems. Improvements
+        to the above strategy is currently being tracked in
+        https://github.com/datajoint/pharus/issues/82.
 
     Returns:
         Function output is an encoded JWT if successful, otherwise return error message
