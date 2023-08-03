@@ -29,9 +29,9 @@
   ```
 
 !!! note
-    Deployment options currently being considered are [Docker
-    Compose](https://docs.docker.com/compose/install/) and
-    [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
+Deployment options currently being considered are [Docker
+Compose](https://docs.docker.com/compose/install/) and
+[Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
 
 ## Run Locally w/ Python
 
@@ -72,7 +72,7 @@
 Run the following command with the appropriate parameters:
 
 ```console
-MODE="LIVE|QA|PUSH" PACKAGE=pharus UPSTREAM_REPO=https://github.com/datajoint/pharus.git HOST_UID=$(id -u) docker compose -f docs/docker-compose-docs.yaml up --build
+MODE="LIVE|QA|PUSH" PACKAGE=pharus UPSTREAM_REPO=https://github.com/datajoint/pharus.git HOST_UID=$(id -u) docker compose -f docs/docker-compose.yaml up --build
 ```
 
 ```console
