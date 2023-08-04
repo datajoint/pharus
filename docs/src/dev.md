@@ -29,9 +29,9 @@
   ```
 
 !!! note
-Deployment options currently being considered are [Docker
-Compose](https://docs.docker.com/compose/install/) and
-[Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
+    Deployment options currently being considered are [Docker
+    Compose](https://docs.docker.com/compose/install/) and
+    [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
 
 ## Run Locally w/ Python
 
@@ -66,6 +66,67 @@ Compose](https://docs.docker.com/compose/install/) and
   black ${PKG_DIR} --check -v --extend-exclude "^.*dynamic_api.py$"
   flake8 ${PKG_DIR} --count --max-complexity=20 --max-line-length=94 --statistics --exclude=*dynamic_api.py --ignore=W503
   ```
+
+## Extending Pharus Routes
+
+Pharus' routes can be extended through the spec sheet.
+
+### Guide
+
+1. Define the YAML spec sheet. Under `SciViz.component_interface.override`, in a string block:
+
+   1. Import the `type_map` and base components from the pharus `component.interface` module, as well as any other libraries needed.
+   2. Define a class that extends one of the base components. If extending `Component`, the rest verb must be manually set.
+
+      - Within the class, define a `dj_query_route` method with the functionality of your custom route. Ensure it returns a dictionary.
+
+   3. Extend the `type_map` with a mapping of the name of you want to give to the component to the new class.
+
+      - The new name can now be used as a type in the `components` section of the spec.
+
+2. Inject the spec into pharus
+   1. Mount the spec sheet into the container.
+   2. Set the `PHARUS_SPEC_PATH` environment variable.
+
+### Example
+
+```yaml
+SciViz:
+  auth:
+    mode: database | oidc | none
+  component_interface:
+    override: |
+      # import `type_map`, the base components to be extended, and any other libraries necessary
+      from pharus.component_interface import type_map, Component
+
+      # define custom class extending a base component
+      class ExampleComponent(Component):
+          # set necessary REST verb(s) if extending generic `Component`
+          rest_verb=["POST"]
+
+          # define `dj_query_route` method that returns some dictionary
+          def dj_query_route(self):
+              # some code
+              return {"example": "example response"}
+
+      # extend the `type_map` with a custom type mapped to the custom component
+      type_map = {
+          **type_map, 'ExampleType': ExampleComponent
+      }
+  pages:
+    page:
+      route: /page
+      hidden: true
+      grids:
+        grid:
+          type: fixed
+          components:
+            example_component:
+              route: /example_route
+              type: ExampleType
+```
+
+For more information about the spec sheet, visit the [SciViz docs](https://datajoint.com/docs/core/sci-viz/2.3/concepts/spec_sheet/).
 
 ## Creating MkDocs Documentation
 
