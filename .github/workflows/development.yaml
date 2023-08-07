@@ -277,15 +277,15 @@ jobs:
             ${{matrix.distro}}.tar.gz"
           asset_content_type: application/gzip
   publish-docs:
-    # if: |
-    #   github.event_name == 'push' &&
-    #   startsWith(github.ref, 'refs/tags') &&
-    #   (
-    #     github.repository_owner == 'datajoint' ||
-    #     github.repository_owner == 'datajoint-company' ||
-    #     github.repository_owner == 'dj-sciops'
-    #   )
-    # needs: publish-release
+    if: |
+      github.event_name == 'push' &&
+      startsWith(github.ref, 'refs/tags') &&
+      (
+        github.repository_owner == 'datajoint' ||
+        github.repository_owner == 'datajoint-company' ||
+        github.repository_owner == 'dj-sciops'
+      )
+    needs: publish-release
     uses: datajoint/.github/.github/workflows/mkdocs_release.yaml@main
     permissions: 
       contents: write
