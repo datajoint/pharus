@@ -144,22 +144,23 @@ def login() -> dict:
     Handler for ``/login`` route.
 
     Warning:
-        Currently, this implementation exposes user database credentials as plain
-        text in POST body once and stores it within a bearer token as Base64 encoded for
-        subsequent requests. That is how the server is able to submit queries on user's behalf.
-        Due to this, it is required that remote hosts expose the server only under HTTPS to ensure
-        end-to-end encryption. Sending passwords in plain text over HTTPS in POST request body is
-        common and utilized by companies such as GitHub (2021) and Chase Bank (2021). On server
-        side, there is no caching, logging, or storage of received passwords or tokens and thus
-        available only briefly in memory. This means the primary vulnerable point is client side.
-        Users should be responsible with their passwords and bearer tokens treating them as
-        one-in-the-same. Be aware that if your client system happens to be compromised, a bad
-        actor could monitor your outgoing network requests and capture/log your credentials.
-        However, in such a terrible scenario, a bad actor would not only collect credentials for
-        your DataJoint database but also other sites such as github.com, chase.com, etc. Please be
-        responsible and vigilant with credentials and tokens on client side systems. Improvements
-        to the above strategy is currently being tracked in
-        https://github.com/datajoint/pharus/issues/82.
+        Currently, this implementation exposes user database credentials as plain text in
+        POST body once and stores it within a bearer token as Base64 encoded for
+        subsequent requests. That is how the server is able to submit queries on user's
+        behalf. Due to this, it is required that remote hosts expose the server only
+        under HTTPS to ensure end-to-end encryption. Sending passwords in plain text over
+        HTTPS in POST request body is common and utilized by companies such as GitHub
+        (2021) and Chase Bank (2021). On server side, there is no caching, logging, or
+        storage of received passwords or tokens and thus available only briefly in
+        memory. This means the primary vulnerable point is client side. Users should be
+        responsible with their passwords and bearer tokens treating them as
+        one-in-the-same. Be aware that if your client system happens to be compromised,
+        a bad actor could monitor your outgoing network requests and capture/log your
+        credentials. However, in such a terrible scenario, a bad actor would not only
+        collect credentials for your DataJoint database but also other sites such as
+        github.com, chase.com, etc. Please be responsible and vigilant with credentials
+        and tokens on client side systems. Improvements to the above strategy is
+        currently being tracked in https://github.com/datajoint/pharus/issues/82.
 
     Returns:
         Function output is an encoded JWT if successful, otherwise return error message
@@ -210,7 +211,8 @@ def login() -> dict:
 
     #### Status Codes
     * 200 OK: No error.
-    * 500 Internal Server Error: Unexpected error encountered. Returns the error message as a string.
+    * 500 Internal Server Error: Unexpected error encountered.
+        Returns the error message as a string.
     """
     if request.method == "POST":
         # Try to login in with the database connection info, if true then create jwt key
@@ -350,7 +352,8 @@ def schema(connection: dj.Connection) -> dict:
 
     #### Status Codes
     * 200 OK: No error.
-    * 500 Internal Server Error: Unexpected error encountered. Returns the error message as a string.
+    * 500 Internal Server Error: Unexpected error encountered.
+        Returns the error message as a string.
     """
 
     if request.method in {"GET", "HEAD"}:
@@ -436,7 +439,8 @@ def table(
 
     #### Status Codes
     * 200 OK: No error.
-    * 500 Internal Server Error: Unexpected error encountered. Returns the error message as a string.
+    * 500 Internal Server Error: Unexpected error encountered.
+        Returns the error message as a string.
     """
     if request.method in {"GET", "HEAD"}:
         try:
@@ -466,7 +470,8 @@ def record(
         table_name (str): Table name.
 
     Returns:
-        If successful, then sends back the desired operation based on the HTTP method; otherwise, returns an error.
+        If successful, then sends back the desired operation based on the HTTP method; 
+            otherwise, returns an error.
 
     ## GET /schema/{schema_name}/table/{table_name}/record
 
@@ -475,7 +480,9 @@ def record(
     ### Example request:
 
     ```http
-    GET /schema/alpha_company/table/Computer/record?limit=1&page=2&order=computer_id%20DESC&restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo= HTTP/1.1
+    GET /schema/alpha_company/table/Computer/record?limit=1&page=2&order=computer_id%20DESC&
+        restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49I
+        iwgInZhbHVlIjogMTZ9XQo= HTTP/1.1
     Host: fakeservices.datajoint.io
     Authorization: Bearer <token>
     ```
@@ -539,7 +546,10 @@ def record(
     * limit: Limit of how many records per page. Defaults to `1000`.
     * page: Page requested. Defaults to `1`.
     * order: Sort order. Defaults to `KEY ASC`.
-    * restriction: Base64-encoded `AND` sequence of restrictions. For example, you could restrict as `[{"attributeName": "computer_memory", "operation": ">=", "value": 16}]` with this param set as `W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=`. Defaults to no restriction.
+    * restriction: Base64-encoded `AND` sequence of restrictions. For example, you could 
+        restrict as `[{"attributeName": "computer_memory", "operation": ">=", "value": 16}]` 
+        with this param set as `W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0a
+        W9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=`. Defaults to no restriction.
 
     #### Request Headers
     * Authorization: Bearer <OAuth2_token\>
@@ -689,7 +699,9 @@ def record(
     ### Example request:
 
     ```http
-    DELETE /schema/alpha_company/table/Computer/record?cascade=false&restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo= HTTP/1.1
+    DELETE /schema/alpha_company/table/Computer/record?cascade=false&restriction=
+        W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZhbHVlI
+        jogMTZ9XQo= HTTP/1.1
     Host: fakeservices.datajoint.io
     Authorization: Bearer <token>
     ```
@@ -853,7 +865,8 @@ def definition(
         table_name (str): Table name.
 
     Returns:
-        If successful, then sends back the definition for the table; otherwise, returns an error.
+        If successful, then sends back the definition for the table; otherwise,
+            returns an error.
 
     ## GET /schema/{schema_name}/table/{table_name}/definition
 
@@ -942,7 +955,8 @@ def attribute(
         table_name (str): Table name.
 
     Returns:
-        If successful, then sends back a dictionary of table attributes; otherwise, returns an error.
+        If successful, then sends back a dictionary of table attributes; otherwise,
+            returns an error.
 
     ## GET /schema/{schema_name}/table/{table_name}/attribute
 
@@ -1158,12 +1172,15 @@ def dependency(
 
     ## GET /schema/{schema_name}/table/{table_name}/dependency
 
-    Route to get the metadata in relation to the dependent records associated with a restricted subset of a table.
+    Route to get the metadata in relation to the dependent records associated with a 
+        restricted subset of a table.
 
     ### Example request:
 
     ```http
-    GET /schema/alpha_company/table/Computer/dependency?restriction=W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo= HTTP/1.1
+    GET /schema/alpha_company/table/Computer/dependency?restriction=
+        W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZ= 
+        HTTP/1.1
     Host: fakeservices.datajoint.io
     Authorization: Bearer <token>
     ```
@@ -1207,8 +1224,10 @@ def dependency(
     #### Query Parameters
     * schema_name: Schema name.
     * table_name: Table name.
-    * restriction: Base64-encoded ``AND`` sequence of restrictions. For example, you could restrict as ``[{"attributeName": "computer_memory", "operation": ">=", "value": 16}]`` with this param set as
-        ``W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=``.
+    * restriction: Base64-encoded ``AND`` sequence of restrictions. For example, you could
+        restrict as ``[{"attributeName": "computer_memory", "operation": ">=", "value": 16}]``
+        with this param set as 
+        ``W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZ=``.
         Defaults to no restriction.
 
     #### Request Headers
