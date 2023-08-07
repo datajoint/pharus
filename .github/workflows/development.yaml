@@ -2,7 +2,6 @@ name: Development
 on:
   pull_request:
   push:
-permissions: read-all
 jobs:
   test-changelog:
     runs-on: ubuntu-latest
@@ -287,18 +286,6 @@ jobs:
     #     github.repository_owner == 'dj-sciops'
     #   )
     # needs: publish-release
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-      - name: Deploy docs
-        run: |
-          REPO_HYPHENS=${GITHUB_REPOSITORY##*/}
-          REPO_UNDERSCORES=${REPO_HYPHENS//-/_}
-          export MODE=PUSH
-          export PACKAGE=${REPO_UNDERSCORES}
-          export UPSTREAM_REPO=https://action-user:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-          export HOST_UID=$(id -u)
-          docker compose -f docs/docker-compose.yaml up --exit-code-from docs --build
+    uses: datajoint/.github/.github/workflows/mkdocs_release.yaml@main
+    permissions: 
+      contents: write
