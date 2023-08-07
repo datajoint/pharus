@@ -29,9 +29,9 @@
   ```
 
 !!! note
-Deployment options currently being considered are [Docker
-Compose](https://docs.docker.com/compose/install/) and
-[Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
+    Deployment options currently being considered are [Docker
+    Compose](https://docs.docker.com/compose/install/) and
+    [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
 
 ## Run Locally w/ Python
 
