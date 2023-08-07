@@ -2,7 +2,7 @@ name: Development
 on:
   pull_request:
   push:
-permissions: write-all
+permissions: read-all
 jobs:
   test-changelog:
     runs-on: ubuntu-latest
