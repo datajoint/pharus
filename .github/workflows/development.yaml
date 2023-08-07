@@ -2,8 +2,6 @@ name: Development
 on:
   pull_request:
   push:
-permissions: 
-  contents: write
 jobs:
   test-changelog:
     runs-on: ubuntu-latest
@@ -289,3 +287,5 @@ jobs:
     #   )
     # needs: publish-release
     uses: datajoint/.github/.github/workflows/mkdocs_release.yaml@main
+    permissions: 
+      contents: write
