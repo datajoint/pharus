@@ -15,7 +15,6 @@ for path in sorted(Path(package).glob("**/*.py")):
     if path.stem in [
         "__init__",
         "version",
-        "dynamic_api",
         "component_interface",
         "dynamic_api_gen",
     ]:
