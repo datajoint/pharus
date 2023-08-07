@@ -29,9 +29,9 @@
   ```
 
 !!! note
-    Deployment options currently being considered are [Docker
-    Compose](https://docs.docker.com/compose/install/) and
-    [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
+Deployment options currently being considered are [Docker
+Compose](https://docs.docker.com/compose/install/) and
+[Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/).
 
 ## Run Locally w/ Python
 
@@ -102,16 +102,16 @@ SciViz:
       # define custom class extending a base component
       class ExampleComponent(Component):
           # set necessary REST verb(s) if extending generic `Component`
-          rest_verb=["POST"]
+          rest_verb=["GET"]
 
           # define `dj_query_route` method that returns some dictionary
           def dj_query_route(self):
               # some code
               return {"example": "example response"}
 
-      # extend the `type_map` with a custom type mapped to the custom component
+      # extend the `type_map` with a custom type prefixed with the component type you are extending mapped to the custom component
       type_map = {
-          **type_map, 'ExampleType': ExampleComponent
+          **type_map, 'external:ExampleType': ExampleComponent
       }
   pages:
     page:
@@ -123,7 +123,7 @@ SciViz:
           components:
             example_component:
               route: /example_route
-              type: ExampleType
+              type: external:ExampleType
 ```
 
 For more information about the spec sheet, visit the [SciViz docs](https://datajoint.com/docs/core/sci-viz/2.3/concepts/spec_sheet/).
