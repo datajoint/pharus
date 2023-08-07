@@ -470,7 +470,7 @@ def record(
         table_name (str): Table name.
 
     Returns:
-        If successful, then sends back the desired operation based on the HTTP method; 
+        If successful, then sends back the desired operation based on the HTTP method;
             otherwise, returns an error.
 
     ## GET /schema/{schema_name}/table/{table_name}/record
@@ -546,8 +546,8 @@ def record(
     * limit: Limit of how many records per page. Defaults to `1000`.
     * page: Page requested. Defaults to `1`.
     * order: Sort order. Defaults to `KEY ASC`.
-    * restriction: Base64-encoded `AND` sequence of restrictions. For example, you could 
-        restrict as `[{"attributeName": "computer_memory", "operation": ">=", "value": 16}]` 
+    * restriction: Base64-encoded `AND` sequence of restrictions. For example, you could
+        restrict as `[{"attributeName": "computer_memory", "operation": ">=", "value": 16}]`
         with this param set as `W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0a
         W9uIjogIj49IiwgInZhbHVlIjogMTZ9XQo=`. Defaults to no restriction.
 
@@ -1172,14 +1172,14 @@ def dependency(
 
     ## GET /schema/{schema_name}/table/{table_name}/dependency
 
-    Route to get the metadata in relation to the dependent records associated with a 
+    Route to get the metadata in relation to the dependent records associated with a
         restricted subset of a table.
 
     ### Example request:
 
     ```http
     GET /schema/alpha_company/table/Computer/dependency?restriction=
-        W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZ= 
+        W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZ=
         HTTP/1.1
     Host: fakeservices.datajoint.io
     Authorization: Bearer <token>
@@ -1226,7 +1226,7 @@ def dependency(
     * table_name: Table name.
     * restriction: Base64-encoded ``AND`` sequence of restrictions. For example, you could
         restrict as ``[{"attributeName": "computer_memory", "operation": ">=", "value": 16}]``
-        with this param set as 
+        with this param set as
         ``W3siYXR0cmlidXRlTmFtZSI6ICJjb21wdXRlcl9tZW1vcnkiLCAib3BlcmF0aW9uIjogIj49IiwgInZ=``.
         Defaults to no restriction.
 
