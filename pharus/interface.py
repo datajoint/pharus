@@ -55,7 +55,8 @@ class _DJConnector:
             schema_name (str): Name of schema to list all tables from
 
         Returns:
-            Contains a key for each table type where values are the respective list of table names
+            Contains a key for each table type where values are the respective
+                list of table names
         """
 
         # Get list of tables names
@@ -327,8 +328,8 @@ class _DJConnector:
             connection: User's DataJoint connection object.
             schema_name: Name of the schema.
             table_name: Table name under the given schema; must be in camel case.
-            restriction: Sequence of filters as a list of dictionaries with keys "attributeName",
-                "operation", and "value" defined, defaults to [].
+            restriction: Sequence of filters as a list of dictionaries with keys
+                "attributeName", "operation", and "value" defined, defaults to [].
 
         Returns:
             List of tables that are dependent on specific records.
@@ -442,7 +443,8 @@ class _DJConnector:
 
         Args:
             schema_virtual_module: Virtual module for accessing the schema.
-            table_name: Name of the table; for part tables, it should be in the format ``Parent.Part``.
+            table_name: Name of the table; for part tables, it should
+                be in the format ``Parent.Part``.
 
         Returns:
             DataJoint table object of the specified table.
@@ -463,8 +465,9 @@ class _DJConnector:
         Converts an attribute filter to a DataJoint-compatible restriction.
 
         Args:
-            attribute_filter (dict): A filter as a dictionary with keys ``attributeName``, ``operation``,
-                and ``value`` defined. Defaults to an empty dictionary.
+            attribute_filter (dict): A filter as a dictionary with keys
+                ``attributeName``, ``operation``, and ``value`` defined.
+                Defaults to an empty dictionary.
             attribute_type (str): Attribute type.
 
         Returns:
