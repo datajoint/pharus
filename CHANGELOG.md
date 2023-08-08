@@ -2,6 +2,13 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.8.7] - 2023-08-08
+
+### Added
+
+- Migrate documentation to MkDocs [#164](https://github.com/datajoint/pharus/pull/164)
+- Add section in docs for extending pharus [#165](https://github.com/datajoint/pharus/pull/165)
+
 ## [0.8.6] - 2023-05-2
 
 ### Added
