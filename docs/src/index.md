@@ -4,7 +4,6 @@
 [DataJoint](https://datajoint.io) pipelines built on top of `flask`,
 `datajoint`, and `pyjwt`.
 
-- [Documentation](https://datajoint.github.io/pharus)
 - [PyPi Package](https://pypi.org/project/pharus/)
 - [Docker Image](https://hub.docker.com/r/datajoint/pharus)
 - [Release](https://github.com/datajoint/pharus/releases/latest)
