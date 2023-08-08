@@ -11,3 +11,6 @@ docs/_build
 pharus/dynamic_api.py
 pharus/component_interface_override.py
 /specs
+docs/temp_mkdocs.log
+docs/site
+!docs/docker-compose.yaml
