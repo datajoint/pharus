@@ -10,6 +10,7 @@ docs/_build
 *.tar.gz
 pharus/dynamic_api.py
 pharus/component_interface_override.py
+pharus/private_interface.py
 /specs
 docs/temp_mkdocs.log
 docs/site
