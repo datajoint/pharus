@@ -1,12 +1,18 @@
 """Library for interfaces into DataJoint pipelines."""
 import datajoint as dj
+from datajoint import DataJointError
 from datajoint.utils import to_camel_case
 from datajoint.user_tables import UserTable
 from datajoint import VirtualModule
 import datetime
 import numpy as np
 import re
-from .error import InvalidRestriction, UnsupportedTableType
+from .error import (
+    InvalidRestriction,
+    UnsupportedTableType,
+    SchemaNotFound,
+    TableNotFound,
+)
 
 DAY = 24 * 60 * 60
 DEFAULT_FETCH_LIMIT = 1000  # Stop gap measure to deal with super large tables
@@ -60,9 +66,11 @@ class _DJConnector:
         """
 
         # Get list of tables names
-        tables_name = dj.Schema(
-            schema_name, create_schema=False, connection=connection
-        ).list_tables()
+        try:
+            schema = dj.Schema(schema_name, create_schema=False, connection=connection)
+        except DataJointError:
+            raise SchemaNotFound("Schema does not exist")
+        tables_name = schema.list_tables()
         # Dict to store list of table name for each type
         tables_dict_list = dict(manual=[], lookup=[], computed=[], imported=[], part=[])
         # Loop through each table name to figure out what type it is and add them to
@@ -452,12 +460,16 @@ class _DJConnector:
 
         # Split the table name by '.' for dealing with part tables
         table_name_parts = table_name.split(".")
-        if len(table_name_parts) == 2:
-            return getattr(
-                getattr(schema_virtual_module, table_name_parts[0]), table_name_parts[1]
-            )
-        else:
-            return getattr(schema_virtual_module, table_name_parts[0])
+        try:
+            if len(table_name_parts) == 2:
+                return getattr(
+                    getattr(schema_virtual_module, table_name_parts[0]),
+                    table_name_parts[1],
+                )
+            else:
+                return getattr(schema_virtual_module, table_name_parts[0])
+        except AttributeError:
+            raise TableNotFound("Table does not exist")
 
     @staticmethod
     def _filter_to_restriction(attribute_filter: dict, attribute_type: str) -> str:
