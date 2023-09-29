@@ -2,6 +2,12 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.8.9] - 2023-10-02
+
+### Added
+
+- Throw new errors for invalid schemas and tables [#168](https://github.com/datajoint/pharus/pull/168)
+
 ## [0.8.8] - 2023-09-20
 
 ### Changed
@@ -321,6 +327,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
+[0.8.9]: https://github.com/datajoint/pharus/compare/0.8.8...0.8.9
 [0.8.8]: https://github.com/datajoint/pharus/compare/0.8.7...0.8.8
 [0.8.7]: https://github.com/datajoint/pharus/compare/0.8.6...0.8.7
 [0.8.6]: https://github.com/datajoint/pharus/compare/0.8.5...0.8.6
