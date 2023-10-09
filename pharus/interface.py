@@ -297,7 +297,9 @@ class _DJConnector:
         local_values[schema_name] = dj.VirtualModule(
             schema_name, schema_name, connection=connection
         )
-        return getattr(local_values[schema_name], table_name).describe()
+        return _DJConnector._get_table_object(
+            local_values[schema_name], table_name
+        ).describe()
 
     @staticmethod
     def _insert_tuple(
@@ -319,7 +321,9 @@ class _DJConnector:
         schema_virtual_module = dj.VirtualModule(
             schema_name, schema_name, connection=connection
         )
-        getattr(schema_virtual_module, table_name).insert(tuple_to_insert)
+        _DJConnector._get_table_object(schema_virtual_module, table_name).insert(
+            tuple_to_insert
+        )
 
     @staticmethod
     def _record_dependency(
@@ -346,7 +350,7 @@ class _DJConnector:
         virtual_module = dj.VirtualModule(
             schema_name, schema_name, connection=connection
         )
-        table = getattr(virtual_module, table_name)
+        table = _DJConnector._get_table_object(virtual_module, table_name)
         attributes = table.heading.attributes
         # Retrieve dependencies of related to retricted
         dependencies = [
@@ -397,7 +401,9 @@ class _DJConnector:
         )
         with connection.transaction:
             [
-                getattr(schema_virtual_module, table_name).update1(t)
+                _DJConnector._get_table_object(
+                    schema_virtual_module, table_name
+                ).update1(t)
                 for t in tuple_to_update
             ]
 
