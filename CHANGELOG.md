@@ -2,6 +2,12 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.8.10] - 2023-10-10
+
+### Fixed
+
+- Bug with `/definition` route for part tables [#170](https://github.com/datajoint/pharus/pull/170)
+
 ## [0.8.9] - 2023-10-02
 
 ### Added
