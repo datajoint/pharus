@@ -2,10 +2,11 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
-## [0.8.10] - 2023-10-10
+## [0.8.10] - 2023-11-16
 
 ### Fixed
 
+- Docs' table cell text color in dark mode [#171](https://github.com/datajoint/pharus/pull/171)
 - Bug with `/definition` route for part tables [#170](https://github.com/datajoint/pharus/pull/170)
 
 ## [0.8.9] - 2023-10-02
@@ -333,6 +334,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 - Support for DataJoint attribute types: `varchar`, `int`, `float`, `datetime`, `date`, `time`, `decimal`, `uuid`.
 - Check dependency utility to determine child table references.
 
+[0.8.10]: https://github.com/datajoint/pharus/compare/0.8.9...0.8.10
 [0.8.9]: https://github.com/datajoint/pharus/compare/0.8.8...0.8.9
 [0.8.8]: https://github.com/datajoint/pharus/compare/0.8.7...0.8.8
 [0.8.7]: https://github.com/datajoint/pharus/compare/0.8.6...0.8.7
