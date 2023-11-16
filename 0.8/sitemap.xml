@@ -2,37 +2,37 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>http://localhost/docs/additional-resources/pharus/0.8/</loc>
-         <lastmod>2023-10-02</lastmod>
+         <lastmod>2023-11-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://localhost/docs/additional-resources/pharus/0.8/changelog/</loc>
-         <lastmod>2023-10-02</lastmod>
+         <lastmod>2023-11-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://localhost/docs/additional-resources/pharus/0.8/dev/</loc>
-         <lastmod>2023-10-02</lastmod>
+         <lastmod>2023-11-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://localhost/docs/additional-resources/pharus/0.8/api/navigation/</loc>
-         <lastmod>2023-10-02</lastmod>
+         <lastmod>2023-11-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://localhost/docs/additional-resources/pharus/0.8/api/pharus/error/</loc>
-         <lastmod>2023-10-02</lastmod>
+         <lastmod>2023-11-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://localhost/docs/additional-resources/pharus/0.8/api/pharus/interface/</loc>
-         <lastmod>2023-10-02</lastmod>
+         <lastmod>2023-11-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://localhost/docs/additional-resources/pharus/0.8/api/pharus/server/</loc>
-         <lastmod>2023-10-02</lastmod>
+         <lastmod>2023-11-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
