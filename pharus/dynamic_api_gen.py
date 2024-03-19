@@ -160,9 +160,11 @@ def {method_name}() -> dict:
                                 component_name=comp_name,
                                 component=json.dumps(comp),
                                 static_config=static_config,
-                                payload="payload=request.get_json()"
-                                if comp["type"].split(":", 1)[0] == "form"
-                                else "",
+                                payload=(
+                                    "payload=request.get_json()"
+                                    if comp["type"].split(":", 1)[0] == "form"
+                                    else ""
+                                ),
                                 method_name_type="dj_query_route",
                             )
                         )

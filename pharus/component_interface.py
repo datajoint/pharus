@@ -1,4 +1,5 @@
 """This module is a GUI component library of various common interfaces."""
+
 from base64 import b64decode
 import json
 import datajoint as dj
@@ -217,16 +218,7 @@ class InsertComponent(Component):
         )
         self.fields_map = self.component_config.get("map")
         self.tables = [
-            getattr(
-                dj.VirtualModule(
-                    s,
-                    s,
-                    connection=self.connection,
-                ),
-                t[0],
-            )
-            if len(t) == 1
-            else getattr(
+            (
                 getattr(
                     dj.VirtualModule(
                         s,
@@ -234,8 +226,19 @@ class InsertComponent(Component):
                         connection=self.connection,
                     ),
                     t[0],
-                ),
-                t[1],
+                )
+                if len(t) == 1
+                else getattr(
+                    getattr(
+                        dj.VirtualModule(
+                            s,
+                            s,
+                            connection=self.connection,
+                        ),
+                        t[0],
+                    ),
+                    t[1],
+                )
             )
             for s, t in (
                 (
@@ -312,10 +315,12 @@ class InsertComponent(Component):
         source_fields = {
             **{
                 (p_name := f"{p.database}.{dj.utils.to_camel_case(p.table_name)}"): {
-                    "values": [NumpyEncoder.dumps(row) for row in p.fetch("KEY")]
-                    if not all(k in self.nullable_lookup for k in p.primary_key)
-                    else [NumpyEncoder.dumps(row) for row in p.fetch("KEY")]
-                    + [NumpyEncoder.dumps({k: None for k in p.primary_key})],
+                    "values": (
+                        [NumpyEncoder.dumps(row) for row in p.fetch("KEY")]
+                        if not all(k in self.nullable_lookup for k in p.primary_key)
+                        else [NumpyEncoder.dumps(row) for row in p.fetch("KEY")]
+                        + [NumpyEncoder.dumps({k: None for k in p.primary_key})]
+                    ),
                     "type": "table",
                     "name": p_name,
                 }
@@ -407,10 +412,12 @@ class InsertComponent(Component):
                     self.input_lookup[a]
                     if (a := k.split(".").pop()) in self.input_lookup
                     else a
-                ): convert_datetime_string(v)
-                if a in self.datatype_lookup
-                and re.search(r"^date.*|time.*$", self.datatype_lookup[a])
-                else v
+                ): (
+                    convert_datetime_string(v)
+                    if a in self.datatype_lookup
+                    and re.search(r"^date.*|time.*$", self.datatype_lookup[a])
+                    else v
+                )
                 for k, v in preset_with_tables_filtered.items()
             }
 
@@ -493,9 +500,11 @@ class TableComponent(FetchComponent):
             limit=int(request.args["limit"]) if "limit" in request.args else 1000,
             page=int(request.args["page"]) if "page" in request.args else 1,
             order=request.args["order"].split(",") if "order" in request.args else None,
-            restriction=json.loads(b64decode(request.args["restriction"]))
-            if "restriction" in request.args
-            else [],
+            restriction=(
+                json.loads(b64decode(request.args["restriction"]))
+                if "restriction" in request.args
+                else []
+            ),
         )
 
         return (
@@ -532,23 +541,27 @@ class TableComponent(FetchComponent):
             if attribute_info.in_key:
                 query_attributes["primary"].append(
                     (
-                        [
-                            dict({"text": str(v), "value": v})
-                            for (v,) in (dj.U(attribute_name) & query).fetch()
-                        ]
-                        if True
-                        else None,
+                        (
+                            [
+                                dict({"text": str(v), "value": v})
+                                for (v,) in (dj.U(attribute_name) & query).fetch()
+                            ]
+                            if True
+                            else None
+                        ),
                     )
                 )
             else:
                 query_attributes["secondary"].append(
                     (
-                        [
-                            dict({"text": str(v), "value": v})
-                            for (v,) in (dj.U(attribute_name) & query).fetch()
-                        ]
-                        if True
-                        else None,
+                        (
+                            [
+                                dict({"text": str(v), "value": v})
+                                for (v,) in (dj.U(attribute_name) & query).fetch()
+                            ]
+                            if True
+                            else None
+                        ),
                     )
                 )
 

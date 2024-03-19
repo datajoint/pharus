@@ -1,4 +1,5 @@
 """Exposed REST API."""
+
 from os import environ
 from pathlib import Path
 from envyaml import EnvYAML
