@@ -265,6 +265,10 @@ class InsertComponent(Component):
         self.datatype_lookup = {
             k: v[1] for t in self.tables for k, v in t.heading.attributes.items()
         }
+        self.nullable_lookup = [
+            k for t in self.tables for k, v in t.heading.attributes.items() if v.nullable
+        ]
+        print(self.nullable_lookup, flush=True)
 
         if "presets" in self.component_config:
             lcls = locals()
@@ -305,7 +309,7 @@ class InsertComponent(Component):
         source_fields = {
             **{
                 (p_name := f"{p.database}.{dj.utils.to_camel_case(p.table_name)}"): {
-                    "values": [NumpyEncoder.dumps(row) for row in p.fetch("KEY")],
+                    "values": [NumpyEncoder.dumps(row) for row in p.fetch("KEY")] if not all(k in self.nullable_lookup for k in p.primary_key) else [NumpyEncoder.dumps(row) for row in p.fetch("KEY")] + [NumpyEncoder.dumps({k: None for k in p.primary_key})],
                     "type": "table",
                     "name": p_name,
                 }
