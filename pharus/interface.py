@@ -1,4 +1,5 @@
 """Library for interfaces into DataJoint pipelines."""
+
 import datajoint as dj
 from datajoint import DataJointError
 from datajoint.utils import to_camel_case
@@ -245,12 +246,14 @@ class _DJConnector:
                         attribute_info.nullable,
                         attribute_info.default,
                         attribute_info.autoincrement,
-                        [
-                            dict({"text": str(v), "value": v})
-                            for (v,) in (dj.U(attribute_name) & query).fetch()
-                        ]
-                        if include_unique_values
-                        else None,
+                        (
+                            [
+                                dict({"text": str(v), "value": v})
+                                for (v,) in (dj.U(attribute_name) & query).fetch()
+                            ]
+                            if include_unique_values
+                            else None
+                        ),
                     )
                 )
             else:
@@ -261,12 +264,14 @@ class _DJConnector:
                         attribute_info.nullable,
                         attribute_info.default,
                         attribute_info.autoincrement,
-                        [
-                            dict({"text": str(v), "value": v})
-                            for (v,) in (dj.U(attribute_name) & query).fetch()
-                        ]
-                        if include_unique_values
-                        else None,
+                        (
+                            [
+                                dict({"text": str(v), "value": v})
+                                for (v,) in (dj.U(attribute_name) & query).fetch()
+                            ]
+                            if include_unique_values
+                            else None
+                        ),
                     )
                 )
 
