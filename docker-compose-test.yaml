@@ -45,7 +45,6 @@ services:
           flake8 $${PKG_DIR} --count --max-complexity=20 --max-line-length=94 --statistics --exclude=*dynamic_api.py --ignore=W503,W605
           black /main/tests --check -v
           flake8 /main/tests --count --max-complexity=20 --max-line-length=94 --statistics --ignore=F401,F811,W503
-          tail -f /dev/null
         else
           echo "=== Running ==="
           echo "Please see 'docker-compose-test.yaml' for detail on running tests."
