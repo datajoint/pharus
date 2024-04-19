@@ -331,7 +331,7 @@ def login() -> dict:
 
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/schema", methods=["GET"])
-@protected_route
+@protected_route(include_user_obj=False)
 def schema(connection: dj.Connection) -> dict:
     """
     Handler for ``/schema`` route.
@@ -403,7 +403,7 @@ def schema(connection: dj.Connection) -> dict:
 @app.route(
     f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table", methods=["GET"]
 )
-@protected_route
+@protected_route(include_user_obj=False)
 def table(
     connection: dj.Connection,
     schema_name: str,
@@ -489,7 +489,7 @@ def table(
     f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/record",
     methods=["GET", "POST", "PATCH", "DELETE"],
 )
-@protected_route
+@protected_route(include_user_obj=False)
 def record(
     connection: dj.Connection,
     schema_name: str,
@@ -885,7 +885,7 @@ def record(
     f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/definition",
     methods=["GET"],
 )
-@protected_route
+@protected_route(include_user_obj=False)
 def definition(
     connection: dj.Connection,
     schema_name: str,
@@ -975,7 +975,7 @@ def definition(
     f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/attribute",
     methods=["GET"],
 )
-@protected_route
+@protected_route(include_user_obj=False)
 def attribute(
     connection: dj.Connection,
     schema_name: str,
@@ -1161,7 +1161,7 @@ def attribute(
     f"{environ.get('PHARUS_PREFIX', '')}/spec",
     methods=["GET"],
 )
-@protected_route
+@protected_route(include_user_obj=False)
 def spec(
     connection: dj.Connection,
 ) -> dict:
@@ -1187,7 +1187,7 @@ def spec(
     f"{environ.get('PHARUS_PREFIX', '')}/schema/<schema_name>/table/<table_name>/dependency",
     methods=["GET"],
 )
-@protected_route
+@protected_route(include_user_obj=False)
 def dependency(
     connection: dj.Connection,
     schema_name: str,

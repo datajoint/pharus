@@ -28,7 +28,7 @@ except (ModuleNotFoundError, ImportError):
     route_template = """
 
 @app.route('{route}', methods={rest_verb})
-@protected_route
+@protected_route(include_user_obj=False)
 def {method_name}(connection: dj.Connection) -> dict:
 
     if request.method in {rest_verb}:
