@@ -102,17 +102,19 @@ def protected_route(function: Callable, include_user_obj: bool = False) -> Calla
         try:
             if "database_host" in request.args:
                 encoded_jwt = request.headers.get("Authorization").split()[1]
+                decoded_jwt = jwt.decode(
+                    encoded_jwt,
+                    crypto_serialization.load_der_public_key(
+                        b64decode(environ.get("PHARUS_OIDC_PUBLIC_KEY").encode())
+                    ),
+                    algorithms="RS256",
+                    options=dict(verify_aud=False),
+                )
                 connect_creds = {
                     "databaseAddress": request.args["database_host"],
-                    "username": jwt.decode(
-                        encoded_jwt,
-                        crypto_serialization.load_der_public_key(
-                            b64decode(environ.get("PHARUS_OIDC_PUBLIC_KEY").encode())
-                        ),
-                        algorithms="RS256",
-                        options=dict(verify_aud=False),
-                    )[environ.get("PHARUS_OIDC_SUBJECT_KEY")],
+                    "username": decoded_jwt[environ.get("PHARUS_OIDC_SUBJECT_KEY")],
                     "password": encoded_jwt,
+                    "groups": decoded_jwt.get("groups", [])
                 }
             else:
                 connect_creds = jwt.decode(
