@@ -114,7 +114,7 @@ def protected_route(function: Callable, include_user_obj: bool = False) -> Calla
                     "databaseAddress": request.args["database_host"],
                     "username": decoded_jwt[environ.get("PHARUS_OIDC_SUBJECT_KEY")],
                     "password": encoded_jwt,
-                    "groups": decoded_jwt.get("groups", [])
+                    "groups": decoded_jwt.get("groups", []),
                 }
             else:
                 connect_creds = jwt.decode(
