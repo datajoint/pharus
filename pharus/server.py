@@ -54,15 +54,47 @@ if (
     )
 
 
-def protected_route(function: Callable) -> Callable:
+def doublewrap(f):
+    """
+    A decorator decorator, allowing the decorator to be used as:
+    @decorator(with, arguments, and=kwargs)
+    or
+    @decorator
+
+    Adapted from https://stackoverflow.com/a/14412901
+    """
+
+    @wraps(f)
+    def new_dec(*args, **kwargs):
+        if len(args) == 1 and len(kwargs) == 0 and callable(args[0]):
+            # actual decorated function
+            return f(args[0])
+        else:
+            # decorator arguments
+            return lambda realf: f(realf, *args, **kwargs)
+
+    return new_dec
+
+
+@doublewrap
+def protected_route(function: Callable, include_user_obj: bool = False) -> Callable:
     """
     Protected route function decorator which authenticates requests.
+    This function should be decorated with doublewrap, allowing the decorator
+    to be used as:
+
+    @protected_route
+    or equivalently
+    @protected_route(include_user_obj=False)
+
+    If include_user_obj is set to True, then the wrapped function should
+    accept a kwarg user_obj which will contain the decoded JWT token.
 
     Args:
         function: Function to decorate, typically routes
 
     Returns:
-        Function's output if JWT authetication is successful, otherwise return error message
+        Wrapped function
     """
 
     @wraps(function)
@@ -70,17 +102,19 @@ def protected_route(function: Callable) -> Callable:
         try:
             if "database_host" in request.args:
                 encoded_jwt = request.headers.get("Authorization").split()[1]
+                decoded_jwt = jwt.decode(
+                    encoded_jwt,
+                    crypto_serialization.load_der_public_key(
+                        b64decode(environ.get("PHARUS_OIDC_PUBLIC_KEY").encode())
+                    ),
+                    algorithms="RS256",
+                    options=dict(verify_aud=False),
+                )
                 connect_creds = {
                     "databaseAddress": request.args["database_host"],
-                    "username": jwt.decode(
-                        encoded_jwt,
-                        crypto_serialization.load_der_public_key(
-                            b64decode(environ.get("PHARUS_OIDC_PUBLIC_KEY").encode())
-                        ),
-                        algorithms="RS256",
-                        options=dict(verify_aud=False),
-                    )[environ.get("PHARUS_OIDC_SUBJECT_KEY")],
+                    "username": decoded_jwt[environ.get("PHARUS_OIDC_SUBJECT_KEY")],
                     "password": encoded_jwt,
+                    "groups": decoded_jwt.get("groups", []),
                 }
             else:
                 connect_creds = jwt.decode(
@@ -93,6 +127,8 @@ def protected_route(function: Callable) -> Callable:
                 user=connect_creds["username"],
                 password=connect_creds["password"],
             )
+            if include_user_obj:
+                kwargs.update(user_obj=connect_creds)
             return function(connection, **kwargs)
         except Exception as e:
             return str(e), 401
