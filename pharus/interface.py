@@ -1,6 +1,7 @@
 """Library for interfaces into DataJoint pipelines."""
-
 import datajoint as dj
+import math
+from numbers import Number
 from datajoint import DataJointError
 from datajoint.utils import to_camel_case
 from datajoint.user_tables import UserTable
@@ -202,7 +203,13 @@ class _DJConnector:
                         # Normal attribute, just return value with .item to deal with numpy
                         #   types
                         if isinstance(non_blobs_row[attribute_name], np.generic):
-                            row.append((non_blobs_row[attribute_name].item()))
+                            val = non_blobs_row[attribute_name].item()
+                            if isinstance(val, Number) and math.isnan(val):
+                                row.append(str(val))
+                                print(f"Coerced NaN to string in row {non_blobs_row}")
+                                print(f"Coerced to {str(val)=}")
+                            else:
+                                row.append(val)
                         else:
                             row.append(non_blobs_row[attribute_name])
                 else:
