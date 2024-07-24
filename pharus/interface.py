@@ -1,4 +1,5 @@
 """Library for interfaces into DataJoint pipelines."""
+
 import datajoint as dj
 import math
 from numbers import Number
