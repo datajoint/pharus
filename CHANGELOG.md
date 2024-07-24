@@ -7,6 +7,7 @@ Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and
 ### Fixed
 
 - bug with forms that was preventing nullable foreign keys from being null in sci-viz[#172](https://github.com/datajoint/pharus/pull/172)
+- Bug in Works where NaN values were breaking the Works frontend [#174](https://github.com/datajoint/pharus/pull/174)
 
 ## [0.8.10] - 2023-11-16
 
