@@ -1,6 +1,8 @@
 """Library for interfaces into DataJoint pipelines."""
 
 import datajoint as dj
+import math
+from numbers import Number
 from datajoint import DataJointError
 from datajoint.utils import to_camel_case
 from datajoint.user_tables import UserTable
@@ -198,13 +200,16 @@ class _DJConnector:
                     elif attribute_info.type[0:7] == "decimal":
                         # Covert decimal to string
                         row.append(str(non_blobs_row[attribute_name]))
-                    else:
-                        # Normal attribute, just return value with .item to deal with numpy
-                        #   types
-                        if isinstance(non_blobs_row[attribute_name], np.generic):
-                            row.append((non_blobs_row[attribute_name].item()))
+                    # Normal attribute, just return value with .item to deal with numpy
+                    # types
+                    elif isinstance(non_blobs_row[attribute_name], np.generic):
+                        val = non_blobs_row[attribute_name].item()
+                        if isinstance(val, Number) and math.isnan(val):
+                            row.append(str(val))
                         else:
-                            row.append(non_blobs_row[attribute_name])
+                            row.append(val)
+                    else:
+                        row.append(non_blobs_row[attribute_name])
                 else:
                     # Attribute is blob type thus fill it in string instead
                     (
