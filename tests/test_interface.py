@@ -33,4 +33,5 @@ class TestDJConnector:
         table = nei_nienborg_model_labeledvideo_file
         assert os.environ.get('DJ_SUPPORT_FILEPATH_MANAGEMENT').upper() == 'TRUE'
         assert table.fetch('KEY', limit=1, download_path=None)
+        assert table.fetch(limit=1)
 
