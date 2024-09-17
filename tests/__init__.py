@@ -1,4 +1,5 @@
 import pytest
+from typing import Optional
 from pharus.dynamic_api import app
 from uuid import UUID
 from os import getenv
@@ -11,6 +12,25 @@ seed("lock")  # Pin down randomizer between runs
 faker = Faker()
 Faker.seed(0)  # Pin down randomizer between runs
 SCHEMA_PREFIX = "test_"
+
+
+def get_db_creds():
+    return dict(
+        host=getenv("TEST_DB_SERVER"),
+        user=getenv("TEST_DB_USER"),
+        password=getenv("TEST_DB_PASS"),
+    )
+
+
+def get_schema_as_vm(
+    schema: str, connection: dj.Connection
+) -> Optional[dj.VirtualModule]:
+    try:
+        return dj.VirtualModule(schema, schema, connection=connection)
+    except dj.DataJointError as e:
+        if "has not yet been declared" in str(e):
+            return None
+        raise
 
 
 @pytest.fixture
@@ -59,11 +79,7 @@ def group1_token(client, connection):
 def connection():
     """Root database connection."""
     dj.config["safemode"] = False
-    connection = dj.Connection(
-        host=getenv("TEST_DB_SERVER"),
-        user=getenv("TEST_DB_USER"),
-        password=getenv("TEST_DB_PASS"),
-    )
+    connection = dj.Connection(**get_db_creds())
     yield connection
     dj.config["safemode"] = True
     connection.close()

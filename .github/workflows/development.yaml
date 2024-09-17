@@ -49,7 +49,7 @@ jobs:
         run: |
           export PHARUS_VERSION=$(cat pharus/version.py | grep -oP '\d+\.\d+\.\d+')
           export HOST_UID=$(id -u)
-          docker-compose -f docker-compose-build.yaml up --exit-code-from pharus --build
+          docker compose -f docker-compose-build.yaml up --exit-code-from pharus --build
           IMAGE=$(docker images --filter "reference=datajoint/pharus*" \
             --format "{{.Repository}}")
           TAG=$(docker images --filter "reference=datajoint/pharus*" --format "{{.Tag}}")
@@ -57,14 +57,14 @@ jobs:
             gzip > "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
       - name: Add image artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-${{matrix.distro}}
           path: "image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-\
             ${{matrix.distro}}.tar.gz"
           retention-days: 1
       - name: Add pip artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: pip-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}
           path: dist
@@ -95,14 +95,14 @@ jobs:
           PHARUS_VERSION=$(cat pharus/version.py | grep -oP '\d+\.\d+\.\d+')
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
       - name: Fetch image artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-${{matrix.distro}}
       - name: Run primary tests
         run: |
           export HOST_UID=$(id -u)
           docker load < "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
-          docker-compose -f docker-compose-test.yaml up --exit-code-from pharus
+          docker compose -f docker-compose-test.yaml up --exit-code-from pharus
   publish-release:
     if: |
       github.event_name == 'push' &&
@@ -143,16 +143,16 @@ jobs:
           prerelease: ${{steps.changelog_reader.outputs.status == 'prereleased'}}
           draft: ${{steps.changelog_reader.outputs.status == 'unreleased'}}
       - name: Fetch image artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: image-pharus-${{env.PHARUS_VERSION}}-py3.8-alpine
       - name: Fetch 3.8 pip artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: pip-pharus-${{env.PHARUS_VERSION}}-py3.8
           path: dist
       - name: Fetch 3.9 pip artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: pip-pharus-${{env.PHARUS_VERSION}}-py3.8
           path: dist
@@ -160,7 +160,7 @@ jobs:
         run: |
           export HOST_UID=$(id -u)
           docker load < "image-pharus-${PHARUS_VERSION}-py3.8-alpine.tar.gz"
-          docker-compose -f docker-compose-build.yaml run \
+          docker compose -f docker-compose-build.yaml run \
             -e TWINE_USERNAME=${TWINE_USERNAME} -e TWINE_PASSWORD=${TWINE_PASSWORD} pharus \
             sh -lc "pip install twine && python -m twine upload dist/*"
       - name: Determine pip artifact paths
@@ -243,7 +243,7 @@ jobs:
           PHARUS_VERSION=$(cat pharus/version.py | grep -oP '\d+\.\d+\.\d+')
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
       - name: Fetch image artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-${{matrix.distro}}
       - name: Login to DockerHub
@@ -287,5 +287,5 @@ jobs:
       )
     needs: publish-release
     uses: datajoint/.github/.github/workflows/mkdocs_release.yaml@main
-    permissions: 
+    permissions:
       contents: write

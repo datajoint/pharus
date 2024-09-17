@@ -15,14 +15,16 @@ services:
       - MYSQL_ROOT_PASSWORD=simple
   pharus:
     <<: *net
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
     extends:
       file: ./docker-compose-build.yaml
       service: pharus
     environment:
       - FLASK_ENV=development # enables logging to console from Flask
-      - TEST_DB_SERVER=db
-      - TEST_DB_USER=root
-      - TEST_DB_PASS=simple
+      - TEST_DB_SERVER=${TEST_DB_SERVER:-db}
+      - TEST_DB_USER=${TEST_DB_USER:-root}
+      - TEST_DB_PASS=${TEST_DB_PASS:-simple}
       - AS_SCRIPT
       - PHARUS_SPEC_PATH=tests/init/test_dynamic_api_spec.yaml
     volumes:
@@ -39,12 +41,12 @@ services:
           flake8 $${PKG_DIR} --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 /main/tests --count --select=E9,F63,F7,F82 --show-source --statistics
           echo "------ UNIT TESTS ------"
-          pytest -sv --cov-report term-missing --cov=pharus /main/tests
+          pytest -sv --cov-report term-missing --cov=pharus /main/tests/
           echo "------ STYLE TESTS ------"
-          black $${PKG_DIR} --check -v --extend-exclude "^.*dynamic_api.py$$"
+          black $${PKG_DIR} --required-version '24.8.0' --check -v --extend-exclude "^.*dynamic_api.py$$"
           flake8 $${PKG_DIR} --count --max-complexity=20 --max-line-length=94 --statistics --exclude=*dynamic_api.py --ignore=W503,W605
-          black /main/tests --check -v
-          flake8 /main/tests --count --max-complexity=20 --max-line-length=94 --statistics --ignore=F401,F811,W503
+          black /main/tests --required-version '24.8.0' --check -v
+          flake8 /main/tests --count --max-complexity=20 --max-line-length=94 --statistics --ignore=F401,F811,W503,F403
         else
           echo "=== Running ==="
           echo "Please see 'docker-compose-test.yaml' for detail on running tests."
