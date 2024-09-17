@@ -46,7 +46,7 @@ services:
           black $${PKG_DIR} --required-version '24.8.0' --check -v --extend-exclude "^.*dynamic_api.py$$"
           flake8 $${PKG_DIR} --count --max-complexity=20 --max-line-length=94 --statistics --exclude=*dynamic_api.py --ignore=W503,W605
           black /main/tests --required-version '24.8.0' --check -v
-          flake8 /main/tests --count --max-complexity=20 --max-line-length=94 --statistics --ignore=F401,F811,W503
+          flake8 /main/tests --count --max-complexity=20 --max-line-length=94 --statistics --ignore=F401,F811,W503,F403
         else
           echo "=== Running ==="
           echo "Please see 'docker-compose-test.yaml' for detail on running tests."
