@@ -176,15 +176,12 @@ class _DJConnector:
             # Loop through each attributes, append to the tuple_to_return with specific
             #   modification based on data type
             for attribute_name, attribute_info in attributes.items():
-                if attribute_info.is_external:
-                    # Attribute is external type (filepath or attach),
-                    # thus fill it in string instead
-                    (
-                        row.append(non_blobs_row[attribute_name])
-                        if fetch_blobs
-                        else row.append("=FILE=")
-                    )
-                elif not attribute_info.is_blob:
+                if not (
+                    attribute_info.is_blob
+                    or attribute_info.is_attachment
+                    or attribute_info.is_filepath
+                    or attribute_info.is_json
+                ):
                     if non_blobs_row[attribute_name] is None:
                         # If it is none then just append None
                         row.append(None)
