@@ -50,7 +50,9 @@ def validate(table, inserted_value, expected_type, expected_value, client, token
         headers=dict(Authorization=f"Bearer {token}"),
     )
     assert resp.status_code == 200, f"Failed to get records: {resp.text=}"
-    assert resp.json is not None, f"resp.json is None: {resp=} {dir(resp)=} {resp.text=}"
+    assert (
+        resp.json is not None
+    ), f"resp.json is None: {resp=} {dir(resp)=} {resp.text=}"
     assert "records" in resp.json, f"No records in response: {resp.json=}"
     REST_records = resp.json["records"]
     assert len(REST_records) == 1
