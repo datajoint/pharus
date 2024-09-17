@@ -22,7 +22,7 @@ class TestDJConnector:
 
     @pytest.mark.skipif(
         (get_schema_as_vm('nei_nienborg_model', dj.conn(**get_db_creds())) is None),
-        reason="Cannot access schema 'iub_lulab_devo_model' with these credentials"
+        reason="Cannot access schema 'nei_nienborg_model' with these credentials"
     )
     def test_can_fetch_filepath_attrs(self, nei_nienborg_model_labeledvideo_file: dj.Table, connection):
         """
