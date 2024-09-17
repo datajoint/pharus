@@ -45,10 +45,14 @@ def validate(table, inserted_value, expected_type, expected_value, client, token
         ),
     )
     assert REST_response.status_code == 200
-    REST_records = client.get(
+    resp = client.get(
         f"/schema/{table.database}/table/{table.__name__}/record",
         headers=dict(Authorization=f"Bearer {token}"),
-    ).json["records"]
+    )
+    assert resp.status_code == 200, f"Failed to get records: {resp.text=}"
+    assert resp.json is not None, f"resp.json is None: {resp=} {dir(resp)=} {resp.text=}"
+    assert "records" in resp.json, f"No records in response: {resp.json=}"
+    REST_records = resp.json["records"]
     assert len(REST_records) == 1
     assert (
         isinstance(REST_records[0][1], expected_type)
