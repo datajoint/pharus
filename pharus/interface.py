@@ -170,6 +170,10 @@ class _DJConnector:
 
         # Looped through each tuple and deal with TEMPORAL types and replacing
         #   blobs with ==BLOB== for json encoding
+        print(f"{non_blobs_rows=}")
+        print(f"{fetch_args=}")
+        print(f"{query.heading.non_blobs=}")
+        print(f"{query.heading.attributes=}")
         for non_blobs_row in non_blobs_rows:
             # Buffer object to store the attributes
             row = []
