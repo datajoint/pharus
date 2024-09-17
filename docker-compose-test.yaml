@@ -41,7 +41,7 @@ services:
           flake8 $${PKG_DIR} --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 /main/tests --count --select=E9,F63,F7,F82 --show-source --statistics
           echo "------ UNIT TESTS ------"
-          pytest -sv --cov-report term-missing --cov=pharus /main/tests/test_interface.py::TestDJConnector::test_can_fetch_filepath_attrs
+          pytest -sv --cov-report term-missing --cov=pharus /main/tests/
           echo "------ STYLE TESTS ------"
           black $${PKG_DIR} --check -v --extend-exclude "^.*dynamic_api.py$$"
           flake8 $${PKG_DIR} --count --max-complexity=20 --max-line-length=94 --statistics --exclude=*dynamic_api.py --ignore=W503,W605
