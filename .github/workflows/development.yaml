@@ -95,7 +95,7 @@ jobs:
           PHARUS_VERSION=$(cat pharus/version.py | grep -oP '\d+\.\d+\.\d+')
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
       - name: Fetch image artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-${{matrix.distro}}
       - name: Run primary tests
@@ -143,16 +143,16 @@ jobs:
           prerelease: ${{steps.changelog_reader.outputs.status == 'prereleased'}}
           draft: ${{steps.changelog_reader.outputs.status == 'unreleased'}}
       - name: Fetch image artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: image-pharus-${{env.PHARUS_VERSION}}-py3.8-alpine
       - name: Fetch 3.8 pip artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: pip-pharus-${{env.PHARUS_VERSION}}-py3.8
           path: dist
       - name: Fetch 3.9 pip artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: pip-pharus-${{env.PHARUS_VERSION}}-py3.8
           path: dist
@@ -243,7 +243,7 @@ jobs:
           PHARUS_VERSION=$(cat pharus/version.py | grep -oP '\d+\.\d+\.\d+')
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
       - name: Fetch image artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-${{matrix.distro}}
       - name: Login to DockerHub
