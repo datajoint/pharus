@@ -57,14 +57,14 @@ jobs:
             gzip > "image-pharus-${PHARUS_VERSION}-py${PY_VER}-${DISTRO}.tar.gz"
           echo "PHARUS_VERSION=${PHARUS_VERSION}" >> $GITHUB_ENV
       - name: Add image artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-${{matrix.distro}}
           path: "image-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}-\
             ${{matrix.distro}}.tar.gz"
           retention-days: 1
       - name: Add pip artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: pip-pharus-${{env.PHARUS_VERSION}}-py${{matrix.py_ver}}
           path: dist
@@ -287,5 +287,5 @@ jobs:
       )
     needs: publish-release
     uses: datajoint/.github/.github/workflows/mkdocs_release.yaml@main
-    permissions: 
+    permissions:
       contents: write
