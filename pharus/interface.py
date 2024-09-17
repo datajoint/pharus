@@ -180,7 +180,6 @@ class _DJConnector:
                     attribute_info.is_blob
                     or attribute_info.is_attachment
                     or attribute_info.is_filepath
-                    or attribute_info.is_json
                 ):
                     if non_blobs_row[attribute_name] is None:
                         # If it is none then just append None
