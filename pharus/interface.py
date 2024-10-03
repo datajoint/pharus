@@ -201,9 +201,11 @@ class _DJConnector:
                         r"timestamp", attribute_info.type
                     ):
                         # Datetime or timestamp, use timestamp to covert to epoch time
-                        row.append(non_blobs_row[attribute_name].replace(
-                            tzinfo=datetime.timezone.utc
-                        ).timestamp())
+                        row.append(
+                            non_blobs_row[attribute_name]
+                            .replace(tzinfo=datetime.timezone.utc)
+                            .timestamp()
+                        )
                     elif attribute_info.type[0:7] == "decimal":
                         # Covert decimal to string
                         row.append(str(non_blobs_row[attribute_name]))

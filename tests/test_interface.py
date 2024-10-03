@@ -17,7 +17,6 @@ def nei_nienborg_model_labeledvideo_file(
 
 
 class TestDJConnector:
-
     def test_can_init(self):
         djc = DJC()
         assert djc is not None
