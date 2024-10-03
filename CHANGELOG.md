@@ -2,11 +2,17 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
-## [0.8.11] - TBD
+## [0.8.12] - 2024-10-03
 
 ### Fixed
 
-- bug with forms that was preventing nullable foreign keys from being null in sci-viz[#172](https://github.com/datajoint/pharus/pull/172)
+- Ensure that timestamps are in UTC format for the Works frontend [#179](https://github.com/datajoint/pharus/pull/179)
+
+## [0.8.11] - 2024-09-17
+
+### Fixed
+
+- Bug with forms that was preventing nullable foreign keys from being null in sci-viz[#172](https://github.com/datajoint/pharus/pull/172)
 - Bug in Works where NaN values were breaking the Works frontend [#174](https://github.com/datajoint/pharus/pull/174)
 
 ## [0.8.10] - 2023-11-16
