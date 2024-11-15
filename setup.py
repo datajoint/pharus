@@ -14,11 +14,13 @@ with open(path.join(here, pkg_name, "version.py")) as f:
 
 with open(path.join(here, "requirements.txt")) as f:
     requirements = [
-        "{pkg} @ {target}#egg={pkg}".format(
-            pkg=re.search(r"/([A-Za-z0-9\-]+)\.git", r).group(1), target=r
+        (
+            "{pkg} @ {target}#egg={pkg}".format(
+                pkg=re.search(r"/([A-Za-z0-9\-]+)\.git", r).group(1), target=r
+            )
+            if "+" in r
+            else r
         )
-        if "+" in r
-        else r
         for r in f.read().splitlines()
         if "#" not in r
     ]

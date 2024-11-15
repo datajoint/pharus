@@ -4,6 +4,7 @@
 docker-compose.y*ml
 .coverage
 *.egg-info
+.idea/
 dist
 build
 docs/_build

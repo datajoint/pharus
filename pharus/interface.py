@@ -519,8 +519,15 @@ class _DJConnector:
             operation = attribute_filter["operation"]
 
         if (
+            re.match(r"^datetime.*$", attribute_type)
+            or re.match(r"timestamp", attribute_type)
+        ) and str(attribute_filter["value"]).isnumeric():
+            attribute_filter["value"] = f"FROM_UNIXTIME({attribute_filter['value']})"
+
+        if (
             isinstance(attribute_filter["value"], str)
             and not attribute_filter["value"].isnumeric()
+            and not attribute_filter["value"].startswith("FROM_UNIXTIME")
         ):
             value = (
                 f"X'{attribute_filter['value'].replace('-', '')}'"

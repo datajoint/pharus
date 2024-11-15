@@ -2,6 +2,12 @@
 
 Observes [Semantic Versioning](https://semver.org/spec/v2.0.0.html) standard and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) convention.
 
+## [0.8.13] - 11/15/2024
+
+### Fixed
+
+- Handle attribute value passed as epoch time in `_filter_to_restriction`
+
 ## [0.8.12] - 2024-10-03
 
 ### Fixed

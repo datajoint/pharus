@@ -374,6 +374,10 @@ def Student(schema_main):
             for i in range(100)
         ]
 
+    Student.insert1(
+        (110, "Unix Time", "123-45-6789", "2022-05-06 12:11:10", 2000.0, None, 0)
+    )
+
     yield Student
     Student.drop()
 

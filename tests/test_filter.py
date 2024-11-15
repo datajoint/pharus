@@ -62,6 +62,21 @@ def test_filters(token, client, Student):
     assert REST_records[0][6] == 0
 
 
+def test_filters_from_unixtime(token, client, Student):
+    # unix time 1651839070: "2022-05-06 12:11:10"
+    restriction = [
+        dict(attributeName="student_enroll_date", operation="=", value=1651839070),
+    ]
+    encoded_restriction = b64encode(dumps(restriction).encode("utf-8")).decode("utf-8")
+    q = dict(limit=10, page=1, order="student_id ASC", restriction=encoded_restriction)
+    REST_records = client.get(
+        f'/schema/{Student.database}/table/{"Student"}/record?{urlencode(q)}',
+        headers=dict(Authorization=f"Bearer {token}"),
+    ).json["records"]
+    assert len(REST_records) == 1
+    assert REST_records[0][1] == "Unix Time"
+
+
 def test_uuid_filter(token, client, Computer):
     """Verify UUID can be properly restricted."""
     restriction = [
