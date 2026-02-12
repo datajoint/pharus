@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 from os import path, listdir
 import re
 
-pkg_name = "pharus"
+pkg_name = "pharus_v0"
 here = path.abspath(path.dirname(__file__))
 
 with open(path.join(here, "README.rst"), "r") as f:
@@ -26,7 +26,7 @@ with open(path.join(here, "requirements.txt")) as f:
     ]
 
 setup(
-    name=pkg_name,
+    name="pharus-v0",
     version=__version__,
     author="DataJoint Neuro",
     author_email="support@vathes.com",

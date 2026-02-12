@@ -1,8 +1,7 @@
 flask>=2.2.2
 gunicorn
 pyjwt[crypto]
-datajoint>=0.13.0
-datajoint_connection_hub
+datajoint-v0==0.14.8
 pyyaml
 envyaml
 otumat>=0.3.1

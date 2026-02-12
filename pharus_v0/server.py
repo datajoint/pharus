@@ -4,7 +4,7 @@ from os import environ
 from pathlib import Path
 from envyaml import EnvYAML
 from .interface import _DJConnector
-import datajoint as dj
+import datajoint_v0 as dj0
 from . import __version__ as version
 from typing import Callable
 from functools import wraps
@@ -22,9 +22,9 @@ import jwt
 import requests
 from json import loads
 from base64 import b64decode
-from datajoint.errors import IntegrityError
-from datajoint.table import foreign_key_error_regexp
-from datajoint.utils import to_camel_case
+from datajoint_v0.errors import IntegrityError
+from datajoint_v0.table import foreign_key_error_regexp
+from datajoint_v0.utils import to_camel_case
 import traceback
 import time
 
@@ -122,7 +122,7 @@ def protected_route(function: Callable, include_user_obj: bool = False) -> Calla
                     environ["PHARUS_PUBLIC_KEY"],
                     algorithms="RS256",
                 )
-            connection = dj.Connection(
+            connection = dj0.Connection(
                 host=connect_creds["databaseAddress"],
                 user=connect_creds["username"],
                 password=connect_creds["password"],
@@ -304,7 +304,7 @@ def login() -> dict:
             if connect_creds.keys() < {"databaseAddress", "username", "password"}:
                 return dict(error="Invalid Request, check headers and/or json body")
             try:
-                dj.Connection(
+                dj0.Connection(
                     host=connect_creds["databaseAddress"],
                     user=connect_creds["username"],
                     password=connect_creds["password"],
@@ -315,12 +315,12 @@ def login() -> dict:
                     and (root_user := environ.get("DJ_ROOT_USER"))
                     and (root_password := environ.get("DJ_ROOT_PASS"))
                 ):
-                    dj.Connection(
+                    dj0.Connection(
                         host=root_host,
                         user=root_user,
                         password=root_password,
                     ).query("FLUSH PRIVILEGES")
-                    dj.Connection(
+                    dj0.Connection(
                         host=connect_creds["databaseAddress"],
                         user=connect_creds["username"],
                         password=connect_creds["password"],
@@ -334,12 +334,12 @@ def login() -> dict:
 
 @app.route(f"{environ.get('PHARUS_PREFIX', '')}/schema", methods=["GET"])
 @protected_route
-def schema(connection: dj.Connection) -> dict:
+def schema(connection: dj0.Connection) -> dict:
     """
     Handler for ``/schema`` route.
 
     Args:
-        connection (dj.Connection): User's DataJoint connection object
+        connection (dj0.Connection): User's DataJoint connection object
 
     Returns:
         If successful, then sends back a list of schema names; otherwise, returns an error.
@@ -407,14 +407,14 @@ def schema(connection: dj.Connection) -> dict:
 )
 @protected_route
 def table(
-    connection: dj.Connection,
+    connection: dj0.Connection,
     schema_name: str,
 ) -> dict:
     """
     Handler for ``/schema/{schema_name}/table`` route.
 
     Args:
-        connection (dj.Connection): User's DataJoint connection object
+        connection (dj0.Connection): User's DataJoint connection object
         schema_name (str): Schema name.
 
     Returns:
@@ -493,7 +493,7 @@ def table(
 )
 @protected_route
 def record(
-    connection: dj.Connection,
+    connection: dj0.Connection,
     schema_name: str,
     table_name: str,
 ) -> Union[dict, str, tuple]:
@@ -502,7 +502,7 @@ def record(
     Handler for ``/schema/{schema_name}/table/{table_name}/record`` route.
 
     Args:
-        connection (dj.Connection): User's DataJoint connection object
+        connection (dj0.Connection): User's DataJoint connection object
         schema_name (str): Schema name.
         table_name (str): Table name.
 
@@ -810,7 +810,7 @@ def record(
     )
     if request.method in {"GET", "HEAD"}:
         try:
-            schema_virtual_module = dj.VirtualModule(
+            schema_virtual_module = dj0.VirtualModule(
                 schema_name, schema_name, connection=connection
             )
 
@@ -889,7 +889,7 @@ def record(
 )
 @protected_route
 def definition(
-    connection: dj.Connection,
+    connection: dj0.Connection,
     schema_name: str,
     table_name: str,
 ) -> str:
@@ -897,7 +897,7 @@ def definition(
     Handler for ``/schema/{schema_name}/table/{table_name}/definition`` route.
 
     Args:
-        connection (dj.Connection): User's DataJoint connection object
+        connection (dj0.Connection): User's DataJoint connection object
         schema_name (str): Schema name.
         table_name (str): Table name.
 
@@ -979,7 +979,7 @@ def definition(
 )
 @protected_route
 def attribute(
-    connection: dj.Connection,
+    connection: dj0.Connection,
     schema_name: str,
     table_name: str,
 ) -> dict:
@@ -987,7 +987,7 @@ def attribute(
     Handler for ``/schema/{schema_name}/table/{table_name}/attribute`` route.
 
     Args:
-        connection (dj.Connection): User's DataJoint connection object
+        connection (dj0.Connection): User's DataJoint connection object
         schema_name (str): Schema name.
         table_name (str): Table name.
 
@@ -1141,7 +1141,7 @@ def attribute(
     if request.method in {"GET", "HEAD"}:
         try:
             local_values = locals()
-            local_values[schema_name] = dj.VirtualModule(
+            local_values[schema_name] = dj0.VirtualModule(
                 schema_name, schema_name, connection=connection
             )
 
@@ -1165,7 +1165,7 @@ def attribute(
 )
 @protected_route
 def spec(
-    connection: dj.Connection,
+    connection: dj0.Connection,
 ) -> dict:
     # Returns the currently loaded spec sheet
     if request.method in {"GET"}:
@@ -1191,7 +1191,7 @@ def spec(
 )
 @protected_route
 def dependency(
-    connection: dj.Connection,
+    connection: dj0.Connection,
     schema_name: str,
     table_name: str,
 ) -> dict:
@@ -1200,7 +1200,7 @@ def dependency(
     Handler for ``/schema/{schema_name}/table/{table_name}/dependency`` route.
 
     Args:
-        connection (dj.Connection): User's DataJoint connection object
+        connection (dj0.Connection): User's DataJoint connection object
         schema_name (str): Schema name.
         table_name (str): Table name.
 

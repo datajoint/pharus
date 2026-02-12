@@ -5,7 +5,7 @@ import pkg_resources
 import json
 import re
 import warnings
-from pharus.component_interface import TableComponent, InsertComponent, FetchComponent
+from pharus_v0.component_interface import TableComponent, InsertComponent, FetchComponent
 
 
 def populate_api():
@@ -13,7 +13,7 @@ def populate_api():
 from .server import app, protected_route
 from .interface import _DJConnector
 from flask import request
-import datajoint as dj
+import datajoint_v0 as dj0
 from json import loads
 from base64 import b64decode
 from datetime import datetime
@@ -29,7 +29,7 @@ except (ModuleNotFoundError, ImportError):
 
 @app.route('{route}', methods={rest_verb})
 @protected_route
-def {method_name}(connection: dj.Connection) -> dict:
+def {method_name}(connection: dj0.Connection) -> dict:
 
     if request.method in {rest_verb}:
         try:
@@ -47,7 +47,7 @@ def {method_name}(connection: dj.Connection) -> dict:
 @app.route('{route}', methods={rest_verb})
 def {method_name}() -> dict:
     if request.method in {rest_verb}:
-        connection = dj.Connection(
+        connection = dj0.Connection(
             host=os.environ["PHARUS_HOST"],
             user=os.environ["PHARUS_USER"],
             password=os.environ["PHARUS_PASSWORD"],

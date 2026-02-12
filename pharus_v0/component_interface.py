@@ -2,7 +2,7 @@
 
 from base64 import b64decode
 import json
-import datajoint as dj
+import datajoint_v0 as dj0
 import re
 import inspect
 from datetime import date, datetime
@@ -59,7 +59,7 @@ class Component:
         name,
         component_config,
         static_config,
-        connection: dj.Connection,
+        connection: dj0.Connection,
         payload=None,
     ):
         self.name = name
@@ -94,7 +94,7 @@ class FetchComponent(Component):
         else:
             self.dj_restriction = lambda: dict()
         self.vm_list = [
-            dj.VirtualModule(
+            dj0.VirtualModule(
                 s,
                 s.replace("__", "-"),
                 connection=self.connection,
@@ -110,7 +110,7 @@ class FetchComponent(Component):
     def restriction(self):
         # first element includes the spec's restriction,
         # second element includes the restriction from query parameters
-        return dj.AndList(
+        return dj0.AndList(
             [
                 self.dj_restriction(),
                 {
@@ -220,7 +220,7 @@ class InsertComponent(Component):
         self.tables = [
             (
                 getattr(
-                    dj.VirtualModule(
+                    dj0.VirtualModule(
                         s,
                         s,
                         connection=self.connection,
@@ -230,7 +230,7 @@ class InsertComponent(Component):
                 if len(t) == 1
                 else getattr(
                     getattr(
-                        dj.VirtualModule(
+                        dj0.VirtualModule(
                             s,
                             s,
                             connection=self.connection,
@@ -282,7 +282,7 @@ class InsertComponent(Component):
             self.presets = lcls["presets"]
 
             self.preset_vm_list = [
-                dj.VirtualModule(
+                dj0.VirtualModule(
                     s,
                     s.replace("__", "-"),
                     connection=self.connection,
@@ -314,7 +314,7 @@ class InsertComponent(Component):
         parent_attributes = sorted(set(sum([p.primary_key for p in self.parents], [])))
         source_fields = {
             **{
-                (p_name := f"{p.database}.{dj.utils.to_camel_case(p.table_name)}"): {
+                (p_name := f"{p.database}.{dj0.utils.to_camel_case(p.table_name)}"): {
                     "values": (
                         [NumpyEncoder.dumps(row) for row in p.fetch("KEY")]
                         if not all(k in self.nullable_lookup for k in p.primary_key)
@@ -544,7 +544,7 @@ class TableComponent(FetchComponent):
                         (
                             [
                                 dict({"text": str(v), "value": v})
-                                for (v,) in (dj.U(attribute_name) & query).fetch()
+                                for (v,) in (dj0.U(attribute_name) & query).fetch()
                             ]
                             if True
                             else None
@@ -557,7 +557,7 @@ class TableComponent(FetchComponent):
                         (
                             [
                                 dict({"text": str(v), "value": v})
-                                for (v,) in (dj.U(attribute_name) & query).fetch()
+                                for (v,) in (dj0.U(attribute_name) & query).fetch()
                             ]
                             if True
                             else None

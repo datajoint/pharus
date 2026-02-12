@@ -1,12 +1,12 @@
 """Library for interfaces into DataJoint pipelines."""
 
-import datajoint as dj
+import datajoint_v0 as dj0
 import math
 from numbers import Number
-from datajoint import DataJointError
-from datajoint.utils import to_camel_case
-from datajoint.user_tables import UserTable
-from datajoint import VirtualModule
+from datajoint_v0 import DataJointError
+from datajoint_v0.utils import to_camel_case
+from datajoint_v0.user_tables import UserTable
+from datajoint_v0 import VirtualModule
 import datetime
 import numpy as np
 import re
@@ -25,12 +25,12 @@ class _DJConnector:
     """Primary connector that communicates with a DataJoint database server."""
 
     @staticmethod
-    def _list_schemas(connection: dj.Connection) -> list:
+    def _list_schemas(connection: dj0.Connection) -> list:
         """
         List all schemas under the database.
 
         Args:
-            connection (dj.Connection): User's DataJoint connection object
+            connection (dj0.Connection): User's DataJoint connection object
 
         Returns:
             List of schemas names in alphabetical order (excludes ``information_schema``,
@@ -53,14 +53,14 @@ class _DJConnector:
 
     @staticmethod
     def _list_tables(
-        connection: dj.Connection,
+        connection: dj0.Connection,
         schema_name: str,
     ) -> dict:
         """
         List all tables and their type given a schema.
 
         Args:
-            connection (dj.Connection): User's DataJoint connection object
+            connection (dj0.Connection): User's DataJoint connection object
             schema_name (str): Name of schema to list all tables from
 
         Returns:
@@ -70,7 +70,7 @@ class _DJConnector:
 
         # Get list of tables names
         try:
-            schema = dj.Schema(schema_name, create_schema=False, connection=connection)
+            schema = dj0.Schema(schema_name, create_schema=False, connection=connection)
         except DataJointError:
             raise SchemaNotFound("Schema does not exist")
         tables_name = schema.list_tables()
@@ -79,17 +79,17 @@ class _DJConnector:
         # Loop through each table name to figure out what type it is and add them to
         # tables_dict_list
         for table_name in tables_name:
-            table_type = dj.diagram._get_tier(
+            table_type = dj0.diagram._get_tier(
                 "`" + schema_name + "`.`" + table_name + "`"
             ).__name__
             if table_type == "Manual":
-                tables_dict_list["manual"].append(dj.utils.to_camel_case(table_name))
+                tables_dict_list["manual"].append(dj0.utils.to_camel_case(table_name))
             elif table_type == "Lookup":
-                tables_dict_list["lookup"].append(dj.utils.to_camel_case(table_name))
+                tables_dict_list["lookup"].append(dj0.utils.to_camel_case(table_name))
             elif table_type == "Computed":
-                tables_dict_list["computed"].append(dj.utils.to_camel_case(table_name))
+                tables_dict_list["computed"].append(dj0.utils.to_camel_case(table_name))
             elif table_type == "Imported":
-                tables_dict_list["imported"].append(dj.utils.to_camel_case(table_name))
+                tables_dict_list["imported"].append(dj0.utils.to_camel_case(table_name))
             elif table_type == "Part":
                 table_name_parts = table_name.split("__")
                 tables_dict_list["part"].append(
@@ -135,7 +135,7 @@ class _DJConnector:
         attributes = query.heading.attributes
         # Fetch tuples without blobs as dict to be used to create a
         #   list of tuples for returning
-        query_restricted = query & dj.AndList(
+        query_restricted = query & dj0.AndList(
             [
                 _DJConnector._filter_to_restriction(
                     f, attributes[f["attributeName"]].type
@@ -263,7 +263,7 @@ class _DJConnector:
                         (
                             [
                                 dict({"text": str(v), "value": v})
-                                for (v,) in (dj.U(attribute_name) & query).fetch()
+                                for (v,) in (dj0.U(attribute_name) & query).fetch()
                             ]
                             if include_unique_values
                             else None
@@ -281,7 +281,7 @@ class _DJConnector:
                         (
                             [
                                 dict({"text": str(v), "value": v})
-                                for (v,) in (dj.U(attribute_name) & query).fetch()
+                                for (v,) in (dj0.U(attribute_name) & query).fetch()
                             ]
                             if include_unique_values
                             else None
@@ -296,7 +296,7 @@ class _DJConnector:
 
     @staticmethod
     def _get_table_definition(
-        connection: dj.Connection,
+        connection: dj0.Connection,
         schema_name: str,
         table_name: str,
     ) -> str:
@@ -313,7 +313,7 @@ class _DJConnector:
         """
 
         local_values = locals()
-        local_values[schema_name] = dj.VirtualModule(
+        local_values[schema_name] = dj0.VirtualModule(
             schema_name, schema_name, connection=connection
         )
         return _DJConnector._get_table_object(
@@ -322,7 +322,7 @@ class _DJConnector:
 
     @staticmethod
     def _insert_tuple(
-        connection: dj.Connection,
+        connection: dj0.Connection,
         schema_name: str,
         table_name: str,
         tuple_to_insert: dict,
@@ -337,7 +337,7 @@ class _DJConnector:
             tuple_to_insert: Record to be inserted as a dictionary.
         """
 
-        schema_virtual_module = dj.VirtualModule(
+        schema_virtual_module = dj0.VirtualModule(
             schema_name, schema_name, connection=connection
         )
         _DJConnector._get_table_object(schema_virtual_module, table_name).insert(
@@ -346,7 +346,7 @@ class _DJConnector:
 
     @staticmethod
     def _record_dependency(
-        connection: dj.Connection,
+        connection: dj0.Connection,
         schema_name: str,
         table_name: str,
         restriction: list = [],
@@ -366,7 +366,7 @@ class _DJConnector:
             List of tables that are dependent on specific records.
         """
 
-        virtual_module = dj.VirtualModule(
+        virtual_module = dj0.VirtualModule(
             schema_name, schema_name, connection=connection
         )
         table = _DJConnector._get_table_object(virtual_module, table_name)
@@ -383,7 +383,7 @@ class _DJConnector:
                         if descendant.full_table_name == table.full_table_name
                         else descendant * table
                     )
-                    & dj.AndList(
+                    & dj0.AndList(
                         [
                             _DJConnector._filter_to_restriction(
                                 f, attributes[f["attributeName"]].type
@@ -399,7 +399,7 @@ class _DJConnector:
 
     @staticmethod
     def _update_tuple(
-        connection: dj.Connection,
+        connection: dj0.Connection,
         schema_name: str,
         table_name: str,
         tuple_to_update: dict,
@@ -415,7 +415,7 @@ class _DJConnector:
 
         """
 
-        schema_virtual_module = dj.VirtualModule(
+        schema_virtual_module = dj0.VirtualModule(
             schema_name, schema_name, connection=connection
         )
         with connection.transaction:
@@ -428,7 +428,7 @@ class _DJConnector:
 
     @staticmethod
     def _delete_records(
-        connection: dj.Connection,
+        connection: dj0.Connection,
         schema_name: str,
         table_name: str,
         restriction: list = [],
@@ -446,7 +446,7 @@ class _DJConnector:
             cascade: Allow for cascading delete, defaults to ``False``.
         """
 
-        schema_virtual_module = dj.VirtualModule(
+        schema_virtual_module = dj0.VirtualModule(
             schema_name, schema_name, connection=connection
         )
 
@@ -459,7 +459,7 @@ class _DJConnector:
         ]
 
         # Compute restriction
-        query = table & dj.AndList(restrictions)
+        query = table & dj0.AndList(restrictions)
         # Check if there is only 1 tuple to delete otherwise raise error
         if len(query) == 0:
             raise InvalidRestriction("Nothing to delete")
